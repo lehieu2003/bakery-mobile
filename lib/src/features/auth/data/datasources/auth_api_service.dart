@@ -1,4 +1,5 @@
 import 'package:bakery_mobile/src/core/network/api_client.dart';
+import 'package:flutter/foundation.dart';
 import 'package:bakery_mobile/src/features/auth/data/dtos/user_dto.dart';
 
 class AuthApiService {
@@ -14,6 +15,12 @@ class AuthApiService {
       '/api/auth/login',
       body: {'email': email, 'password': password},
     );
+    if (kDebugMode && response is Map<String, dynamic>) {
+      debugPrint('[AUTH] login response keys: ${response.keys.toList()}');
+      debugPrint(
+        '[AUTH] token fields: token=${response['token'] != null}, accessToken=${response['accessToken'] != null}',
+      );
+    }
 
     return AuthSessionDto.fromJson(response as Map<String, dynamic>);
   }

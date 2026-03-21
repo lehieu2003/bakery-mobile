@@ -1,7 +1,7 @@
 class AppConfig {
   const AppConfig();
 
-  static const _defaultBaseUrl = 'http://10.0.2.2:3000';
+  static const _defaultBaseUrl = 'https://7e0b-125-235-233-231.ngrok-free.app';
 
   String get baseUrl {
     const value = String.fromEnvironment(

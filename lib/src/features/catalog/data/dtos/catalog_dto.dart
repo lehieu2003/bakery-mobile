@@ -1,6 +1,7 @@
 import 'package:bakery_mobile/src/features/catalog/domain/models/banner_item.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
+import 'package:bakery_mobile/src/core/utils/parse_utils.dart';
 
 class BannerItemDto {
   const BannerItemDto({
@@ -41,12 +42,16 @@ class CategoryDto {
     required this.id,
     required this.name,
     required this.slug,
+    this.imageUrl,
+    this.description,
     this.children = const [],
   });
 
   final String id;
   final String name;
   final String slug;
+  final String? imageUrl;
+  final String? description;
   final List<CategoryDto> children;
 
   factory CategoryDto.fromJson(Map<String, dynamic> json) {
@@ -55,6 +60,8 @@ class CategoryDto {
       id: (json['id'] ?? '').toString(),
       name: (json['name'] ?? '').toString(),
       slug: (json['slug'] ?? '').toString(),
+      imageUrl: json['imageUrl']?.toString(),
+      description: json['description']?.toString(),
       children: rawChildren
           .whereType<Map<String, dynamic>>()
           .map(CategoryDto.fromJson)
@@ -67,6 +74,8 @@ class CategoryDto {
       id: id,
       name: name,
       slug: slug,
+      imageUrl: imageUrl,
+      description: description,
       children: children.map((e) => e.toDomain()).toList(),
     );
   }
@@ -103,7 +112,7 @@ class ProductVariantDto {
     return ProductVariantDto(
       id: (json['id'] ?? '').toString(),
       name: (json['name'] ?? '').toString(),
-      price: (json['price'] as num?)?.toDouble() ?? 0,
+      price: ParseUtils.toDouble(json['price'], field: 'ProductVariantDto.price'),
     );
   }
 
@@ -117,6 +126,7 @@ class ProductDto {
     required this.slug,
     required this.price,
     required this.stock,
+    this.imageUrl,
     this.description,
     this.shortDescription,
     this.images = const [],
@@ -128,6 +138,7 @@ class ProductDto {
   final String slug;
   final double price;
   final int stock;
+  final String? imageUrl;
   final String? description;
   final String? shortDescription;
   final List<ProductImageDto> images;
@@ -140,15 +151,22 @@ class ProductDto {
       id: (json['id'] ?? '').toString(),
       name: (json['name'] ?? '').toString(),
       slug: (json['slug'] ?? '').toString(),
-      price: (json['price'] as num?)?.toDouble() ?? 0,
-      stock: json['stock'] is int
-          ? json['stock'] as int
-          : int.tryParse('${json['stock'] ?? ''}') ?? 0,
+      price: ParseUtils.toDouble(json['price'], field: 'ProductDto.price'),
+      stock: ParseUtils.toInt(json['stock'], field: 'ProductDto.stock'),
+      imageUrl: json['imageUrl']?.toString(),
       description: json['description']?.toString(),
       shortDescription: json['shortDescription']?.toString(),
       images: rawImages
-          .whereType<Map<String, dynamic>>()
-          .map(ProductImageDto.fromJson)
+          .map((item) {
+            if (item is String) {
+              return ProductImageDto(url: item, isPrimary: false);
+            }
+            if (item is Map<String, dynamic>) {
+              return ProductImageDto.fromJson(item);
+            }
+            return null;
+          })
+          .whereType<ProductImageDto>()
           .toList(),
       variants: rawVariants
           .whereType<Map<String, dynamic>>()
@@ -163,6 +181,7 @@ class ProductDto {
     slug: slug,
     price: price,
     stock: stock,
+    imageUrl: imageUrl,
     description: description,
     shortDescription: shortDescription,
     images: images.map((e) => e.toDomain()).toList(),

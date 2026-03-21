@@ -1,14 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
+import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+import 'package:bakery_mobile/src/core/utils/image_url.dart';
+import 'package:bakery_mobile/src/features/cart/presentation/screens/cart_screen.dart';
+import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
-import 'package:bakery_mobile/src/features/chatbot/presentation/screens/chatbot_screen.dart';
+import 'package:bakery_mobile/src/features/catalog/presentation/screens/search_screen.dart';
 import 'package:bakery_mobile/src/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/screens/pages_screen.dart';
-import 'package:bakery_mobile/src/features/catalog/presentation/screens/search_screen.dart';
-import 'package:bakery_mobile/src/features/catalog/presentation/screens/product_detail_screen.dart';
-import 'package:bakery_mobile/src/features/blog/presentation/screens/blog_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -27,251 +30,124 @@ class _HomeView extends ConsumerStatefulWidget {
 }
 
 class _HomeViewState extends ConsumerState<_HomeView> {
+  final PageController _bannerController = PageController();
+  Timer? _bannerTimer;
+  int _bannerIndex = 0;
+  int _bannerCount = 0;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(homeViewModelProvider.notifier).loadInitial();
     });
+    _bannerTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+      if (!_bannerController.hasClients || _bannerCount <= 1) return;
+      final next = (_bannerIndex + 1) % _bannerCount;
+      _bannerController.animateToPage(
+        next,
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _bannerTimer?.cancel();
+    _bannerController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final vm = ref.watch(homeViewModelProvider);
+    final notifications = ref.watch(notificationsViewModelProvider);
+    _bannerCount = vm.banners.length;
+    if (_bannerIndex >= _bannerCount && _bannerCount > 0) {
+      _bannerIndex = 0;
+    }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bakery Shop'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const SearchScreen())),
-            tooltip: 'Search',
-          ),
-          IconButton(
-            icon: const Icon(Icons.chat_bubble_outline),
-            onPressed: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const ChatbotScreen())),
-            tooltip: 'Chatbot',
-          ),
-          IconButton(
-            icon: const Icon(Icons.article_outlined),
-            onPressed: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const BlogScreen())),
-            tooltip: 'Blog',
-          ),
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const NotificationsScreen()),
-            ),
-            tooltip: 'Notifications',
-          ),
-          IconButton(
-            icon: const Icon(Icons.menu_book_outlined),
-            onPressed: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const PagesScreen())),
-            tooltip: 'Pages',
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: ref.read(homeViewModelProvider.notifier).loadInitial,
-          ),
-        ],
-      ),
       body: RefreshIndicator(
         onRefresh: ref.read(homeViewModelProvider.notifier).loadInitial,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.only(bottom: 110),
           children: [
-            Card(
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFFF7EDE2), Color(0xFFF3E0CD)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.all(Radius.circular(16)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'La Douceur Bakery',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Fresh baked every day. Discover cakes, pastries and best sellers.',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              textInputAction: TextInputAction.search,
-              decoration: const InputDecoration(
-                hintText: 'Search products...',
-                prefixIcon: Icon(Icons.search),
-              ),
-              onSubmitted: (value) =>
-                  ref.read(homeViewModelProvider.notifier).search(value),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 40,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label: const Text('All'),
-                      selected: vm.selectedCategoryId == null,
-                      onSelected: (_) => ref
-                          .read(homeViewModelProvider.notifier)
-                          .selectCategory(null),
-                    ),
-                  ),
-                  ...vm.categories.map(
-                    (category) => Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: ChoiceChip(
-                        label: Text(category.name),
-                        selected: vm.selectedCategoryId == category.id,
-                        onSelected: (_) => ref
-                            .read(homeViewModelProvider.notifier)
-                            .selectCategory(category.id),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _QuickNavButton(
-                      label: 'Ve chung toi',
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const PagesScreen()),
-                      ),
-                    ),
-                    _QuickNavButton(
-                      label: 'Chinh sach',
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const PagesScreen()),
-                      ),
-                    ),
-                    _QuickNavButton(
-                      label: 'Dieu khoan',
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const PagesScreen()),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            if (vm.banners.isNotEmpty)
-              SizedBox(
-                height: 180,
-                child: PageView(
-                  children: vm.banners
-                      .map(
-                        (banner) => Card(
-                          clipBehavior: Clip.antiAlias,
-                          child:
-                              banner.imageUrl != null &&
-                                  banner.imageUrl!.isNotEmpty
-                              ? Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    Image.network(
-                                      banner.imageUrl!,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) =>
-                                          const ColoredBox(
-                                            color: Color(0xFFE9D7C3),
-                                          ),
-                                    ),
-                                    Align(
-                                      alignment: Alignment.bottomLeft,
-                                      child: Container(
-                                        color: Colors.black54,
-                                        width: double.infinity,
-                                        padding: const EdgeInsets.all(12),
-                                        child: Text(
-                                          banner.title,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Container(
-                                  color: const Color(0xFFE9D7C3),
-                                  alignment: Alignment.center,
-                                  child: Text(banner.title),
-                                ),
-                        ),
-                      )
-                      .toList(),
-                ),
-              ),
-            const SizedBox(height: 20),
-            Text(
-              'Best sellers',
-              style: Theme.of(
+            _HomeHeader(
+              unreadCount: notifications.unreadCount,
+              onMenuTap: () => Navigator.of(
                 context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 8),
-            _ProductRail(products: vm.bestSellers),
-            const SizedBox(height: 20),
-            Text(
-              'Products',
-              style: Theme.of(
+              ).push(MaterialPageRoute(builder: (_) => const PagesScreen())),
+              onCartTap: () => Navigator.of(
                 context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ).push(MaterialPageRoute(builder: (_) => const CartScreen())),
+              onNotificationTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+              ),
+              onSearchTap: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const SearchScreen())),
             ),
-            const SizedBox(height: 8),
-            if (vm.isLoading)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(24),
-                  child: CircularProgressIndicator(),
+            const SizedBox(height: 14),
+            if (vm.banners.isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: SizedBox(
+                  height: 190,
+                  child: PageView.builder(
+                    controller: _bannerController,
+                    itemCount: vm.banners.length,
+                    onPageChanged: (value) =>
+                        setState(() => _bannerIndex = value),
+                    itemBuilder: (context, index) => _HeroBanner(
+                      title: vm.banners[index].title,
+                      imageUrl: vm.banners[index].imageUrl,
+                    ),
+                  ),
                 ),
+              ),
+              const SizedBox(height: 12),
+              _BannerDots(activeIndex: _bannerIndex, count: vm.banners.length),
+            ],
+            const SizedBox(height: 14),
+            _CategoryRail(
+              categories: vm.categories,
+              selectedCategoryId: vm.selectedCategoryId,
+              onSelect: (id) =>
+                  ref.read(homeViewModelProvider.notifier).selectCategory(id),
+            ),
+            const SizedBox(height: 14),
+            if (vm.isLoading && vm.bestSellers.isEmpty)
+              const Padding(
+                padding: EdgeInsets.only(top: 24),
+                child: Center(child: CircularProgressIndicator()),
               ),
             if (vm.errorMessage != null)
               Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                 child: Text(
                   vm.errorMessage!,
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ),
-            ...vm.products.map((product) => _ProductTile(product: product)),
+            if (vm.bestSellers.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: vm.bestSellers.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 14,
+                    crossAxisSpacing: 14,
+                    childAspectRatio: 0.72,
+                  ),
+                  itemBuilder: (context, index) =>
+                      _ProductCard(product: vm.bestSellers[index]),
+                ),
+              ),
           ],
         ),
       ),
@@ -279,75 +155,301 @@ class _HomeViewState extends ConsumerState<_HomeView> {
   }
 }
 
-class _ProductRail extends StatelessWidget {
-  const _ProductRail({required this.products});
+class _HomeHeader extends StatelessWidget {
+  const _HomeHeader({
+    required this.unreadCount,
+    required this.onMenuTap,
+    required this.onCartTap,
+    required this.onNotificationTap,
+    required this.onSearchTap,
+  });
 
-  final List<Product> products;
+  final int unreadCount;
+  final VoidCallback onMenuTap;
+  final VoidCallback onCartTap;
+  final VoidCallback onNotificationTap;
+  final VoidCallback onSearchTap;
 
   @override
   Widget build(BuildContext context) {
-    if (products.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return SizedBox(
-      height: 220,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: products.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          final product = products[index];
-          return SizedBox(
-            width: 180,
-            child: Card(
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        ProductDetailScreen(productIdOrSlug: product.slug),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: product.thumbnail.isNotEmpty
-                          ? Image.network(
-                              product.thumbnail,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) =>
-                                  const ColoredBox(color: Color(0xFFE9D7C3)),
-                            )
-                          : const ColoredBox(color: Color(0xFFE9D7C3)),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Text(
-                        product.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                      child: Text('${product.price.toStringAsFixed(0)} VND'),
-                    ),
-                  ],
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        14,
+        MediaQuery.paddingOf(context).top + 10,
+        14,
+        20,
+      ),
+      decoration: const BoxDecoration(
+        color: AppTheme.primaryPink,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(56)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              IconButton(
+                onPressed: onMenuTap,
+                icon: const Icon(
+                  Icons.menu_rounded,
+                  color: Colors.white,
+                  size: 34,
                 ),
               ),
+              const Spacer(),
+              _HeaderSquareButton(
+                icon: Icons.shopping_cart_outlined,
+                onTap: onCartTap,
+              ),
+              const SizedBox(width: 10),
+              Badge(
+                isLabelVisible: unreadCount > 0,
+                label: Text('$unreadCount'),
+                child: _HeaderSquareButton(
+                  icon: Icons.notifications_none_rounded,
+                  onTap: onNotificationTap,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          InkWell(
+            onTap: onSearchTap,
+            borderRadius: BorderRadius.circular(999),
+            child: Container(
+              width: double.infinity,
+              height: 42,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.76),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: const Icon(Icons.search_rounded, color: Color(0xFF8C8C8C)),
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
 }
 
-class _ProductTile extends ConsumerWidget {
-  const _ProductTile({required this.product});
+class _HeaderSquareButton extends StatelessWidget {
+  const _HeaderSquareButton({required this.icon, required this.onTap});
+
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white.withValues(alpha: 0.28),
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: Icon(icon, color: Colors.white),
+        ),
+      ),
+    );
+  }
+}
+
+class _HeroBanner extends StatelessWidget {
+  const _HeroBanner({this.title, this.imageUrl});
+
+  final String? title;
+  final String? imageUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 190,
+      decoration: BoxDecoration(
+        color: AppTheme.primaryPink,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (resolveImageUrl(imageUrl).isNotEmpty)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: Image.network(
+                resolveImageUrl(imageUrl),
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              ),
+            ),
+          if (resolveImageUrl(imageUrl).isNotEmpty)
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18),
+                color: Colors.black.withValues(alpha: 0.16),
+              ),
+            ),
+          if (title != null && title!.isNotEmpty)
+            Positioned(
+              left: 18,
+              bottom: 18,
+              right: 18,
+              child: Text(
+                title!,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BannerDots extends StatelessWidget {
+  const _BannerDots({required this.activeIndex, required this.count});
+
+  final int activeIndex;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(count, (index) {
+        final active = index == activeIndex;
+        return Container(
+          width: active ? 10 : 8,
+          height: active ? 10 : 8,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: active ? AppTheme.primaryPink : const Color(0xFFD0D0D0),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+class _CategoryRail extends StatelessWidget {
+  const _CategoryRail({
+    required this.categories,
+    required this.selectedCategoryId,
+    required this.onSelect,
+  });
+
+  final List<Category> categories;
+  final String? selectedCategoryId;
+  final ValueChanged<String?> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 92,
+      child: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        scrollDirection: Axis.horizontal,
+        children: [
+          ...categories.map(
+            (category) => _CategoryCapsule(
+              label: category.name,
+              imageUrl: category.imageUrl,
+              isSelected: selectedCategoryId == category.id,
+              onTap: () => onSelect(category.id),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CategoryCapsule extends StatelessWidget {
+  const _CategoryCapsule({
+    required this.label,
+    required this.imageUrl,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String label;
+  final String? imageUrl;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 10),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: SizedBox(
+          width: 64,
+          child: Column(
+            children: [
+              Container(
+                width: 54,
+                height: 82,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppTheme.primaryPink
+                      : const Color(0xFFD3D3D3),
+                  borderRadius: BorderRadius.circular(22),
+                ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 7),
+                    ClipOval(
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        color: Colors.white.withValues(alpha: 0.68),
+                        child: resolveImageUrl(imageUrl).isNotEmpty
+                            ? Image.network(
+                                resolveImageUrl(imageUrl),
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) =>
+                                    const SizedBox.shrink(),
+                              )
+                            : null,
+                      ),
+                    ),
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(6, 0, 6, 8),
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProductCard extends ConsumerWidget {
+  const _ProductCard({required this.product});
 
   final Product product;
 
@@ -356,49 +458,85 @@ class _ProductTile extends ConsumerWidget {
     final cart = ref.read(cartViewModelProvider.notifier);
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 10),
-      child: ListTile(
-        leading: product.thumbnail.isNotEmpty
-            ? Image.network(
-                product.thumbnail,
-                width: 56,
-                height: 56,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) =>
-                    const SizedBox(width: 56, height: 56),
-              )
-            : const SizedBox(width: 56, height: 56),
-        title: Text(product.name),
-        subtitle: Text('${product.price.toStringAsFixed(0)} VND'),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => ProductDetailScreen(productIdOrSlug: product.slug),
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      elevation: 2,
+      shadowColor: Colors.black12,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: product.thumbnail.isNotEmpty
+                    ? Image.network(
+                        resolveImageUrl(product.thumbnail),
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) =>
+                            const ColoredBox(color: Color(0xFFD8D8D8)),
+                      )
+                    : const ColoredBox(color: Color(0xFFD8D8D8)),
+              ),
+              Container(
+                color: Colors.white,
+                padding: const EdgeInsets.fromLTRB(12, 10, 44, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      product.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${product.price.toStringAsFixed(0)} VND',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF666666),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ),
-        trailing: IconButton(
-          icon: const Icon(Icons.add_shopping_cart),
-          onPressed: product.stock <= 0
-              ? null
-              : () {
-                  cart.addProduct(product);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Added to cart')),
-                  );
-                },
-        ),
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: Material(
+              color: AppTheme.primaryPink,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(14),
+              ),
+              child: InkWell(
+                onTap: product.stock <= 0
+                    ? null
+                    : () {
+                        cart.addProduct(product);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Added to cart')),
+                        );
+                      },
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(14),
+                ),
+                child: const SizedBox(
+                  width: 42,
+                  height: 42,
+                  child: Icon(Icons.add, color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
-  }
-}
-
-class _QuickNavButton extends StatelessWidget {
-  const _QuickNavButton({required this.label, required this.onTap});
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton(onPressed: onTap, child: Text(label));
   }
 }

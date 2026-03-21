@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
-import 'package:bakery_mobile/src/features/navigation/presentation/screens/app_shell.dart';
+import 'package:bakery_mobile/src/features/navigation/presentation/screens/app_gate.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +18,7 @@ class BakeryMobileApp extends StatelessWidget {
       title: 'Bakery Mobile',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
-      home: const AppShell(),
+      home: const AppGate(),
     );
   }
 }

@@ -49,9 +49,24 @@ class AuthSessionDto {
   final String token;
 
   factory AuthSessionDto.fromJson(Map<String, dynamic> json) {
+    final data = json['data'];
+    final dataMap = data is Map<String, dynamic> ? data : const <String, dynamic>{};
+    final userMap =
+        (json['user'] is Map<String, dynamic>)
+            ? json['user'] as Map<String, dynamic>
+            : (dataMap['user'] is Map<String, dynamic>
+                  ? dataMap['user'] as Map<String, dynamic>
+                  : const <String, dynamic>{});
+    final token =
+        json['token']?.toString() ??
+        json['accessToken']?.toString() ??
+        dataMap['token']?.toString() ??
+        dataMap['accessToken']?.toString() ??
+        '';
+
     return AuthSessionDto(
-      user: UserDto.fromJson(json['user'] as Map<String, dynamic>? ?? const {}),
-      token: json['token']?.toString() ?? '',
+      user: UserDto.fromJson(userMap),
+      token: token,
     );
   }
 }

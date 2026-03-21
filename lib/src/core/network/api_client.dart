@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:bakery_mobile/src/core/network/api_exception.dart';
@@ -48,6 +49,14 @@ class ApiClient {
 
     late final http.Response response;
     final payload = body == null ? null : jsonEncode(body);
+    if (kDebugMode) {
+      final tokenPreview = token == null || token.isEmpty
+          ? 'none'
+          : '${token.substring(0, token.length > 12 ? 12 : token.length)}...';
+      debugPrint(
+        '[API] $method ${uri.path}${uri.hasQuery ? '?${uri.query}' : ''} token=$tokenPreview',
+      );
+    }
 
     switch (method) {
       case 'GET':
@@ -65,6 +74,12 @@ class ApiClient {
     }
 
     final decoded = _decodeBody(response.body);
+    if (kDebugMode) {
+      final preview = response.body.length > 220
+          ? '${response.body.substring(0, 220)}...'
+          : response.body;
+      debugPrint('[API] <- ${response.statusCode} ${uri.path} body=$preview');
+    }
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw ApiException(

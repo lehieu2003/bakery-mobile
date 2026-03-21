@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
+  // Synced with web primary/pink-deep tone.
+  static const Color primaryPink = Color(0xFFD05E8B);
+  static const Color canvasCream = Color(0xFFF8F4F2);
+
   static ThemeData light() {
-    const seed = Color(0xFFB77946);
+    const seed = primaryPink;
     final scheme = ColorScheme.fromSeed(
       seedColor: seed,
       brightness: Brightness.light,
-      surface: const Color(0xFFFFFBF7),
+      surface: const Color(0xFFFFFBFC),
     );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
-      scaffoldBackgroundColor: const Color(0xFFFAF7F2),
+      scaffoldBackgroundColor: canvasCream,
       appBarTheme: AppBarTheme(
         centerTitle: false,
         elevation: 0,
-        backgroundColor: const Color(0xFFFAF7F2),
+        backgroundColor: canvasCream,
         foregroundColor: scheme.onSurface,
         titleTextStyle: TextStyle(
           fontSize: 20,

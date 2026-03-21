@@ -39,6 +39,7 @@ class Product {
     required this.slug,
     required this.price,
     required this.stock,
+    this.imageUrl,
     this.description,
     this.shortDescription,
     this.images = const [],
@@ -50,12 +51,14 @@ class Product {
   final String slug;
   final double price;
   final int stock;
+  final String? imageUrl;
   final String? description;
   final String? shortDescription;
   final List<ProductImage> images;
   final List<ProductVariant> variants;
 
   String get thumbnail {
+    if (imageUrl != null && imageUrl!.isNotEmpty) return imageUrl!;
     final primary = images.where((image) => image.isPrimary).toList();
     if (primary.isNotEmpty) return primary.first.url;
     if (images.isNotEmpty) return images.first.url;
@@ -74,6 +77,7 @@ class Product {
       stock: json['stock'] is int
           ? json['stock'] as int
           : int.tryParse('${json['stock'] ?? ''}') ?? 0,
+      imageUrl: json['imageUrl']?.toString(),
       description: json['description']?.toString(),
       shortDescription: json['shortDescription']?.toString(),
       images: images

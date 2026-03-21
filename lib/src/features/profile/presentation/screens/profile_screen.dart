@@ -16,14 +16,6 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(ordersViewModelProvider.notifier).loadMyOrders();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authViewModelProvider);
     final orders = ref.watch(ordersViewModelProvider);
@@ -140,9 +132,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           if (!orders.isLoading && orders.orders.isEmpty)
-            const Padding(
-              padding: EdgeInsets.only(top: 12),
-              child: Text('No orders yet.'),
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Row(
+                children: [
+                  const Expanded(child: Text('No orders loaded yet.')),
+                  TextButton(
+                    onPressed: () =>
+                        ref.read(ordersViewModelProvider.notifier).loadMyOrders(),
+                    child: const Text('Load'),
+                  ),
+                ],
+              ),
             ),
           ...orders.orders.map(
             (order) => Card(

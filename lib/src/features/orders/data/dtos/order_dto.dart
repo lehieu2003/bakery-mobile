@@ -1,4 +1,5 @@
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
+import 'package:bakery_mobile/src/core/utils/parse_utils.dart';
 
 class OrderItemDto {
   const OrderItemDto({
@@ -14,10 +15,8 @@ class OrderItemDto {
   factory OrderItemDto.fromJson(Map<String, dynamic> json) {
     return OrderItemDto(
       name: (json['name'] ?? '').toString(),
-      price: (json['price'] as num?)?.toDouble() ?? 0,
-      quantity: json['quantity'] is int
-          ? json['quantity'] as int
-          : int.tryParse('${json['quantity'] ?? ''}') ?? 0,
+      price: ParseUtils.toDouble(json['price'], field: 'OrderItemDto.price'),
+      quantity: ParseUtils.toInt(json['quantity'], field: 'OrderItemDto.quantity'),
     );
   }
 
@@ -48,7 +47,7 @@ class OrderDto {
       id: (json['id'] ?? '').toString(),
       orderNumber: (json['orderNumber'] ?? '').toString(),
       status: (json['status'] ?? '').toString(),
-      total: (json['total'] as num?)?.toDouble() ?? 0,
+      total: ParseUtils.toDouble(json['total'], field: 'OrderDto.total'),
       createdAt:
           DateTime.tryParse('${json['createdAt'] ?? ''}') ?? DateTime.now(),
       orderItems: items

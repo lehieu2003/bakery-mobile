@@ -66,15 +66,15 @@ class HomeViewModel extends Notifier<HomeState> {
         repo.getBanners(),
         repo.getCategories(),
         repo.getBestSellers(),
-        repo.getProducts(),
       ]);
 
+      final bestSellers = results[2] as List<Product>;
       state = state.copyWith(
         isLoading: false,
         banners: results[0] as List<BannerItem>,
         categories: results[1] as List<Category>,
-        bestSellers: results[2] as List<Product>,
-        products: results[3] as List<Product>,
+        bestSellers: bestSellers,
+        products: bestSellers,
       );
     } catch (error) {
       state = state.copyWith(
@@ -94,7 +94,6 @@ class HomeViewModel extends Notifier<HomeState> {
       selectedCategoryId: categoryId,
       clearCategory: categoryId == null,
     );
-    await _reloadProducts();
   }
 
   Future<void> _reloadProducts() async {
