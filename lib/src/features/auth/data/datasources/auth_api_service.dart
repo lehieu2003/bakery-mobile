@@ -1,12 +1,12 @@
 import 'package:bakery_mobile/src/core/network/api_client.dart';
-import 'package:bakery_mobile/src/features/auth/domain/models/user.dart';
+import 'package:bakery_mobile/src/features/auth/data/dtos/user_dto.dart';
 
 class AuthApiService {
   AuthApiService(this._client);
 
   final ApiClient _client;
 
-  Future<(User, String)> login({
+  Future<AuthSessionDto> login({
     required String email,
     required String password,
   }) async {
@@ -15,27 +15,24 @@ class AuthApiService {
       body: {'email': email, 'password': password},
     );
 
-    final data = response as Map<String, dynamic>;
-    final user = User.fromJson(data['user'] as Map<String, dynamic>? ?? {});
-    final token = data['token']?.toString() ?? '';
-    return (user, token);
+    return AuthSessionDto.fromJson(response as Map<String, dynamic>);
   }
 
   Future<void> logout() async {
     await _client.post('/api/auth/logout');
   }
 
-  Future<User> me() async {
+  Future<UserDto> me() async {
     final response = await _client.get('/api/auth/me');
     final data = response as Map<String, dynamic>;
-    return User.fromJson(data['user'] as Map<String, dynamic>? ?? {});
+    return UserDto.fromJson(data['user'] as Map<String, dynamic>? ?? {});
   }
 
   Future<void> register({required String email}) async {
     await _client.post('/api/auth/register', body: {'email': email});
   }
 
-  Future<(User, String)> registerVerify({
+  Future<AuthSessionDto> registerVerify({
     required String email,
     required String otp,
     required String password,
@@ -51,10 +48,7 @@ class AuthApiService {
       },
     );
 
-    final data = response as Map<String, dynamic>;
-    final user = User.fromJson(data['user'] as Map<String, dynamic>? ?? {});
-    final token = data['token']?.toString() ?? '';
-    return (user, token);
+    return AuthSessionDto.fromJson(response as Map<String, dynamic>);
   }
 
   Future<void> resetPassword({required String email}) async {
@@ -72,5 +66,3 @@ class AuthApiService {
     );
   }
 }
-
-

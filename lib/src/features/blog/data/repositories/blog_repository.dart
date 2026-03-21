@@ -12,27 +12,32 @@ class BlogRepository {
     String? search,
     String? categorySlug,
     String? tagSlug,
-  }) {
-    return _blogApiService.getPosts(
+  }) async {
+    final result = await _blogApiService.getPosts(
       page: page,
       limit: limit,
       search: search,
       categorySlug: categorySlug,
       tagSlug: tagSlug,
     );
+    return BlogListResult(
+      posts: result.posts.map((e) => e.toDomain()).toList(),
+      page: result.page,
+      totalPages: result.totalPages,
+    );
   }
 
-  Future<BlogPost> getPostBySlug(String slug) {
-    return _blogApiService.getPostBySlug(slug);
+  Future<BlogPost> getPostBySlug(String slug) async {
+    return (await _blogApiService.getPostBySlug(slug)).toDomain();
   }
 
-  Future<List<BlogCategory>> getCategories() {
-    return _blogApiService.getCategories();
+  Future<List<BlogCategory>> getCategories() async {
+    return (await _blogApiService.getCategories())
+        .map((e) => e.toDomain())
+        .toList();
   }
 
-  Future<List<BlogTag>> getTags() {
-    return _blogApiService.getTags();
+  Future<List<BlogTag>> getTags() async {
+    return (await _blogApiService.getTags()).map((e) => e.toDomain()).toList();
   }
 }
-
-

@@ -1,21 +1,21 @@
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/pages/domain/models/app_page.dart';
-import 'package:bakery_mobile/src/features/pages/data/repositories/page_repository.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/states/static_page_fallbacks.dart';
 
-class PageDetailScreen extends StatefulWidget {
+class PageDetailScreen extends ConsumerStatefulWidget {
   const PageDetailScreen({super.key, required this.slug});
 
   final String slug;
 
   @override
-  State<PageDetailScreen> createState() => _PageDetailScreenState();
+  ConsumerState<PageDetailScreen> createState() => _PageDetailScreenState();
 }
 
-class _PageDetailScreenState extends State<PageDetailScreen> {
+class _PageDetailScreenState extends ConsumerState<PageDetailScreen> {
   AppPageDetail? _page;
   bool _isLoading = true;
 
@@ -26,7 +26,7 @@ class _PageDetailScreenState extends State<PageDetailScreen> {
   }
 
   Future<void> _load() async {
-    final repo = context.read<PageRepository>();
+    final repo = ref.read(pageRepositoryProvider);
     try {
       final page = await repo.getPageBySlug(widget.slug);
       if (!mounted) return;
@@ -70,5 +70,3 @@ class _PageDetailScreenState extends State<PageDetailScreen> {
     );
   }
 }
-
-

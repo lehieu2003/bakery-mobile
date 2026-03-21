@@ -1,40 +1,34 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
-import 'package:bakery_mobile/src/features/catalog/data/repositories/catalog_repository.dart';
-import 'package:bakery_mobile/src/features/cart/presentation/controllers/cart_view_model.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/product_detail_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/search_view_model.dart';
 
-class SearchScreen extends StatelessWidget {
+class SearchScreen extends ConsumerWidget {
   const SearchScreen({super.key, this.initialQuery = ''});
 
   final String initialQuery;
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) =>
-          SearchViewModel(context.read<CatalogRepository>())
-            ..search(initialQuery),
-      child: _SearchView(initialQuery: initialQuery),
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    return _SearchView(initialQuery: initialQuery);
   }
 }
 
-class _SearchView extends StatefulWidget {
+class _SearchView extends ConsumerStatefulWidget {
   const _SearchView({required this.initialQuery});
 
   final String initialQuery;
 
   @override
-  State<_SearchView> createState() => _SearchViewState();
+  ConsumerState<_SearchView> createState() => _SearchViewState();
 }
 
-class _SearchViewState extends State<_SearchView> {
+class _SearchViewState extends ConsumerState<_SearchView> {
   late final TextEditingController _controller;
   final ScrollController _scrollController = ScrollController();
   Timer? _debounce;
@@ -45,6 +39,11 @@ class _SearchViewState extends State<_SearchView> {
     _controller = TextEditingController(text: widget.initialQuery);
     _controller.addListener(_onQueryChanged);
     _scrollController.addListener(_onScroll);
+    if (widget.initialQuery.trim().isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(searchViewModelProvider.notifier).search(widget.initialQuery);
+      });
+    }
   }
 
   @override
@@ -61,7 +60,7 @@ class _SearchViewState extends State<_SearchView> {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 350), () {
       if (!mounted) return;
-      context.read<SearchViewModel>().search(_controller.text);
+      ref.read(searchViewModelProvider.notifier).search(_controller.text);
     });
   }
 
@@ -69,13 +68,13 @@ class _SearchViewState extends State<_SearchView> {
     if (!_scrollController.hasClients) return;
     final threshold = _scrollController.position.maxScrollExtent - 180;
     if (_scrollController.position.pixels >= threshold) {
-      context.read<SearchViewModel>().loadMore();
+      ref.read(searchViewModelProvider.notifier).loadMore();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.watch<SearchViewModel>();
+    final vm = ref.watch(searchViewModelProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Search products')),
@@ -90,7 +89,8 @@ class _SearchViewState extends State<_SearchView> {
               hintText: 'What are you looking for?',
               prefixIcon: Icon(Icons.search),
             ),
-            onSubmitted: (value) => vm.search(value),
+            onSubmitted: (value) =>
+                ref.read(searchViewModelProvider.notifier).search(value),
           ),
           const SizedBox(height: 12),
           Wrap(
@@ -112,7 +112,7 @@ class _SearchViewState extends State<_SearchView> {
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(
-                'Found ${vm.products.length} products for "${vm.query}"',
+                'Found ${vm.sortedProducts.length} products for "${vm.query}"',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
@@ -129,12 +129,14 @@ class _SearchViewState extends State<_SearchView> {
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
-          if (!vm.isLoading && vm.query.isNotEmpty && vm.products.isEmpty)
+          if (!vm.isLoading && vm.query.isNotEmpty && vm.sortedProducts.isEmpty)
             const Padding(
               padding: EdgeInsets.only(top: 24),
               child: Center(child: Text('No products found.')),
             ),
-          ...vm.products.map((product) => _SearchProductTile(product: product)),
+          ...vm.sortedProducts.map(
+            (product) => _SearchProductTile(product: product),
+          ),
           if (vm.isLoadingMore)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 14),
@@ -144,7 +146,7 @@ class _SearchViewState extends State<_SearchView> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: OutlinedButton(
-                onPressed: vm.loadMore,
+                onPressed: ref.read(searchViewModelProvider.notifier).loadMore,
                 child: const Text('Load more'),
               ),
             ),
@@ -155,26 +157,27 @@ class _SearchViewState extends State<_SearchView> {
 
   Widget _sortChip(
     BuildContext context,
-    SearchViewModel vm,
+    SearchState vm,
     SearchSortOption option,
     String label,
   ) {
     return ChoiceChip(
       label: Text(label),
       selected: vm.sort == option,
-      onSelected: (_) => vm.setSort(option),
+      onSelected: (_) =>
+          ref.read(searchViewModelProvider.notifier).setSort(option),
     );
   }
 }
 
-class _SearchProductTile extends StatelessWidget {
+class _SearchProductTile extends ConsumerWidget {
   const _SearchProductTile({required this.product});
 
   final Product product;
 
   @override
-  Widget build(BuildContext context) {
-    final cart = context.read<CartViewModel>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cart = ref.read(cartViewModelProvider.notifier);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
@@ -211,5 +214,3 @@ class _SearchProductTile extends StatelessWidget {
     );
   }
 }
-
-

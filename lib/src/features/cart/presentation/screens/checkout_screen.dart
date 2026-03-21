@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
-import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_view_model.dart';
-import 'package:bakery_mobile/src/features/orders/presentation/controllers/orders_view_model.dart';
-import 'package:bakery_mobile/src/features/cart/presentation/controllers/cart_view_model.dart';
 
-class CheckoutScreen extends StatefulWidget {
+class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
 
   @override
-  State<CheckoutScreen> createState() => _CheckoutScreenState();
+  ConsumerState<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
-class _CheckoutScreenState extends State<CheckoutScreen> {
+class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   static const _paymentMethods = <String>[
     'COD',
     'BANK_TRANSFER',
@@ -39,9 +37,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final auth = context.read<AuthViewModel>();
+  void initState() {
+    super.initState();
+    final auth = ref.read(authViewModelProvider);
     _nameCtrl.text = _nameCtrl.text.isEmpty
         ? (auth.user?.name ?? '')
         : _nameCtrl.text;
@@ -49,9 +47,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cart = context.watch<CartViewModel>();
-    final auth = context.watch<AuthViewModel>();
-    final orders = context.watch<OrdersViewModel>();
+    final cart = ref.watch(cartViewModelProvider);
+    final auth = ref.watch(authViewModelProvider);
+    final orders = ref.watch(ordersViewModelProvider);
 
     if (cart.items.isEmpty) {
       return const Scaffold(body: Center(child: Text('Cart is empty')));
@@ -249,18 +247,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       return;
     }
 
-    final result = await context.read<OrdersViewModel>().createOrder(
-      customerName: _nameCtrl.text.trim(),
-      customerPhone: _phoneCtrl.text.trim().replaceAll(RegExp(r'[/s.-]'), ''),
-      customerEmail: email,
-      customerAddress: _addressCtrl.text.trim(),
-      paymentMethod: _paymentMethod,
-      items: items.map((item) => item.toOrderItemPayload()).toList(),
-    );
+    final result = await ref
+        .read(ordersViewModelProvider.notifier)
+        .createOrder(
+          customerName: _nameCtrl.text.trim(),
+          customerPhone: _phoneCtrl.text.trim().replaceAll(
+            RegExp(r'[/s.-]'),
+            '',
+          ),
+          customerEmail: email,
+          customerAddress: _addressCtrl.text.trim(),
+          paymentMethod: _paymentMethod,
+          items: items.map((item) => item.toOrderItemPayload()).toList(),
+        );
 
     if (!mounted || result == null) return;
 
-    context.read<CartViewModel>().clear();
+    ref.read(cartViewModelProvider.notifier).clear();
 
     await _showOrderResultDialog(result);
     if (mounted) Navigator.of(context).pop();
@@ -328,5 +331,3 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 }
-
-

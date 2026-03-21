@@ -10,8 +10,8 @@ class AuthRepository {
 
   Future<User> login({required String email, required String password}) async {
     final result = await authApiService.login(email: email, password: password);
-    final user = result.$1;
-    final token = result.$2;
+    final user = result.user.toDomain();
+    final token = result.token;
     if (token.isNotEmpty) {
       await tokenStorage.saveToken(token);
     }
@@ -34,8 +34,8 @@ class AuthRepository {
       password: password,
       name: name,
     );
-    final user = result.$1;
-    final token = result.$2;
+    final user = result.user.toDomain();
+    final token = result.token;
     if (token.isNotEmpty) {
       await tokenStorage.saveToken(token);
     }
@@ -63,7 +63,7 @@ class AuthRepository {
     if (token == null || token.isEmpty) return null;
 
     try {
-      return await authApiService.me();
+      return (await authApiService.me()).toDomain();
     } catch (_) {
       await tokenStorage.clearToken();
       return null;
@@ -78,5 +78,3 @@ class AuthRepository {
     }
   }
 }
-
-

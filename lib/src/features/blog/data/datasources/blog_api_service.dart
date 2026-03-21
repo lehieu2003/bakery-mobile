@@ -1,12 +1,12 @@
 import 'package:bakery_mobile/src/core/network/api_client.dart';
-import 'package:bakery_mobile/src/features/blog/domain/models/blog.dart';
+import 'package:bakery_mobile/src/features/blog/data/dtos/blog_dto.dart';
 
 class BlogApiService {
   BlogApiService(this._client);
 
   final ApiClient _client;
 
-  Future<BlogListResult> getPosts({
+  Future<BlogListResultDto> getPosts({
     int page = 1,
     int limit = 10,
     String? search,
@@ -29,10 +29,10 @@ class BlogApiService {
     final pagination = data['pagination'] as Map<String, dynamic>? ?? const {};
     final rawPosts = data['posts'] as List<dynamic>? ?? const [];
 
-    return BlogListResult(
+    return BlogListResultDto(
       posts: rawPosts
           .whereType<Map<String, dynamic>>()
-          .map(BlogPost.fromJson)
+          .map(BlogPostDto.fromJson)
           .toList(),
       page: pagination['page'] is int
           ? pagination['page'] as int
@@ -43,29 +43,30 @@ class BlogApiService {
     );
   }
 
-  Future<BlogPost> getPostBySlug(String slug) async {
+  Future<BlogPostDto> getPostBySlug(String slug) async {
     final response = await _client.get('/api/blog/posts/$slug');
-    return BlogPost.fromJson(response as Map<String, dynamic>);
+    return BlogPostDto.fromJson(response as Map<String, dynamic>);
   }
 
-  Future<List<BlogCategory>> getCategories() async {
+  Future<List<BlogCategoryDto>> getCategories() async {
     final response = await _client.get('/api/blog/categories');
     final raw =
         (response as Map<String, dynamic>)['categories'] as List<dynamic>? ??
         const [];
     return raw
         .whereType<Map<String, dynamic>>()
-        .map(BlogCategory.fromJson)
+        .map(BlogCategoryDto.fromJson)
         .toList();
   }
 
-  Future<List<BlogTag>> getTags() async {
+  Future<List<BlogTagDto>> getTags() async {
     final response = await _client.get('/api/blog/tags');
     final raw =
         (response as Map<String, dynamic>)['tags'] as List<dynamic>? ??
         const [];
-    return raw.whereType<Map<String, dynamic>>().map(BlogTag.fromJson).toList();
+    return raw
+        .whereType<Map<String, dynamic>>()
+        .map(BlogTagDto.fromJson)
+        .toList();
   }
 }
-
-

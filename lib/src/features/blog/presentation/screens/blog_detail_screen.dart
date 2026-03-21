@@ -1,20 +1,20 @@
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/blog/domain/models/blog.dart';
-import 'package:bakery_mobile/src/features/blog/data/repositories/blog_repository.dart';
 
-class BlogDetailScreen extends StatefulWidget {
+class BlogDetailScreen extends ConsumerStatefulWidget {
   const BlogDetailScreen({super.key, required this.slug});
 
   final String slug;
 
   @override
-  State<BlogDetailScreen> createState() => _BlogDetailScreenState();
+  ConsumerState<BlogDetailScreen> createState() => _BlogDetailScreenState();
 }
 
-class _BlogDetailScreenState extends State<BlogDetailScreen> {
+class _BlogDetailScreenState extends ConsumerState<BlogDetailScreen> {
   BlogPost? _post;
   bool _isLoading = true;
 
@@ -25,7 +25,7 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
   }
 
   Future<void> _load() async {
-    final repo = context.read<BlogRepository>();
+    final repo = ref.read(blogRepositoryProvider);
     try {
       final post = await repo.getPostBySlug(widget.slug);
       if (!mounted) return;
@@ -74,5 +74,3 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
     );
   }
 }
-
-

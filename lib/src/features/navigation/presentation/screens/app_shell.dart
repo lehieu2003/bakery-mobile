@@ -1,35 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/features/auth/presentation/screens/auth_screen.dart';
-import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_view_model.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/screens/cart_screen.dart';
-import 'package:bakery_mobile/src/features/cart/presentation/controllers/cart_view_model.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/home_screen.dart';
-import 'package:bakery_mobile/src/features/notifications/presentation/controllers/notifications_view_model.dart';
 import 'package:bakery_mobile/src/features/profile/presentation/screens/profile_screen.dart';
 
-class AppShell extends StatefulWidget {
+class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
 
   @override
-  State<AppShell> createState() => _AppShellState();
+  ConsumerState<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends State<AppShell> {
+class _AppShellState extends ConsumerState<AppShell> {
   int _index = 0;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(authViewModelProvider.notifier).bootstrap();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final authViewModel = context.watch<AuthViewModel>();
-    final cart = context.watch<CartViewModel>();
-    final notifications = context.watch<NotificationsViewModel>();
+    final authViewModel = ref.watch(authViewModelProvider);
+    final cart = ref.watch(cartViewModelProvider);
+    final notifications = ref.watch(notificationsViewModelProvider);
 
     if (authViewModel.isAuthenticated &&
         !notifications.isLoading &&
         notifications.notifications.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.read<NotificationsViewModel>().load();
+        ref.read(notificationsViewModelProvider.notifier).load();
       });
     }
 
@@ -85,5 +91,3 @@ class _AppShellState extends State<AppShell> {
     );
   }
 }
-
-

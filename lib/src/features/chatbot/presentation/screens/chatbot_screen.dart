@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/features/chatbot/domain/models/chat.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
-import 'package:bakery_mobile/src/features/cart/presentation/controllers/cart_view_model.dart';
-import 'package:bakery_mobile/src/features/chatbot/presentation/controllers/chatbot_view_model.dart';
 
-class ChatbotScreen extends StatefulWidget {
+class ChatbotScreen extends ConsumerStatefulWidget {
   const ChatbotScreen({super.key});
 
   @override
-  State<ChatbotScreen> createState() => _ChatbotScreenState();
+  ConsumerState<ChatbotScreen> createState() => _ChatbotScreenState();
 }
 
-class _ChatbotScreenState extends State<ChatbotScreen> {
+class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
   static const _quickPrompts = <String>[
     'Goi y banh sinh nhat duoi 500k',
     'Banh nao ban chay nhat?',
@@ -32,7 +31,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.watch<ChatbotViewModel>();
+    final vm = ref.watch(chatbotViewModelProvider);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scrollController.hasClients) return;
@@ -126,11 +125,11 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   void _send(BuildContext context) {
     final text = _controller.text;
     _controller.clear();
-    context.read<ChatbotViewModel>().send(text);
+    ref.read(chatbotViewModelProvider.notifier).send(text);
   }
 
   void _sendPrompt(BuildContext context, String prompt) {
-    context.read<ChatbotViewModel>().send(prompt);
+    ref.read(chatbotViewModelProvider.notifier).send(prompt);
   }
 }
 
@@ -173,14 +172,14 @@ class _MessageBubble extends StatelessWidget {
   }
 }
 
-class _SuggestedProductTile extends StatelessWidget {
+class _SuggestedProductTile extends ConsumerWidget {
   const _SuggestedProductTile({required this.product});
 
   final Product product;
 
   @override
-  Widget build(BuildContext context) {
-    final cart = context.read<CartViewModel>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cart = ref.read(cartViewModelProvider.notifier);
 
     return ListTile(
       contentPadding: EdgeInsets.zero,
@@ -210,5 +209,3 @@ class _SuggestedProductTile extends StatelessWidget {
     );
   }
 }
-
-

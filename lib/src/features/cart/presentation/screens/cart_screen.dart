@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
-import 'package:bakery_mobile/src/features/cart/presentation/controllers/cart_view_model.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/screens/checkout_screen.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends ConsumerWidget {
   const CartScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final cart = context.watch<CartViewModel>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cart = ref.watch(cartViewModelProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Cart')),
@@ -61,14 +61,14 @@ class CartScreen extends StatelessWidget {
   }
 }
 
-class _CartTile extends StatelessWidget {
+class _CartTile extends ConsumerWidget {
   const _CartTile({required this.item});
 
   final CartItem item;
 
   @override
-  Widget build(BuildContext context) {
-    final cart = context.read<CartViewModel>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cart = ref.read(cartViewModelProvider.notifier);
 
     return ListTile(
       leading: (item.imageUrl != null && item.imageUrl!.isNotEmpty)
@@ -106,5 +106,3 @@ class _CartTile extends StatelessWidget {
     );
   }
 }
-
-

@@ -50,4 +50,3 @@ const staticPageOrder = <String>[
   'chinh-sach-doi-tra',
   'dieu-khoan-su-dung',
 ];
-

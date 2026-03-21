@@ -6,7 +6,11 @@ class OrderRepository {
 
   final OrderApiService _orderApiService;
 
-  Future<List<Order>> getMyOrders() => _orderApiService.getMyOrders();
+  Future<List<Order>> getMyOrders() async {
+    return (await _orderApiService.getMyOrders())
+        .map((e) => e.toDomain())
+        .toList();
+  }
 
   Future<CreateOrderResult> createOrder({
     required String customerName,
@@ -15,8 +19,8 @@ class OrderRepository {
     String? customerAddress,
     required String paymentMethod,
     required List<Map<String, dynamic>> items,
-  }) {
-    return _orderApiService.createOrder(
+  }) async {
+    final result = await _orderApiService.createOrder(
       customerName: customerName,
       customerPhone: customerPhone,
       customerEmail: customerEmail,
@@ -24,7 +28,6 @@ class OrderRepository {
       paymentMethod: paymentMethod,
       items: items,
     );
+    return result.toDomain();
   }
 }
-
-

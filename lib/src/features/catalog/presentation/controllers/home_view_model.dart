@@ -1,87 +1,117 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/banner_item.dart';
-import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart'
-    as bakery_models;
+import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
-import 'package:bakery_mobile/src/features/catalog/data/repositories/catalog_repository.dart';
 
-class HomeViewModel extends ChangeNotifier {
-  HomeViewModel(this._catalogRepository);
+class HomeState {
+  const HomeState({
+    this.isLoading = false,
+    this.errorMessage,
+    this.banners = const [],
+    this.categories = const [],
+    this.bestSellers = const [],
+    this.products = const [],
+    this.selectedCategoryId,
+    this.search = '',
+  });
 
-  final CatalogRepository _catalogRepository;
+  final bool isLoading;
+  final String? errorMessage;
+  final List<BannerItem> banners;
+  final List<Category> categories;
+  final List<Product> bestSellers;
+  final List<Product> products;
+  final String? selectedCategoryId;
+  final String search;
 
-  bool _isLoading = false;
-  String? _errorMessage;
+  HomeState copyWith({
+    bool? isLoading,
+    String? errorMessage,
+    bool clearError = false,
+    List<BannerItem>? banners,
+    List<Category>? categories,
+    List<Product>? bestSellers,
+    List<Product>? products,
+    String? selectedCategoryId,
+    bool clearCategory = false,
+    String? search,
+  }) {
+    return HomeState(
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      banners: banners ?? this.banners,
+      categories: categories ?? this.categories,
+      bestSellers: bestSellers ?? this.bestSellers,
+      products: products ?? this.products,
+      selectedCategoryId: clearCategory
+          ? null
+          : (selectedCategoryId ?? this.selectedCategoryId),
+      search: search ?? this.search,
+    );
+  }
+}
 
-  List<BannerItem> _banners = [];
-  List<bakery_models.Category> _categories = [];
-  List<Product> _bestSellers = [];
-  List<Product> _products = [];
-
-  String? _selectedCategoryId;
-  String _search = '';
-
-  bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
-  List<BannerItem> get banners => _banners;
-  List<bakery_models.Category> get categories => _categories;
-  List<Product> get bestSellers => _bestSellers;
-  List<Product> get products => _products;
-  String? get selectedCategoryId => _selectedCategoryId;
+class HomeViewModel extends Notifier<HomeState> {
+  @override
+  HomeState build() => const HomeState();
 
   Future<void> loadInitial() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+    state = state.copyWith(isLoading: true, clearError: true);
 
     try {
+      final repo = ref.read(catalogRepositoryProvider);
       final results = await Future.wait([
-        _catalogRepository.getBanners(),
-        _catalogRepository.getCategories(),
-        _catalogRepository.getBestSellers(),
-        _catalogRepository.getProducts(),
+        repo.getBanners(),
+        repo.getCategories(),
+        repo.getBestSellers(),
+        repo.getProducts(),
       ]);
 
-      _banners = results[0] as List<BannerItem>;
-      _categories = results[1] as List<bakery_models.Category>;
-      _bestSellers = results[2] as List<Product>;
-      _products = results[3] as List<Product>;
+      state = state.copyWith(
+        isLoading: false,
+        banners: results[0] as List<BannerItem>,
+        categories: results[1] as List<Category>,
+        bestSellers: results[2] as List<Product>,
+        products: results[3] as List<Product>,
+      );
     } catch (error) {
-      _errorMessage = error.toString().replaceFirst('Exception: ', '');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: error.toString().replaceFirst('Exception: ', ''),
+      );
     }
   }
 
   Future<void> search(String value) async {
-    _search = value.trim();
+    state = state.copyWith(search: value.trim());
     await _reloadProducts();
   }
 
   Future<void> selectCategory(String? categoryId) async {
-    _selectedCategoryId = categoryId;
+    state = state.copyWith(
+      selectedCategoryId: categoryId,
+      clearCategory: categoryId == null,
+    );
     await _reloadProducts();
   }
 
   Future<void> _reloadProducts() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
+    state = state.copyWith(isLoading: true, clearError: true);
     try {
-      _products = await _catalogRepository.getProducts(
-        categoryId: _selectedCategoryId,
-        search: _search,
-      );
+      final products = await ref
+          .read(catalogRepositoryProvider)
+          .getProducts(
+            categoryId: state.selectedCategoryId,
+            search: state.search,
+          );
+      state = state.copyWith(isLoading: false, products: products);
     } catch (error) {
-      _errorMessage = error.toString().replaceFirst('Exception: ', '');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: error.toString().replaceFirst('Exception: ', ''),
+      );
     }
   }
 }
-
-

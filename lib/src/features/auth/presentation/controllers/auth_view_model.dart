@@ -1,53 +1,74 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/auth/domain/models/user.dart';
-import 'package:bakery_mobile/src/features/auth/data/repositories/auth_repository.dart';
 
-class AuthViewModel extends ChangeNotifier {
-  AuthViewModel(this._authRepository);
+class AuthState {
+  const AuthState({
+    this.user,
+    this.isBootstrapping = false,
+    this.isSubmitting = false,
+    this.errorMessage,
+  });
 
-  final AuthRepository _authRepository;
+  final User? user;
+  final bool isBootstrapping;
+  final bool isSubmitting;
+  final String? errorMessage;
 
-  User? _user;
-  bool _isBootstrapping = false;
-  bool _isSubmitting = false;
-  String? _errorMessage;
+  bool get isAuthenticated => user != null;
 
-  User? get user => _user;
-  bool get isAuthenticated => _user != null;
-  bool get isBootstrapping => _isBootstrapping;
-  bool get isSubmitting => _isSubmitting;
-  String? get errorMessage => _errorMessage;
+  AuthState copyWith({
+    User? user,
+    bool clearUser = false,
+    bool? isBootstrapping,
+    bool? isSubmitting,
+    String? errorMessage,
+    bool clearError = false,
+  }) {
+    return AuthState(
+      user: clearUser ? null : (user ?? this.user),
+      isBootstrapping: isBootstrapping ?? this.isBootstrapping,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+    );
+  }
+}
+
+class AuthViewModel extends Notifier<AuthState> {
+  @override
+  AuthState build() => const AuthState();
 
   Future<void> bootstrap() async {
-    _isBootstrapping = true;
-    notifyListeners();
-
+    state = state.copyWith(isBootstrapping: true, clearError: true);
     try {
-      _user = await _authRepository.currentUser();
-    } finally {
-      _isBootstrapping = false;
-      notifyListeners();
+      final user = await ref.read(authRepositoryProvider).currentUser();
+      state = state.copyWith(
+        user: user,
+        clearUser: user == null,
+        isBootstrapping: false,
+      );
+    } catch (_) {
+      state = state.copyWith(clearUser: true, isBootstrapping: false);
     }
   }
 
-  Future<bool> login({required String email, required String password}) async {
+  Future<bool> login({required String email, required String password}) {
     return _submit(() async {
-      final user = await _authRepository.login(
-        email: email,
-        password: password,
-      );
+      final user = await ref
+          .read(authRepositoryProvider)
+          .login(email: email, password: password);
       if (!user.isCustomer) {
         throw Exception('Mobile app only supports CUSTOMER accounts.');
       }
-      _user = user;
+      state = state.copyWith(user: user);
       return true;
     });
   }
 
-  Future<bool> sendRegisterOtp({required String email}) async {
+  Future<bool> sendRegisterOtp({required String email}) {
     return _submit(() async {
-      await _authRepository.register(email: email);
+      await ref.read(authRepositoryProvider).register(email: email);
       return true;
     });
   }
@@ -57,25 +78,27 @@ class AuthViewModel extends ChangeNotifier {
     required String otp,
     required String password,
     String? name,
-  }) async {
+  }) {
     return _submit(() async {
-      final user = await _authRepository.registerVerify(
-        email: email,
-        otp: otp,
-        password: password,
-        name: name,
-      );
+      final user = await ref
+          .read(authRepositoryProvider)
+          .registerVerify(
+            email: email,
+            otp: otp,
+            password: password,
+            name: name,
+          );
       if (!user.isCustomer) {
         throw Exception('Mobile app only supports CUSTOMER accounts.');
       }
-      _user = user;
+      state = state.copyWith(user: user);
       return true;
     });
   }
 
   Future<bool> sendResetPasswordOtp({required String email}) {
     return _submit(() async {
-      await _authRepository.resetPassword(email: email);
+      await ref.read(authRepositoryProvider).resetPassword(email: email);
       return true;
     });
   }
@@ -86,44 +109,38 @@ class AuthViewModel extends ChangeNotifier {
     required String newPassword,
   }) {
     return _submit(() async {
-      await _authRepository.resetPasswordVerify(
-        email: email,
-        otp: otp,
-        newPassword: newPassword,
-      );
+      await ref
+          .read(authRepositoryProvider)
+          .resetPasswordVerify(
+            email: email,
+            otp: otp,
+            newPassword: newPassword,
+          );
       return true;
     });
   }
 
   Future<void> logout() async {
-    _isSubmitting = true;
-    notifyListeners();
+    state = state.copyWith(isSubmitting: true, clearError: true);
     try {
-      await _authRepository.logout();
-      _user = null;
-      _errorMessage = null;
+      await ref.read(authRepositoryProvider).logout();
+      state = state.copyWith(clearUser: true, clearError: true);
     } finally {
-      _isSubmitting = false;
-      notifyListeners();
+      state = state.copyWith(isSubmitting: false);
     }
   }
 
   Future<bool> _submit(Future<bool> Function() action) async {
-    _isSubmitting = true;
-    _errorMessage = null;
-    notifyListeners();
-
+    state = state.copyWith(isSubmitting: true, clearError: true);
     try {
-      final result = await action();
-      return result;
+      return await action();
     } catch (error) {
-      _errorMessage = error.toString().replaceFirst('Exception: ', '');
+      state = state.copyWith(
+        errorMessage: error.toString().replaceFirst('Exception: ', ''),
+      );
       return false;
     } finally {
-      _isSubmitting = false;
-      notifyListeners();
+      state = state.copyWith(isSubmitting: false);
     }
   }
 }
-
-

@@ -1,37 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:bakery_mobile/src/features/blog/data/repositories/blog_repository.dart';
+import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/screens/blog_detail_screen.dart';
-import 'package:bakery_mobile/src/features/blog/presentation/controllers/blog_view_model.dart';
 
-class BlogScreen extends StatelessWidget {
+class BlogScreen extends ConsumerWidget {
   const BlogScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) =>
-          BlogViewModel(context.read<BlogRepository>())..loadInitial(),
-      child: const _BlogView(),
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    return const _BlogView();
   }
 }
 
-class _BlogView extends StatefulWidget {
+class _BlogView extends ConsumerStatefulWidget {
   const _BlogView();
 
   @override
-  State<_BlogView> createState() => _BlogViewState();
+  ConsumerState<_BlogView> createState() => _BlogViewState();
 }
 
-class _BlogViewState extends State<_BlogView> {
+class _BlogViewState extends ConsumerState<_BlogView> {
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(blogViewModelProvider.notifier).loadInitial();
+    });
   }
 
   @override
@@ -45,18 +43,18 @@ class _BlogViewState extends State<_BlogView> {
     if (!_scrollController.hasClients) return;
     final threshold = _scrollController.position.maxScrollExtent - 180;
     if (_scrollController.position.pixels >= threshold) {
-      context.read<BlogViewModel>().loadMore();
+      ref.read(blogViewModelProvider.notifier).loadMore();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.watch<BlogViewModel>();
+    final vm = ref.watch(blogViewModelProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Blog')),
       body: RefreshIndicator(
-        onRefresh: vm.loadInitial,
+        onRefresh: ref.read(blogViewModelProvider.notifier).loadInitial,
         child: ListView(
           controller: _scrollController,
           padding: const EdgeInsets.all(16),
@@ -67,7 +65,9 @@ class _BlogViewState extends State<_BlogView> {
                 hintText: 'Search blog posts...',
                 prefixIcon: Icon(Icons.search),
               ),
-              onSubmitted: (text) => vm.applyFilter(search: text),
+              onSubmitted: (text) => ref
+                  .read(blogViewModelProvider.notifier)
+                  .applyFilter(search: text),
             ),
             const SizedBox(height: 10),
             SizedBox(
@@ -80,8 +80,9 @@ class _BlogViewState extends State<_BlogView> {
                     child: ChoiceChip(
                       label: const Text('All categories'),
                       selected: vm.categorySlug.isEmpty,
-                      onSelected: (_) =>
-                          vm.applyFilter(categorySlug: '', tagSlug: ''),
+                      onSelected: (_) => ref
+                          .read(blogViewModelProvider.notifier)
+                          .applyFilter(categorySlug: '', tagSlug: ''),
                     ),
                   ),
                   ...vm.categories.map(
@@ -90,10 +91,12 @@ class _BlogViewState extends State<_BlogView> {
                       child: ChoiceChip(
                         label: Text(category.name),
                         selected: vm.categorySlug == category.slug,
-                        onSelected: (_) => vm.applyFilter(
-                          categorySlug: category.slug,
-                          tagSlug: '',
-                        ),
+                        onSelected: (_) => ref
+                            .read(blogViewModelProvider.notifier)
+                            .applyFilter(
+                              categorySlug: category.slug,
+                              tagSlug: '',
+                            ),
                       ),
                     ),
                   ),
@@ -112,10 +115,12 @@ class _BlogViewState extends State<_BlogView> {
                       child: FilterChip(
                         label: Text('#${tag.name}'),
                         selected: vm.tagSlug == tag.slug,
-                        onSelected: (_) => vm.applyFilter(
-                          tagSlug: vm.tagSlug == tag.slug ? '' : tag.slug,
-                          categorySlug: '',
-                        ),
+                        onSelected: (_) => ref
+                            .read(blogViewModelProvider.notifier)
+                            .applyFilter(
+                              tagSlug: vm.tagSlug == tag.slug ? '' : tag.slug,
+                              categorySlug: '',
+                            ),
                       ),
                     ),
                   ),
@@ -169,7 +174,7 @@ class _BlogViewState extends State<_BlogView> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: OutlinedButton(
-                  onPressed: vm.loadMore,
+                  onPressed: ref.read(blogViewModelProvider.notifier).loadMore,
                   child: const Text('Load more posts'),
                 ),
               ),
@@ -179,5 +184,3 @@ class _BlogViewState extends State<_BlogView> {
     );
   }
 }
-
-

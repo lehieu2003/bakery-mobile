@@ -6,11 +6,11 @@ class PageRepository {
 
   final PageApiService _pageApiService;
 
-  Future<List<AppPageSummary>> getPages() => _pageApiService.getPages();
+  Future<List<AppPageSummary>> getPages() async {
+    return (await _pageApiService.getPages()).map((e) => e.toDomain()).toList();
+  }
 
-  Future<AppPageDetail> getPageBySlug(String slug) {
-    return _pageApiService.getPageBySlug(slug);
+  Future<AppPageDetail> getPageBySlug(String slug) async {
+    return (await _pageApiService.getPageBySlug(slug)).toDomain();
   }
 }
-
-

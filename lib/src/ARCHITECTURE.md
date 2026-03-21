@@ -1,8 +1,9 @@
-# Flutter Folder Architecture
+# Flutter Folder Architecture (Riverpod)
 
 ## Principles
-- Feature-first: mỗi feature tự chứa `presentation`, `domain`, `data`.
-- Layered dependency: `presentation -> data -> core`, domain model dùng chung trong feature.
+- Feature-first: mỗi feature tự chứa các layer riêng.
+- 4-layer flow: `presentation -> application -> data -> domain`.
+- Riverpod là cơ chế DI + state management xuyên suốt.
 - Dùng `package:` imports để tránh lỗi khi di chuyển file.
 
 ## Structure
@@ -10,6 +11,7 @@
 lib/src
 ├─ core/
 │  ├─ config/
+│  ├─ di/
 │  ├─ network/
 │  ├─ storage/
 │  └─ theme/
@@ -19,10 +21,13 @@ lib/src
    │  │  ├─ screens/
    │  │  ├─ controllers/
    │  │  └─ states/        # optional
+   │  ├─ application/
+   │  │  └─ services/
    │  ├─ domain/
    │  │  └─ models/
    │  └─ data/
    │     ├─ datasources/
+   │     ├─ dtos/          # optional
    │     └─ repositories/
    └─ navigation/
       └─ presentation/screens/
@@ -30,14 +35,19 @@ lib/src
 
 ## Naming Convention
 - `*_screen.dart`: UI widgets.
-- `*_view_model.dart`: presentation controller/state holder.
+- `*_view_model.dart`: Riverpod `Notifier`/`AsyncNotifier` controller.
+- `*_state.dart` (hoặc state class trong controller): immutable presentation state.
+- `*_service.dart`: application-layer orchestration logic/use-case.
 - `*_repository.dart`: SSOT + mapping/caching.
 - `*_api_service.dart`: gọi API thuần, stateless.
+- `*_dto.dart`: DTO nhận/trả từ API, chỉ sống ở data layer.
 - `models/*.dart`: domain model immutable.
 
 ## Add New Feature Checklist
-1. Tạo folder feature với 3 layer: `presentation/domain/data`.
-2. Tạo model trong `domain/models`.
-3. Tạo datasource + repository trong `data`.
-4. Tạo view model và screen trong `presentation`.
-5. Inject repository/view model ở `main.dart` (hoặc DI container nếu tách sau).
+1. Tạo folder feature với 4 layer: `presentation/application/domain/data`.
+2. Tạo model immutable trong `domain/models`.
+3. Tạo datasource + DTO + repository trong `data`.
+4. Mapping `DTO -> Domain` bắt buộc đặt ở repository.
+5. Nếu có nghiệp vụ phối hợp nhiều repository, đặt vào `application/services`.
+6. Tạo `Notifier/AsyncNotifier` + state + screen trong `presentation`.
+7. Đăng ký data providers ở `core/di/data_providers.dart` và app-state providers ở `core/di/app_providers.dart`.

@@ -9,9 +9,10 @@ class ChatRepository {
   Future<ChatReply> sendMessage({
     required String message,
     required List<ChatMessage> history,
-  }) {
-    return _chatApiService.sendMessage(message: message, history: history);
+  }) async {
+    return (await _chatApiService.sendMessage(
+      message: message,
+      history: history,
+    )).toDomain();
   }
 }
-
-

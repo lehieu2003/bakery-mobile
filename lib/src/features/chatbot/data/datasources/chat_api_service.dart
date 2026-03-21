@@ -1,13 +1,13 @@
 import 'package:bakery_mobile/src/core/network/api_client.dart';
+import 'package:bakery_mobile/src/features/chatbot/data/dtos/chat_reply_dto.dart';
 import 'package:bakery_mobile/src/features/chatbot/domain/models/chat.dart';
-import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 
 class ChatApiService {
   ChatApiService(this._client);
 
   final ApiClient _client;
 
-  Future<ChatReply> sendMessage({
+  Future<ChatReplyDto> sendMessage({
     required String message,
     required List<ChatMessage> history,
   }) async {
@@ -19,19 +19,6 @@ class ChatApiService {
       },
     );
 
-    final data = response as Map<String, dynamic>;
-    final rawProducts = data['suggestedProducts'] as List<dynamic>? ?? const [];
-
-    final products = rawProducts
-        .whereType<Map<String, dynamic>>()
-        .map(Product.fromJson)
-        .toList();
-
-    return ChatReply(
-      reply: (data['reply'] ?? '').toString(),
-      suggestedProducts: products,
-    );
+    return ChatReplyDto.fromJson(response as Map<String, dynamic>);
   }
 }
-
-

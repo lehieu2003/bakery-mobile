@@ -1,35 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/screens/blog_screen.dart';
 import 'package:bakery_mobile/src/features/chatbot/presentation/screens/chatbot_screen.dart';
 import 'package:bakery_mobile/src/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/screens/pages_screen.dart';
-import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_view_model.dart';
-import 'package:bakery_mobile/src/features/notifications/presentation/controllers/notifications_view_model.dart';
-import 'package:bakery_mobile/src/features/orders/presentation/controllers/orders_view_model.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<OrdersViewModel>().loadMyOrders();
+      ref.read(ordersViewModelProvider.notifier).loadMyOrders();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthViewModel>();
-    final orders = context.watch<OrdersViewModel>();
-    final notifications = context.watch<NotificationsViewModel>();
+    final auth = ref.watch(authViewModelProvider);
+    final orders = ref.watch(ordersViewModelProvider);
+    final notifications = ref.watch(notificationsViewModelProvider);
 
     final user = auth.user;
     if (user == null) {
@@ -43,7 +41,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: const Text('Profile'),
         actions: [
           IconButton(
-            onPressed: auth.isSubmitting ? null : auth.logout,
+            onPressed: auth.isSubmitting
+                ? null
+                : ref.read(authViewModelProvider.notifier).logout,
             icon: const Icon(Icons.logout),
           ),
         ],
@@ -120,7 +120,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               IconButton(
-                onPressed: orders.isLoading ? null : orders.loadMyOrders,
+                onPressed: orders.isLoading
+                    ? null
+                    : ref.read(ordersViewModelProvider.notifier).loadMyOrders,
                 icon: const Icon(Icons.refresh),
               ),
             ],
@@ -159,5 +161,3 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
-
-

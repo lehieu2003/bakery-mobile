@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_view_model.dart';
+import 'package:bakery_mobile/src/core/di/app_providers.dart';
 
-class AuthScreen extends StatefulWidget {
+class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
 
   @override
-  State<AuthScreen> createState() => _AuthScreenState();
+  ConsumerState<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> {
+class _AuthScreenState extends ConsumerState<AuthScreen> {
   bool _isRegister = false;
   bool _otpSent = false;
   bool _isReset = false;
@@ -33,7 +33,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.watch<AuthViewModel>();
+    final viewModel = ref.watch(authViewModelProvider);
 
     return Scaffold(
       appBar: AppBar(title: Text(_title())),
@@ -155,7 +155,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _submit() async {
-    final viewModel = context.read<AuthViewModel>();
+    final viewModel = ref.read(authViewModelProvider.notifier);
 
     if (_emailCtrl.text.trim().isEmpty) return;
 
@@ -224,5 +224,3 @@ class _AuthScreenState extends State<AuthScreen> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 }
-
-

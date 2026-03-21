@@ -1,22 +1,12 @@
 import 'package:bakery_mobile/src/core/network/api_client.dart';
-import 'package:bakery_mobile/src/features/notifications/domain/models/app_notification.dart';
-
-class NotificationListResult {
-  const NotificationListResult({
-    required this.notifications,
-    required this.total,
-  });
-
-  final List<AppNotification> notifications;
-  final int total;
-}
+import 'package:bakery_mobile/src/features/notifications/data/dtos/notification_dto.dart';
 
 class NotificationApiService {
   NotificationApiService(this._client);
 
   final ApiClient _client;
 
-  Future<NotificationListResult> getMyNotifications({
+  Future<NotificationListResultDto> getMyNotifications({
     int page = 1,
     int limit = 20,
     bool unreadOnly = false,
@@ -30,10 +20,10 @@ class NotificationApiService {
     final pagination = data['pagination'] as Map<String, dynamic>? ?? const {};
     final raw = data['notifications'] as List<dynamic>? ?? const [];
 
-    return NotificationListResult(
+    return NotificationListResultDto(
       notifications: raw
           .whereType<Map<String, dynamic>>()
-          .map(AppNotification.fromJson)
+          .map(AppNotificationDto.fromJson)
           .toList(),
       total: pagination['total'] is int
           ? pagination['total'] as int
@@ -49,5 +39,3 @@ class NotificationApiService {
     await _client.post('/api/notifications/read-all');
   }
 }
-
-

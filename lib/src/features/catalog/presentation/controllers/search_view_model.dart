@@ -1,98 +1,36 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
-import 'package:bakery_mobile/src/features/catalog/data/repositories/catalog_repository.dart';
 
 enum SearchSortOption { popular, newest, priceAsc, priceDesc }
 
-class SearchViewModel extends ChangeNotifier {
-  SearchViewModel(this._catalogRepository);
+class SearchState {
+  const SearchState({
+    this.isLoading = false,
+    this.isLoadingMore = false,
+    this.error,
+    this.query = '',
+    this.sort = SearchSortOption.popular,
+    this.products = const [],
+    this.page = 1,
+    this.total = 0,
+  });
 
-  final CatalogRepository _catalogRepository;
-  static const _pageSize = 16;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final String? error;
+  final String query;
+  final SearchSortOption sort;
+  final List<Product> products;
+  final int page;
+  final int total;
 
-  bool _isLoading = false;
-  bool _isLoadingMore = false;
-  String? _error;
-  String _query = '';
-  SearchSortOption _sort = SearchSortOption.popular;
-  List<Product> _products = [];
-  int _page = 1;
-  int _total = 0;
+  bool get hasMore => products.length < total;
 
-  bool get isLoading => _isLoading;
-  bool get isLoadingMore => _isLoadingMore;
-  String? get error => _error;
-  String get query => _query;
-  SearchSortOption get sort => _sort;
-  List<Product> get products => _sorted(_products);
-  bool get hasMore => _products.length < _total;
-
-  Future<void> search(String raw) async {
-    _query = raw.trim();
-    if (_query.isEmpty) {
-      _products = [];
-      _total = 0;
-      _page = 1;
-      _error = null;
-      notifyListeners();
-      return;
-    }
-
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
-      _page = 1;
-      final result = await _catalogRepository.getProductsPage(
-        search: _query,
-        page: _page,
-        limit: _pageSize,
-      );
-      _products = result.products;
-      _total = result.total;
-    } catch (error) {
-      _error = error.toString().replaceFirst('Exception: ', '');
-      _products = [];
-      _total = 0;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> loadMore() async {
-    if (_query.isEmpty || _isLoading || _isLoadingMore || !hasMore) return;
-
-    _isLoadingMore = true;
-    notifyListeners();
-    try {
-      final nextPage = _page + 1;
-      final result = await _catalogRepository.getProductsPage(
-        search: _query,
-        page: nextPage,
-        limit: _pageSize,
-      );
-      _page = nextPage;
-      _total = result.total;
-      _products = [..._products, ...result.products];
-    } catch (error) {
-      _error = error.toString().replaceFirst('Exception: ', '');
-    } finally {
-      _isLoadingMore = false;
-      notifyListeners();
-    }
-  }
-
-  void setSort(SearchSortOption value) {
-    _sort = value;
-    notifyListeners();
-  }
-
-  List<Product> _sorted(List<Product> data) {
-    final list = [...data];
-    switch (_sort) {
+  List<Product> get sortedProducts {
+    final list = [...products];
+    switch (sort) {
       case SearchSortOption.priceAsc:
         list.sort((a, b) => a.price.compareTo(b.price));
       case SearchSortOption.priceDesc:
@@ -104,6 +42,104 @@ class SearchViewModel extends ChangeNotifier {
     }
     return list;
   }
+
+  SearchState copyWith({
+    bool? isLoading,
+    bool? isLoadingMore,
+    String? error,
+    bool clearError = false,
+    String? query,
+    SearchSortOption? sort,
+    List<Product>? products,
+    int? page,
+    int? total,
+  }) {
+    return SearchState(
+      isLoading: isLoading ?? this.isLoading,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      error: clearError ? null : (error ?? this.error),
+      query: query ?? this.query,
+      sort: sort ?? this.sort,
+      products: products ?? this.products,
+      page: page ?? this.page,
+      total: total ?? this.total,
+    );
+  }
 }
 
+class SearchViewModel extends Notifier<SearchState> {
+  static const _pageSize = 16;
 
+  @override
+  SearchState build() => const SearchState();
+
+  Future<void> search(String raw) async {
+    final query = raw.trim();
+    if (query.isEmpty) {
+      state = state.copyWith(
+        query: '',
+        products: const [],
+        total: 0,
+        page: 1,
+        clearError: true,
+      );
+      return;
+    }
+
+    state = state.copyWith(isLoading: true, clearError: true, query: query);
+    try {
+      final result = await ref
+          .read(catalogRepositoryProvider)
+          .getProductsPage(search: query, page: 1, limit: _pageSize);
+      state = state.copyWith(
+        isLoading: false,
+        page: 1,
+        products: result.products,
+        total: result.total,
+      );
+    } catch (error) {
+      state = state.copyWith(
+        isLoading: false,
+        error: error.toString().replaceFirst('Exception: ', ''),
+        products: const [],
+        total: 0,
+      );
+    }
+  }
+
+  Future<void> loadMore() async {
+    if (state.query.isEmpty ||
+        state.isLoading ||
+        state.isLoadingMore ||
+        !state.hasMore) {
+      return;
+    }
+
+    state = state.copyWith(isLoadingMore: true);
+    try {
+      final nextPage = state.page + 1;
+      final result = await ref
+          .read(catalogRepositoryProvider)
+          .getProductsPage(
+            search: state.query,
+            page: nextPage,
+            limit: _pageSize,
+          );
+      state = state.copyWith(
+        isLoadingMore: false,
+        page: nextPage,
+        total: result.total,
+        products: [...state.products, ...result.products],
+      );
+    } catch (error) {
+      state = state.copyWith(
+        isLoadingMore: false,
+        error: error.toString().replaceFirst('Exception: ', ''),
+      );
+    }
+  }
+
+  void setSort(SearchSortOption value) {
+    state = state.copyWith(sort: value);
+  }
+}

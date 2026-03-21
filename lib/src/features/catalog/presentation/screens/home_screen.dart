@@ -1,36 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
-import 'package:bakery_mobile/src/features/catalog/data/repositories/catalog_repository.dart';
-import 'package:bakery_mobile/src/features/blog/presentation/screens/blog_screen.dart';
-import 'package:bakery_mobile/src/features/cart/presentation/controllers/cart_view_model.dart';
 import 'package:bakery_mobile/src/features/chatbot/presentation/screens/chatbot_screen.dart';
 import 'package:bakery_mobile/src/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/screens/pages_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/search_screen.dart';
-import 'package:bakery_mobile/src/features/catalog/presentation/controllers/home_view_model.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/product_detail_screen.dart';
+import 'package:bakery_mobile/src/features/blog/presentation/screens/blog_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) =>
-          HomeViewModel(context.read<CatalogRepository>())..loadInitial(),
-      child: const _HomeView(),
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    return const _HomeView();
   }
 }
 
-class _HomeView extends StatelessWidget {
+class _HomeView extends ConsumerStatefulWidget {
   const _HomeView();
 
   @override
+  ConsumerState<_HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends ConsumerState<_HomeView> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(homeViewModelProvider.notifier).loadInitial();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final vm = context.watch<HomeViewModel>();
+    final vm = ref.watch(homeViewModelProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -73,12 +80,12 @@ class _HomeView extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: vm.loadInitial,
+            onPressed: ref.read(homeViewModelProvider.notifier).loadInitial,
           ),
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: vm.loadInitial,
+        onRefresh: ref.read(homeViewModelProvider.notifier).loadInitial,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
@@ -119,7 +126,8 @@ class _HomeView extends StatelessWidget {
                 hintText: 'Search products...',
                 prefixIcon: Icon(Icons.search),
               ),
-              onSubmitted: vm.search,
+              onSubmitted: (value) =>
+                  ref.read(homeViewModelProvider.notifier).search(value),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -132,7 +140,9 @@ class _HomeView extends StatelessWidget {
                     child: ChoiceChip(
                       label: const Text('All'),
                       selected: vm.selectedCategoryId == null,
-                      onSelected: (_) => vm.selectCategory(null),
+                      onSelected: (_) => ref
+                          .read(homeViewModelProvider.notifier)
+                          .selectCategory(null),
                     ),
                   ),
                   ...vm.categories.map(
@@ -141,7 +151,9 @@ class _HomeView extends StatelessWidget {
                       child: ChoiceChip(
                         label: Text(category.name),
                         selected: vm.selectedCategoryId == category.id,
-                        onSelected: (_) => vm.selectCategory(category.id),
+                        onSelected: (_) => ref
+                            .read(homeViewModelProvider.notifier)
+                            .selectCategory(category.id),
                       ),
                     ),
                   ),
@@ -334,14 +346,14 @@ class _ProductRail extends StatelessWidget {
   }
 }
 
-class _ProductTile extends StatelessWidget {
+class _ProductTile extends ConsumerWidget {
   const _ProductTile({required this.product});
 
   final Product product;
 
   @override
-  Widget build(BuildContext context) {
-    final cart = context.read<CartViewModel>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cart = ref.read(cartViewModelProvider.notifier);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
@@ -390,5 +402,3 @@ class _QuickNavButton extends StatelessWidget {
     return OutlinedButton(onPressed: onTap, child: Text(label));
   }
 }
-
-

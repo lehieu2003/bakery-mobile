@@ -94,4 +94,3 @@ class BlogListResult {
   final int page;
   final int totalPages;
 }
-

@@ -1,36 +1,53 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
-import 'package:bakery_mobile/src/features/orders/data/repositories/order_repository.dart';
 
-class OrdersViewModel extends ChangeNotifier {
-  OrdersViewModel(this._orderRepository);
+class OrdersState {
+  const OrdersState({
+    this.orders = const [],
+    this.isLoadingOrders = false,
+    this.isCreatingOrder = false,
+    this.errorMessage,
+  });
 
-  final OrderRepository _orderRepository;
+  final List<Order> orders;
+  final bool isLoadingOrders;
+  final bool isCreatingOrder;
+  final String? errorMessage;
 
-  List<Order> _orders = [];
-  bool _isLoadingOrders = false;
-  bool _isCreatingOrder = false;
-  String? _errorMessage;
+  bool get isLoading => isLoadingOrders || isCreatingOrder;
 
-  List<Order> get orders => _orders;
-  bool get isLoading => _isLoadingOrders || _isCreatingOrder;
-  bool get isLoadingOrders => _isLoadingOrders;
-  bool get isCreatingOrder => _isCreatingOrder;
-  String? get errorMessage => _errorMessage;
+  OrdersState copyWith({
+    List<Order>? orders,
+    bool? isLoadingOrders,
+    bool? isCreatingOrder,
+    String? errorMessage,
+    bool clearError = false,
+  }) {
+    return OrdersState(
+      orders: orders ?? this.orders,
+      isLoadingOrders: isLoadingOrders ?? this.isLoadingOrders,
+      isCreatingOrder: isCreatingOrder ?? this.isCreatingOrder,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+    );
+  }
+}
+
+class OrdersViewModel extends Notifier<OrdersState> {
+  @override
+  OrdersState build() => const OrdersState();
 
   Future<void> loadMyOrders() async {
-    _isLoadingOrders = true;
-    _errorMessage = null;
-    notifyListeners();
-
+    state = state.copyWith(isLoadingOrders: true, clearError: true);
     try {
-      _orders = await _orderRepository.getMyOrders();
+      final orders = await ref.read(orderRepositoryProvider).getMyOrders();
+      state = state.copyWith(orders: orders, isLoadingOrders: false);
     } catch (error) {
-      _errorMessage = error.toString().replaceFirst('Exception: ', '');
-    } finally {
-      _isLoadingOrders = false;
-      notifyListeners();
+      state = state.copyWith(
+        isLoadingOrders: false,
+        errorMessage: error.toString().replaceFirst('Exception: ', ''),
+      );
     }
   }
 
@@ -42,29 +59,29 @@ class OrdersViewModel extends ChangeNotifier {
     required String paymentMethod,
     required List<Map<String, dynamic>> items,
   }) async {
-    _isCreatingOrder = true;
-    _errorMessage = null;
-    notifyListeners();
-
+    state = state.copyWith(isCreatingOrder: true, clearError: true);
     try {
-      final created = await _orderRepository.createOrder(
-        customerName: customerName,
-        customerPhone: customerPhone,
-        customerEmail: customerEmail,
-        customerAddress: customerAddress,
-        paymentMethod: paymentMethod,
-        items: items,
+      final created = await ref
+          .read(orderCheckoutServiceProvider)
+          .createOrder(
+            customerName: customerName,
+            customerPhone: customerPhone,
+            customerEmail: customerEmail,
+            customerAddress: customerAddress,
+            paymentMethod: paymentMethod,
+            items: items,
+          );
+      state = state.copyWith(
+        orders: [created.order, ...state.orders],
+        isCreatingOrder: false,
       );
-      _orders = [created.order, ..._orders];
       return created;
     } catch (error) {
-      _errorMessage = error.toString().replaceFirst('Exception: ', '');
+      state = state.copyWith(
+        isCreatingOrder: false,
+        errorMessage: error.toString().replaceFirst('Exception: ', ''),
+      );
       return null;
-    } finally {
-      _isCreatingOrder = false;
-      notifyListeners();
     }
   }
 }
-
-

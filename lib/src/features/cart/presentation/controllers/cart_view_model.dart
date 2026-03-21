@@ -1,26 +1,36 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 
-class CartViewModel extends ChangeNotifier {
-  final List<CartItem> _items = [];
+class CartState {
+  const CartState({this.items = const []});
 
-  List<CartItem> get items => List.unmodifiable(_items);
+  final List<CartItem> items;
 
-  int get totalItems => _items.fold(0, (sum, item) => sum + item.quantity);
-  double get subtotal => _items.fold(0, (sum, item) => sum + item.lineTotal);
+  int get totalItems => items.fold(0, (sum, item) => sum + item.quantity);
+  double get subtotal => items.fold(0, (sum, item) => sum + item.lineTotal);
+
+  CartState copyWith({List<CartItem>? items}) {
+    return CartState(items: items ?? this.items);
+  }
+}
+
+class CartViewModel extends Notifier<CartState> {
+  @override
+  CartState build() => const CartState();
 
   void addProduct(Product product, {ProductVariant? variant}) {
-    final existingIndex = _items.indexWhere(
+    final next = [...state.items];
+    final existingIndex = next.indexWhere(
       (item) => item.productId == product.id && item.variantId == variant?.id,
     );
 
     if (existingIndex >= 0) {
-      final current = _items[existingIndex];
-      _items[existingIndex] = current.copyWith(quantity: current.quantity + 1);
+      final current = next[existingIndex];
+      next[existingIndex] = current.copyWith(quantity: current.quantity + 1);
     } else {
-      _items.add(
+      next.add(
         CartItem(
           productId: product.id,
           name: product.name,
@@ -33,7 +43,7 @@ class CartViewModel extends ChangeNotifier {
       );
     }
 
-    notifyListeners();
+    state = state.copyWith(items: next);
   }
 
   void increase(CartItem item) {
@@ -41,30 +51,28 @@ class CartViewModel extends ChangeNotifier {
   }
 
   void decrease(CartItem item) {
-    final next = item.quantity - 1;
-    if (next <= 0) {
+    final nextQty = item.quantity - 1;
+    if (nextQty <= 0) {
       remove(item);
       return;
     }
-    _updateQty(item, next);
+    _updateQty(item, nextQty);
   }
 
   void remove(CartItem item) {
-    _items.remove(item);
-    notifyListeners();
+    final next = [...state.items]..remove(item);
+    state = state.copyWith(items: next);
   }
 
   void clear() {
-    _items.clear();
-    notifyListeners();
+    state = const CartState();
   }
 
   void _updateQty(CartItem item, int qty) {
-    final index = _items.indexOf(item);
+    final next = [...state.items];
+    final index = next.indexOf(item);
     if (index < 0) return;
-    _items[index] = item.copyWith(quantity: qty);
-    notifyListeners();
+    next[index] = item.copyWith(quantity: qty);
+    state = state.copyWith(items: next);
   }
 }
-
-

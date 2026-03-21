@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_view_model.dart';
-import 'package:bakery_mobile/src/features/notifications/presentation/controllers/notifications_view_model.dart';
+import 'package:bakery_mobile/src/core/di/app_providers.dart';
 
-class NotificationsScreen extends StatefulWidget {
+class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 
   @override
-  State<NotificationsScreen> createState() => _NotificationsScreenState();
+  ConsumerState<NotificationsScreen> createState() =>
+      _NotificationsScreenState();
 }
 
-class _NotificationsScreenState extends State<NotificationsScreen> {
+class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -19,7 +19,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     super.initState();
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NotificationsViewModel>().load();
+      ref.read(notificationsViewModelProvider.notifier).load();
     });
   }
 
@@ -34,14 +34,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (!_scrollController.hasClients) return;
     final threshold = _scrollController.position.maxScrollExtent - 180;
     if (_scrollController.position.pixels >= threshold) {
-      context.read<NotificationsViewModel>().loadMore();
+      ref.read(notificationsViewModelProvider.notifier).loadMore();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthViewModel>();
-    final vm = context.watch<NotificationsViewModel>();
+    final auth = ref.watch(authViewModelProvider);
+    final vm = ref.watch(notificationsViewModelProvider);
 
     if (!auth.isAuthenticated) {
       return const Scaffold(
@@ -54,13 +54,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         title: Text('Notifications (${vm.unreadCount})'),
         actions: [
           TextButton(
-            onPressed: vm.unreadCount > 0 ? vm.markAllAsRead : null,
+            onPressed: vm.unreadCount > 0
+                ? ref
+                      .read(notificationsViewModelProvider.notifier)
+                      .markAllAsRead
+                : null,
             child: const Text('Mark all read'),
           ),
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: vm.load,
+        onRefresh: ref.read(notificationsViewModelProvider.notifier).load,
         child: ListView(
           controller: _scrollController,
           children: [
@@ -94,7 +98,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 trailing: n.isRead
                     ? null
                     : TextButton(
-                        onPressed: () => vm.markOneAsRead(n.id),
+                        onPressed: () => ref
+                            .read(notificationsViewModelProvider.notifier)
+                            .markOneAsRead(n.id),
                         child: const Text('Read'),
                       ),
               ),
@@ -108,7 +114,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: OutlinedButton(
-                  onPressed: vm.loadMore,
+                  onPressed: ref
+                      .read(notificationsViewModelProvider.notifier)
+                      .loadMore,
                   child: const Text('Load more'),
                 ),
               ),
@@ -118,5 +126,3 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 }
-
-

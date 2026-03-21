@@ -1,31 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/features/pages/domain/models/app_page.dart';
-import 'package:bakery_mobile/src/features/pages/data/repositories/page_repository.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/screens/page_detail_screen.dart';
-import 'package:bakery_mobile/src/features/pages/presentation/controllers/pages_view_model.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/states/static_page_fallbacks.dart';
 
-class PagesScreen extends StatelessWidget {
+class PagesScreen extends ConsumerStatefulWidget {
   const PagesScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) =>
-          PagesViewModel(context.read<PageRepository>())..loadPages(),
-      child: const _PagesView(),
-    );
-  }
+  ConsumerState<PagesScreen> createState() => _PagesScreenState();
 }
 
-class _PagesView extends StatelessWidget {
-  const _PagesView();
+class _PagesScreenState extends ConsumerState<PagesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(pagesViewModelProvider.notifier).loadPages();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.watch<PagesViewModel>();
+    final vm = ref.watch(pagesViewModelProvider);
 
     final dynamicPages = vm.pages;
     final staticPages = staticPageOrder
@@ -49,7 +48,7 @@ class _PagesView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Policy & Pages')),
       body: RefreshIndicator(
-        onRefresh: vm.loadPages,
+        onRefresh: ref.read(pagesViewModelProvider.notifier).loadPages,
         child: ListView(
           children: [
             if (vm.isLoading)
@@ -85,5 +84,3 @@ class _PagesView extends StatelessWidget {
     );
   }
 }
-
-

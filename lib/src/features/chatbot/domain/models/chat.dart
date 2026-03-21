@@ -22,5 +22,3 @@ class ChatReply {
   final String reply;
   final List<Product> suggestedProducts;
 }
-
-

@@ -1,60 +1,97 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/blog/domain/models/blog.dart';
-import 'package:bakery_mobile/src/features/blog/data/repositories/blog_repository.dart';
 
-class BlogViewModel extends ChangeNotifier {
-  BlogViewModel(this._blogRepository);
+class BlogState {
+  const BlogState({
+    this.isLoading = false,
+    this.isLoadingMore = false,
+    this.error,
+    this.posts = const [],
+    this.categories = const [],
+    this.tags = const [],
+    this.page = 1,
+    this.totalPages = 1,
+    this.search = '',
+    this.categorySlug = '',
+    this.tagSlug = '',
+  });
 
-  final BlogRepository _blogRepository;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final String? error;
+  final List<BlogPost> posts;
+  final List<BlogCategory> categories;
+  final List<BlogTag> tags;
+  final int page;
+  final int totalPages;
+  final String search;
+  final String categorySlug;
+  final String tagSlug;
+
+  bool get hasMore => page < totalPages;
+
+  BlogState copyWith({
+    bool? isLoading,
+    bool? isLoadingMore,
+    String? error,
+    bool clearError = false,
+    List<BlogPost>? posts,
+    List<BlogCategory>? categories,
+    List<BlogTag>? tags,
+    int? page,
+    int? totalPages,
+    String? search,
+    String? categorySlug,
+    String? tagSlug,
+  }) {
+    return BlogState(
+      isLoading: isLoading ?? this.isLoading,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      error: clearError ? null : (error ?? this.error),
+      posts: posts ?? this.posts,
+      categories: categories ?? this.categories,
+      tags: tags ?? this.tags,
+      page: page ?? this.page,
+      totalPages: totalPages ?? this.totalPages,
+      search: search ?? this.search,
+      categorySlug: categorySlug ?? this.categorySlug,
+      tagSlug: tagSlug ?? this.tagSlug,
+    );
+  }
+}
+
+class BlogViewModel extends Notifier<BlogState> {
   static const _pageSize = 12;
 
-  bool _isLoading = false;
-  bool _isLoadingMore = false;
-  String? _error;
-  List<BlogPost> _posts = [];
-  List<BlogCategory> _categories = [];
-  List<BlogTag> _tags = [];
-  int _page = 1;
-  int _totalPages = 1;
-
-  String _search = '';
-  String _categorySlug = '';
-  String _tagSlug = '';
-
-  bool get isLoading => _isLoading;
-  bool get isLoadingMore => _isLoadingMore;
-  String? get error => _error;
-  List<BlogPost> get posts => _posts;
-  List<BlogCategory> get categories => _categories;
-  List<BlogTag> get tags => _tags;
-  String get categorySlug => _categorySlug;
-  String get tagSlug => _tagSlug;
-  bool get hasMore => _page < _totalPages;
+  @override
+  BlogState build() => const BlogState();
 
   Future<void> loadInitial() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
+    state = state.copyWith(isLoading: true, clearError: true);
 
     try {
+      final repo = ref.read(blogRepositoryProvider);
       final results = await Future.wait([
-        _blogRepository.getCategories(),
-        _blogRepository.getTags(),
-        _blogRepository.getPosts(page: 1, limit: _pageSize),
+        repo.getCategories(),
+        repo.getTags(),
+        repo.getPosts(page: 1, limit: _pageSize),
       ]);
-
-      _categories = results[0] as List<BlogCategory>;
-      _tags = results[1] as List<BlogTag>;
       final listResult = results[2] as BlogListResult;
-      _posts = listResult.posts;
-      _page = listResult.page;
-      _totalPages = listResult.totalPages;
+      state = state.copyWith(
+        isLoading: false,
+        categories: results[0] as List<BlogCategory>,
+        tags: results[1] as List<BlogTag>,
+        posts: listResult.posts,
+        page: listResult.page,
+        totalPages: listResult.totalPages,
+      );
     } catch (error) {
-      _error = error.toString().replaceFirst('Exception: ', '');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      state = state.copyWith(
+        isLoading: false,
+        error: error.toString().replaceFirst('Exception: ', ''),
+      );
     }
   }
 
@@ -63,65 +100,68 @@ class BlogViewModel extends ChangeNotifier {
     String? categorySlug,
     String? tagSlug,
   }) async {
-    if (search != null) _search = search;
-    if (categorySlug != null) _categorySlug = categorySlug;
-    if (tagSlug != null) _tagSlug = tagSlug;
-
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
+    state = state.copyWith(
+      search: search ?? state.search,
+      categorySlug: categorySlug ?? state.categorySlug,
+      tagSlug: tagSlug ?? state.tagSlug,
+      isLoading: true,
+      clearError: true,
+    );
 
     try {
-      final result = await _blogRepository.getPosts(
-        page: 1,
-        limit: _pageSize,
-        search: _search.isEmpty ? null : _search,
-        categorySlug: _categorySlug.isEmpty ? null : _categorySlug,
-        tagSlug: _tagSlug.isEmpty ? null : _tagSlug,
+      final result = await ref
+          .read(blogRepositoryProvider)
+          .getPosts(
+            page: 1,
+            limit: _pageSize,
+            search: state.search.isEmpty ? null : state.search,
+            categorySlug: state.categorySlug.isEmpty
+                ? null
+                : state.categorySlug,
+            tagSlug: state.tagSlug.isEmpty ? null : state.tagSlug,
+          );
+      state = state.copyWith(
+        isLoading: false,
+        posts: result.posts,
+        page: result.page,
+        totalPages: result.totalPages,
       );
-      _posts = result.posts;
-      _page = result.page;
-      _totalPages = result.totalPages;
     } catch (error) {
-      _error = error.toString().replaceFirst('Exception: ', '');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      state = state.copyWith(
+        isLoading: false,
+        error: error.toString().replaceFirst('Exception: ', ''),
+      );
     }
   }
 
   Future<void> loadMore() async {
-    if (_isLoading || _isLoadingMore || !hasMore) return;
+    if (state.isLoading || state.isLoadingMore || !state.hasMore) return;
 
-    _isLoadingMore = true;
-    notifyListeners();
+    state = state.copyWith(isLoadingMore: true);
     try {
-      final nextPage = _page + 1;
-      final result = await _blogRepository.getPosts(
-        page: nextPage,
-        limit: _pageSize,
-        search: _search.isEmpty ? null : _search,
-        categorySlug: _categorySlug.isEmpty ? null : _categorySlug,
-        tagSlug: _tagSlug.isEmpty ? null : _tagSlug,
+      final nextPage = state.page + 1;
+      final result = await ref
+          .read(blogRepositoryProvider)
+          .getPosts(
+            page: nextPage,
+            limit: _pageSize,
+            search: state.search.isEmpty ? null : state.search,
+            categorySlug: state.categorySlug.isEmpty
+                ? null
+                : state.categorySlug,
+            tagSlug: state.tagSlug.isEmpty ? null : state.tagSlug,
+          );
+      state = state.copyWith(
+        isLoadingMore: false,
+        page: result.page,
+        totalPages: result.totalPages,
+        posts: [...state.posts, ...result.posts],
       );
-      _page = result.page;
-      _totalPages = result.totalPages;
-      _posts = [..._posts, ...result.posts];
     } catch (error) {
-      _error = error.toString().replaceFirst('Exception: ', '');
-    } finally {
-      _isLoadingMore = false;
-      notifyListeners();
-    }
-  }
-
-  Future<BlogPost?> loadPost(String slug) async {
-    try {
-      return await _blogRepository.getPostBySlug(slug);
-    } catch (_) {
-      return null;
+      state = state.copyWith(
+        isLoadingMore: false,
+        error: error.toString().replaceFirst('Exception: ', ''),
+      );
     }
   }
 }
-
-

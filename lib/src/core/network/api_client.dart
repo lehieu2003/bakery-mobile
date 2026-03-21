@@ -128,5 +128,3 @@ class ApiClient {
     return 'Request failed';
   }
 }
-
-

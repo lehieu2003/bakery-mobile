@@ -18,4 +18,3 @@ class TokenStorage {
     await prefs.remove(_tokenKey);
   }
 }
-
