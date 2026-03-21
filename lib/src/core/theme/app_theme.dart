@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // Synced with web primary/pink-deep tone.
-  static const Color primaryPink = Color(0xFFD05E8B);
+  static const Color primaryPink = Color.fromARGB(255, 202, 101, 141);
   static const Color canvasCream = Color(0xFFF8F4F2);
 
   static ThemeData light() {

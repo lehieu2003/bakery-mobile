@@ -267,10 +267,7 @@ class _HeroBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 190,
-      decoration: BoxDecoration(
-        color: AppTheme.primaryPink,
-        borderRadius: BorderRadius.circular(18),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(18)),
       child: Stack(
         fit: StackFit.expand,
         children: [

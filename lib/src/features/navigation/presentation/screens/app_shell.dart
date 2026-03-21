@@ -25,10 +25,10 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
 
     final pages = [
       const HomeScreen(),
-      const ChatbotScreen(),
+      const ProfileScreen(),
       const CartScreen(),
       const SearchScreen(),
-      const ProfileScreen(),
+      const ChatbotScreen(),
     ];
 
     return Scaffold(
@@ -54,62 +54,65 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
 }
 
 class _BottomNavigator extends StatelessWidget {
-  const _BottomNavigator({
-    required this.currentIndex,
-    required this.onTap,
-  });
+  const _BottomNavigator({required this.currentIndex, required this.onTap});
 
   final int currentIndex;
   final ValueChanged<int> onTap;
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      minimum: const EdgeInsets.fromLTRB(14, 0, 14, 10),
-      child: Container(
-        height: 64,
-        decoration: BoxDecoration(
-          color: AppTheme.primaryPink,
-          borderRadius: BorderRadius.circular(999),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        child: Row(
-          children: [
-            _NavButton(
-              index: 0,
-              currentIndex: currentIndex,
-              icon: Icons.home_outlined,
-              selectedIcon: Icons.home,
-              label: 'Home',
-              onTap: onTap,
-            ),
-            _NavButton(
-              index: 1,
-              currentIndex: currentIndex,
-              icon: Icons.smart_toy_outlined,
-              selectedIcon: Icons.smart_toy,
-              label: 'Chatbot',
-              onTap: onTap,
-            ),
-            const SizedBox(width: 62),
-            _NavButton(
-              index: 3,
-              currentIndex: currentIndex,
-              icon: Icons.storefront_outlined,
-              selectedIcon: Icons.storefront,
-              label: 'Product',
-              onTap: onTap,
-            ),
-            _NavButton(
-              index: 4,
-              currentIndex: currentIndex,
-              icon: Icons.person_outline,
-              selectedIcon: Icons.person,
-              label: 'Profile',
-              onTap: onTap,
-            ),
-          ],
-        ),
+    return BottomAppBar(
+      color: AppTheme.primaryPink,
+      shape: const CircularNotchedRectangle(),
+      notchMargin: 8,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      height: 64,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Left side: Home, Person
+          Row(
+            children: [
+              _NavButton(
+                index: 0,
+                currentIndex: currentIndex,
+                icon: Icons.home_outlined,
+                selectedIcon: Icons.home,
+                label: 'Home',
+                onTap: onTap,
+              ),
+              _NavButton(
+                index: 1,
+                currentIndex: currentIndex,
+                icon: Icons.person_outline,
+                selectedIcon: Icons.person,
+                label: 'Profile',
+                onTap: onTap,
+              ),
+            ],
+          ),
+          // Right side: Favorite, Chatbot
+          Row(
+            children: [
+              _NavButton(
+                index: 3,
+                currentIndex: currentIndex,
+                icon: Icons.favorite_border,
+                selectedIcon: Icons.favorite,
+                label: 'Wishlist',
+                onTap: onTap,
+              ),
+              _NavButton(
+                index: 4,
+                currentIndex: currentIndex,
+                icon: Icons.chat_bubble_outline,
+                selectedIcon: Icons.chat_bubble,
+                label: 'Chatbot',
+                onTap: onTap,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -135,23 +138,24 @@ class _NavButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selected = currentIndex == index;
-    final fg = Colors.white;
 
-    return Expanded(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(999),
-        onTap: () => onTap(index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(999),
-            color: selected ? Colors.white.withValues(alpha: 0.18) : null,
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-          child: Tooltip(
-            message: label,
-            child: Icon(selected ? selectedIcon : icon, size: 24, color: fg),
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: () => onTap(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(999),
+          color: selected ? Colors.white.withValues(alpha: 0.18) : null,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        child: Tooltip(
+          message: label,
+          child: Icon(
+            selected ? selectedIcon : icon,
+            size: 24,
+            color: Colors.white,
           ),
         ),
       ),
