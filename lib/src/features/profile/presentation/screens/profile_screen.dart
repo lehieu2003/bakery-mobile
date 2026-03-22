@@ -5,6 +5,7 @@ import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/screens/blog_screen.dart';
 import 'package:bakery_mobile/src/features/chatbot/presentation/screens/chatbot_screen.dart';
 import 'package:bakery_mobile/src/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/screens/pages_screen.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -23,8 +24,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     final user = auth.user;
     if (user == null) {
-      return const Scaffold(
-        body: Center(child: Text('Please sign in to see your profile.')),
+      return Scaffold(
+        appBar: AppBar(title: const Text('Profile')),
+        body: const Center(child: Text('Please sign in to see your profile.')),
       );
     }
 
@@ -43,81 +45,41 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Card(
-            child: ListTile(
-              title: Text(user.name ?? 'Customer'),
-              subtitle: Text(
-                '${user.email}/nLevel: ${user.memberLevel ?? 'SILVER'} | Points: ${user.points ?? 0}',
-              ),
-              isThreeLine: true,
-            ),
+          _ProfileHeaderCard(
+            name: user.name,
+            email: user.email,
+            level: user.memberLevel,
+            points: user.points ?? 0,
           ),
           const SizedBox(height: 12),
-          Card(
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.notifications_outlined),
-                  title: Text(
-                    'Notifications (${notifications.unreadCount} unread)',
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const NotificationsScreen(),
-                      ),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.article_outlined),
-                  title: const Text('Blog'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const BlogScreen()),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.chat_bubble_outline),
-                  title: const Text('Chatbot'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const ChatbotScreen()),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.menu_book_outlined),
-                  title: const Text('Policy & Pages'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const PagesScreen()),
-                    );
-                  },
-                ),
-              ],
-            ),
+          _QuickActionsCard(
+            unreadNotifications: notifications.unreadCount,
+            onOpenNotifications: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+              );
+            },
+            onOpenBlog: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const BlogScreen()));
+            },
+            onOpenChatbot: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const ChatbotScreen()));
+            },
+            onOpenPages: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const PagesScreen()));
+            },
           ),
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'My Orders',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              IconButton(
-                onPressed: orders.isLoading
-                    ? null
-                    : ref.read(ordersViewModelProvider.notifier).loadMyOrders,
-                icon: const Icon(Icons.refresh),
-              ),
-            ],
+          _OrdersHeader(
+            onRefresh: orders.isLoading
+                ? null
+                : ref.read(ordersViewModelProvider.notifier).loadMyOrders,
           ),
           if (orders.isLoading)
             const Center(
@@ -138,26 +100,356 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 children: [
                   const Expanded(child: Text('No orders loaded yet.')),
                   TextButton(
-                    onPressed: () =>
-                        ref.read(ordersViewModelProvider.notifier).loadMyOrders(),
+                    onPressed: () => ref
+                        .read(ordersViewModelProvider.notifier)
+                        .loadMyOrders(),
                     child: const Text('Load'),
                   ),
                 ],
               ),
             ),
           ...orders.orders.map(
-            (order) => Card(
-              child: ListTile(
-                title: Text('#${order.orderNumber}'),
-                subtitle: Text(
-                  '${order.status} - ${order.createdAt.toLocal()}/n${order.orderItems.isNotEmpty ? order.orderItems.first.name : ''}',
-                ),
-                trailing: Text('${order.total.toStringAsFixed(0)} VND'),
-                isThreeLine: true,
-              ),
+            (order) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: _OrderCard(order: order),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ProfileHeaderCard extends StatelessWidget {
+  const _ProfileHeaderCard({
+    required this.email,
+    required this.points,
+    this.name,
+    this.level,
+  });
+
+  final String? name;
+  final String email;
+  final String? level;
+  final int points;
+
+  @override
+  Widget build(BuildContext context) {
+    final displayName = (name?.trim().isNotEmpty ?? false)
+        ? name!.trim()
+        : 'Customer';
+    final displayLevel = (level?.trim().isNotEmpty ?? false)
+        ? level!.trim()
+        : 'SILVER';
+    final initial = displayName.substring(0, 1).toUpperCase();
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer,
+                  child: Text(
+                    initial,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        displayName,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        email,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _ProfileStatChip(
+                    icon: Icons.workspace_premium_outlined,
+                    label: 'Level',
+                    value: displayLevel,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _ProfileStatChip(
+                    icon: Icons.stars_outlined,
+                    label: 'Points',
+                    value: '$points',
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileStatChip extends StatelessWidget {
+  const _ProfileStatChip({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickActionsCard extends StatelessWidget {
+  const _QuickActionsCard({
+    required this.unreadNotifications,
+    required this.onOpenNotifications,
+    required this.onOpenBlog,
+    required this.onOpenChatbot,
+    required this.onOpenPages,
+  });
+
+  final int unreadNotifications;
+  final VoidCallback onOpenNotifications;
+  final VoidCallback onOpenBlog;
+  final VoidCallback onOpenChatbot;
+  final VoidCallback onOpenPages;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(
+        children: [
+          _ActionTile(
+            icon: Icons.notifications_outlined,
+            title: 'Notifications',
+            subtitle: '$unreadNotifications unread',
+            onTap: onOpenNotifications,
+          ),
+          _ActionTile(
+            icon: Icons.article_outlined,
+            title: 'Blog',
+            subtitle: 'Read news and updates',
+            onTap: onOpenBlog,
+          ),
+          _ActionTile(
+            icon: Icons.chat_bubble_outline,
+            title: 'Chatbot',
+            subtitle: 'Get product suggestions',
+            onTap: onOpenChatbot,
+          ),
+          _ActionTile(
+            icon: Icons.menu_book_outlined,
+            title: 'Policy & Pages',
+            subtitle: 'Terms, policy and about',
+            onTap: onOpenPages,
+            hideDivider: true,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActionTile extends StatelessWidget {
+  const _ActionTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+    this.hideDivider = false,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  final bool hideDivider;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ListTile(
+          leading: Icon(icon),
+          title: Text(title),
+          subtitle: Text(subtitle),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: onTap,
+        ),
+        if (!hideDivider) const Divider(height: 1, indent: 16, endIndent: 16),
+      ],
+    );
+  }
+}
+
+class _OrdersHeader extends StatelessWidget {
+  const _OrdersHeader({required this.onRefresh});
+
+  final VoidCallback? onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'My Orders',
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        IconButton(
+          onPressed: onRefresh,
+          icon: const Icon(Icons.refresh),
+          tooltip: 'Refresh orders',
+        ),
+      ],
+    );
+  }
+}
+
+class _OrderCard extends StatelessWidget {
+  const _OrderCard({required this.order});
+
+  final Order order;
+
+  @override
+  Widget build(BuildContext context) {
+    final firstItemName = order.orderItems.isNotEmpty
+        ? order.orderItems.first.name
+        : '';
+    final createdAt = order.createdAt.toLocal();
+    final dateText =
+        '${createdAt.day.toString().padLeft(2, '0')}/${createdAt.month.toString().padLeft(2, '0')}/${createdAt.year} ${createdAt.hour.toString().padLeft(2, '0')}:${createdAt.minute.toString().padLeft(2, '0')}';
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '#${order.orderNumber}',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ),
+                _OrderStatusBadge(status: order.status.toString()),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(dateText, style: Theme.of(context).textTheme.bodySmall),
+            if (firstItemName.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                firstItemName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+            const SizedBox(height: 8),
+            Text(
+              '${order.total.toStringAsFixed(0)} VND',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _OrderStatusBadge extends StatelessWidget {
+  const _OrderStatusBadge({required this.status});
+
+  final String status;
+
+  @override
+  Widget build(BuildContext context) {
+    final normalized = status.toUpperCase();
+    final colorScheme = Theme.of(context).colorScheme;
+    Color bg = colorScheme.secondaryContainer;
+    Color fg = colorScheme.onSecondaryContainer;
+
+    if (normalized.contains('CANCEL')) {
+      bg = colorScheme.errorContainer;
+      fg = colorScheme.onErrorContainer;
+    } else if (normalized.contains('PAID') || normalized.contains('SUCCESS')) {
+      bg = Colors.green.withValues(alpha: 0.14);
+      fg = Colors.green.shade800;
+    } else if (normalized.contains('PENDING')) {
+      bg = Colors.orange.withValues(alpha: 0.16);
+      fg = Colors.orange.shade900;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        normalized,
+        style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 11),
       ),
     );
   }
