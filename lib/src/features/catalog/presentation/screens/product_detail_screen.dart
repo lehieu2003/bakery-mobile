@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
+import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
@@ -16,15 +19,38 @@ class ProductDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
+  final PageController _imageController = PageController(viewportFraction: 1);
+
   Product? _product;
+  ProductVariant? _selectedVariant;
   bool _isLoading = true;
   String? _error;
-  ProductVariant? _selectedVariant;
+  int _activeImageIndex = 0;
+  Timer? _imageTimer;
 
   @override
   void initState() {
     super.initState();
     _load();
+    _imageTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+      final product = _product;
+      if (product == null) return;
+      final images = _productImages(product);
+      if (!_imageController.hasClients || images.length <= 1) return;
+      final next = (_activeImageIndex + 1) % images.length;
+      _imageController.animateToPage(
+        next,
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _imageTimer?.cancel();
+    _imageController.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -36,13 +62,16 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     try {
       final repo = ref.read(catalogRepositoryProvider);
       final product = await repo.getProductDetail(widget.productIdOrSlug);
+      if (!mounted) return;
       setState(() {
         _product = product;
         _selectedVariant = product.variants.isNotEmpty
             ? product.variants.first
             : null;
+        _activeImageIndex = 0;
       });
     } catch (error) {
+      if (!mounted) return;
       setState(() => _error = error.toString().replaceFirst('Exception: ', ''));
     } finally {
       if (mounted) {
@@ -55,75 +84,399 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   Widget build(BuildContext context) {
     final cart = ref.read(cartViewModelProvider.notifier);
 
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (_error != null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: Center(child: Text(_error!)),
+      );
+    }
+
+    final product = _product;
+    if (product == null) {
+      return const Scaffold(body: Center(child: Text('Product not found')));
+    }
+
+    final currentPrice = _selectedVariant?.price ?? product.price;
+    final images = _productImages(product);
+    final hasVariants = product.variants.isNotEmpty;
+    final summaryText = _displayDescription(product);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Product details')),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? Center(child: Text(_error!))
-          : _product == null
-          ? const Center(child: Text('Product not found'))
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: (_product!.thumbnail.isNotEmpty)
-                      ? Image.network(
-                          _product!.thumbnail,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              const ColoredBox(color: Color(0xFFE9D7C3)),
-                        )
-                      : const ColoredBox(color: Color(0xFFE9D7C3)),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  _product!.name,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 8),
-                Text(_product!.description ?? _product!.shortDescription ?? ''),
-                const SizedBox(height: 12),
-                if (_product!.variants.isNotEmpty) ...[
-                  const Text(
-                    'Variant',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 360,
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
+            leading: IconButton(
+              onPressed: () => Navigator.of(context).maybePop(),
+              icon: const Icon(Icons.arrow_back),
+            ),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  PageView.builder(
+                    controller: _imageController,
+                    itemCount: images.length,
+                    onPageChanged: (index) =>
+                        setState(() => _activeImageIndex = index),
+                    itemBuilder: (context, index) => GestureDetector(
+                      onTap: () => _openImageViewer(
+                        context: context,
+                        images: images,
+                        initialIndex: index,
+                      ),
+                      child: Image.network(
+                        images[index],
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          color: const Color(0xFFE9D7C3),
+                          alignment: Alignment.center,
+                          child: const Icon(
+                            Icons.broken_image_outlined,
+                            size: 40,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 16,
+                    left: 0,
+                    right: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(images.length, (index) {
+                        final active = _activeImageIndex == index;
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          width: active ? 18 : 8,
+                          height: 8,
+                          margin: const EdgeInsets.symmetric(horizontal: 3),
+                          decoration: BoxDecoration(
+                            color: active
+                                ? Colors.white
+                                : Colors.white.withValues(alpha: 0.45),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    children: _product!.variants
-                        .map(
-                          (variant) => ChoiceChip(
-                            label: Text(
-                              '${variant.name} - ${variant.price.toStringAsFixed(0)} VND',
-                            ),
-                            selected: _selectedVariant?.id == variant.id,
-                            onSelected: (_) =>
-                                setState(() => _selectedVariant = variant),
+                  Row(
+                    children: [
+                      Text(
+                        '${currentPrice.toStringAsFixed(0)} VND',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: product.stock > 0
+                              ? Colors.green.withValues(alpha: 0.12)
+                              : Colors.red.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          product.stock > 0
+                              ? 'Stock: ${product.stock}'
+                              : 'Out of stock',
+                          style: TextStyle(
+                            color: product.stock > 0
+                                ? Colors.green.shade800
+                                : Colors.red.shade800,
+                            fontWeight: FontWeight.w600,
                           ),
-                        )
-                        .toList(),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
+                  if (summaryText.isNotEmpty) ...[
+                    Text(
+                      'Mô tả sản phẩm',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      summaryText,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(height: 1.45),
+                    ),
+                    const SizedBox(height: 18),
+                  ],
+                  if (hasVariants) ...[
+                    Text(
+                      'Biến thể',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: product.variants
+                          .map(
+                            (variant) => ChoiceChip(
+                              label: Text(
+                                '${variant.name} - ${variant.price.toStringAsFixed(0)} VND',
+                              ),
+                              selected: _selectedVariant?.id == variant.id,
+                              onSelected: (_) =>
+                                  setState(() => _selectedVariant = variant),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                    const SizedBox(height: 18),
+                  ],
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Column(
+                      children: [
+                        _InfoRow(
+                          label: 'Giá gốc',
+                          value: '${product.price.toStringAsFixed(0)} VND',
+                        ),
+                        const SizedBox(height: 8),
+                        _InfoRow(
+                          label: 'Giá đang chọn',
+                          value: '${currentPrice.toStringAsFixed(0)} VND',
+                        ),
+                        const SizedBox(height: 8),
+                        _InfoRow(label: 'Mã sản phẩm', value: product.id),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                 ],
-                FilledButton.icon(
-                  onPressed: _product!.stock > 0
-                      ? () {
-                          cart.addProduct(_product!, variant: _selectedVariant);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Added to cart')),
-                          );
-                        }
-                      : null,
-                  icon: const Icon(Icons.add_shopping_cart),
-                  label: Text(
-                    'Add to cart - ${(_selectedVariant?.price ?? _product!.price).toStringAsFixed(0)} VND',
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 14,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Total Cost',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    Text(
+                      '${currentPrice.toStringAsFixed(0)} VND',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              FilledButton.icon(
+                onPressed: product.stock > 0
+                    ? () {
+                        cart.addProduct(product, variant: _selectedVariant);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Added to cart')),
+                        );
+                      }
+                    : null,
+                icon: const Icon(Icons.shopping_bag_outlined),
+                label: const Text('Add to Cart'),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 22,
+                    vertical: 14,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _displayDescription(Product product) {
+    final full = (product.description ?? '').trim();
+    if (full.isNotEmpty) return full;
+    return (product.shortDescription ?? '').trim();
+  }
+
+  List<String> _productImages(Product product) {
+    final urls = <String>[];
+
+    final thumb = resolveImageUrl(product.thumbnail);
+    if (thumb.isNotEmpty) urls.add(thumb);
+
+    for (final image in product.images) {
+      final url = resolveImageUrl(image.url);
+      if (url.isEmpty || urls.contains(url)) continue;
+      urls.add(url);
+    }
+
+    if (urls.isEmpty) {
+      urls.add('https://via.placeholder.com/900x900.png?text=Bakery+Product');
+    }
+    return urls;
+  }
+
+  Future<void> _openImageViewer({
+    required BuildContext context,
+    required List<String> images,
+    required int initialIndex,
+  }) async {
+    var activeIndex = initialIndex;
+    final controller = PageController(initialPage: initialIndex);
+
+    await showDialog<void>(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.92),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Scaffold(
+              backgroundColor: Colors.transparent,
+              body: SafeArea(
+                child: Stack(
+                  children: [
+                    PageView.builder(
+                      controller: controller,
+                      itemCount: images.length,
+                      onPageChanged: (index) {
+                        setModalState(() => activeIndex = index);
+                      },
+                      itemBuilder: (context, index) => Center(
+                        child: InteractiveViewer(
+                          minScale: 1,
+                          maxScale: 4,
+                          child: Image.network(
+                            images[index],
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.broken_image_outlined,
+                              size: 42,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(Icons.close),
+                        color: Colors.white,
+                      ),
+                    ),
+                    if (images.length > 1)
+                      Positioned(
+                        bottom: 20,
+                        left: 0,
+                        right: 0,
+                        child: Text(
+                          '${activeIndex + 1}/${images.length}',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    controller.dispose();
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(label, style: Theme.of(context).textTheme.bodyMedium),
+        ),
+        const SizedBox(width: 10),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+        ),
+      ],
     );
   }
 }
