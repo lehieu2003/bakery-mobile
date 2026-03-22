@@ -44,7 +44,7 @@ class NotificationsState {
 }
 
 class NotificationsViewModel extends Notifier<NotificationsState> {
-  static const _pageSize = 20;
+  static const _pageSize = 10;
 
   @override
   NotificationsState build() => const NotificationsState();

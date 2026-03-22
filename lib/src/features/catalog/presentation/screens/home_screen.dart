@@ -40,6 +40,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(homeViewModelProvider.notifier).loadInitial();
+      ref.read(notificationsViewModelProvider.notifier).load();
     });
     _bannerTimer = Timer.periodic(const Duration(seconds: 2), (_) {
       if (!_bannerController.hasClients || _bannerCount <= 1) return;
@@ -111,6 +112,17 @@ class _HomeViewState extends ConsumerState<_HomeView> {
               _BannerDots(activeIndex: _bannerIndex, count: vm.banners.length),
             ],
             const SizedBox(height: 14),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'Danh Mục Sản Phẩm',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.4,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
             _CategoryRail(
               categories: vm.categories,
               selectedCategoryId: vm.selectedCategoryId,
@@ -118,6 +130,17 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                   ref.read(homeViewModelProvider.notifier).selectCategory(id),
             ),
             const SizedBox(height: 14),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'Sản Phẩm Nổi Bật',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.4,
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
             if (vm.isLoading && vm.bestSellers.isEmpty)
               const Padding(
                 padding: EdgeInsets.only(top: 24),
