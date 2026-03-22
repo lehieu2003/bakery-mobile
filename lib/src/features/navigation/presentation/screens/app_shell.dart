@@ -22,6 +22,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
   @override
   Widget build(BuildContext context) {
     final cart = ref.watch(cartViewModelProvider);
+    final auth = ref.watch(authViewModelProvider);
     final keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
     final isChatbotTab = _index == 3;
     final hideShellChrome = isChatbotTab && keyboardVisible;
@@ -36,6 +37,15 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
 
     return Scaffold(
       extendBody: true,
+      drawer: _AppDrawer(
+        currentIndex: _index,
+        userName: auth.user?.name,
+        userEmail: auth.user?.email,
+        onNavigate: _onDrawerNavigate,
+        onLogout: auth.isSubmitting
+            ? null
+            : () => ref.read(authViewModelProvider.notifier).logout(),
+      ),
       body: IndexedStack(index: _index, children: pages),
       floatingActionButtonLocation: hideShellChrome
           ? null
@@ -62,6 +72,12 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
               onTap: (value) => setState(() => _index = value),
             ),
     );
+  }
+
+  void _onDrawerNavigate(int index) {
+    Navigator.of(context).pop();
+    if (_index == index) return;
+    setState(() => _index = index);
   }
 }
 
@@ -177,6 +193,121 @@ class _NavButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _AppDrawer extends StatelessWidget {
+  const _AppDrawer({
+    required this.currentIndex,
+    required this.onNavigate,
+    required this.onLogout,
+    this.userName,
+    this.userEmail,
+  });
+
+  final int currentIndex;
+  final String? userName;
+  final String? userEmail;
+  final ValueChanged<int> onNavigate;
+  final VoidCallback? onLogout;
+
+  @override
+  Widget build(BuildContext context) {
+    final displayName = (userName?.trim().isNotEmpty ?? false)
+        ? userName!.trim()
+        : 'Bakery Customer';
+    final displayEmail = (userEmail?.trim().isNotEmpty ?? false)
+        ? userEmail!.trim()
+        : 'Guest';
+
+    return Drawer(
+      child: Column(
+        children: [
+          UserAccountsDrawerHeader(
+            decoration: const BoxDecoration(color: AppTheme.primaryPink),
+            accountName: Text(displayName),
+            accountEmail: Text(displayEmail),
+            currentAccountPicture: CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Text(
+                displayName.substring(0, 1).toUpperCase(),
+                style: const TextStyle(
+                  color: AppTheme.primaryPink,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+          _DrawerNavItem(
+            icon: Icons.home_outlined,
+            label: 'Home',
+            selected: currentIndex == 0,
+            onTap: () => onNavigate(0),
+          ),
+          _DrawerNavItem(
+            icon: Icons.search_outlined,
+            label: 'Search',
+            selected: currentIndex == 1,
+            onTap: () => onNavigate(1),
+          ),
+          _DrawerNavItem(
+            icon: Icons.shopping_cart_outlined,
+            label: 'Cart',
+            selected: currentIndex == 2,
+            onTap: () => onNavigate(2),
+          ),
+          _DrawerNavItem(
+            icon: Icons.chat_bubble_outline,
+            label: 'Chatbot',
+            selected: currentIndex == 3,
+            onTap: () => onNavigate(3),
+          ),
+          _DrawerNavItem(
+            icon: Icons.person_outline,
+            label: 'Profile',
+            selected: currentIndex == 4,
+            onTap: () => onNavigate(4),
+          ),
+          const Spacer(),
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('Logout'),
+            onTap: onLogout == null
+                ? null
+                : () {
+                    Navigator.of(context).pop();
+                    onLogout?.call();
+                  },
+          ),
+          const SizedBox(height: 12),
+        ],
+      ),
+    );
+  }
+}
+
+class _DrawerNavItem extends StatelessWidget {
+  const _DrawerNavItem({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(label),
+      selected: selected,
+      onTap: onTap,
     );
   }
 }
