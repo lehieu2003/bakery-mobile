@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
+import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/screens/blog_detail_screen.dart';
 
 class BlogScreen extends ConsumerWidget {
@@ -59,12 +60,10 @@ class _BlogViewState extends ConsumerState<_BlogView> {
           controller: _scrollController,
           padding: const EdgeInsets.all(16),
           children: [
-            TextField(
+            AppTextInput(
               textInputAction: TextInputAction.search,
-              decoration: const InputDecoration(
-                hintText: 'Search blog posts...',
-                prefixIcon: Icon(Icons.search),
-              ),
+              hintText: 'Search blog posts...',
+              prefixIcon: const Icon(Icons.search),
               onSubmitted: (text) => ref
                   .read(blogViewModelProvider.notifier)
                   .applyFilter(search: text),

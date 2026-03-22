@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
+import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/product_detail_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/search_view_model.dart';
@@ -82,13 +83,11 @@ class _SearchViewState extends ConsumerState<_SearchView> {
         controller: _scrollController,
         padding: const EdgeInsets.all(16),
         children: [
-          TextField(
+          AppTextInput(
             controller: _controller,
             textInputAction: TextInputAction.search,
-            decoration: const InputDecoration(
-              hintText: 'What are you looking for?',
-              prefixIcon: Icon(Icons.search),
-            ),
+            hintText: 'What are you looking for?',
+            prefixIcon: const Icon(Icons.search),
             onSubmitted: (value) =>
                 ref.read(searchViewModelProvider.notifier).search(value),
           ),

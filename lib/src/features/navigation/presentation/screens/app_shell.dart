@@ -22,36 +22,45 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
   @override
   Widget build(BuildContext context) {
     final cart = ref.watch(cartViewModelProvider);
+    final keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
+    final isChatbotTab = _index == 3;
+    final hideShellChrome = isChatbotTab && keyboardVisible;
 
     final pages = [
       const HomeScreen(),
-      const ProfileScreen(),
-      const CartScreen(),
       const SearchScreen(),
+      const CartScreen(),
       const ChatbotScreen(),
+      const ProfileScreen(),
     ];
 
     return Scaffold(
       extendBody: true,
       body: IndexedStack(index: _index, children: pages),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Badge(
-        isLabelVisible: cart.totalItems > 0,
-        label: Text('${cart.totalItems}'),
-        child: FloatingActionButton(
-          shape: const StadiumBorder(),
-          heroTag: 'cart_fab',
-          backgroundColor: AppTheme.primaryPink,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          onPressed: () => setState(() => _index = 2),
-          child: const Icon(Icons.shopping_cart_outlined),
-        ),
-      ),
-      bottomNavigationBar: _BottomNavigator(
-        currentIndex: _index,
-        onTap: (value) => setState(() => _index = value),
-      ),
+      floatingActionButtonLocation: hideShellChrome
+          ? null
+          : FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: hideShellChrome
+          ? null
+          : Badge(
+              isLabelVisible: cart.totalItems > 0,
+              label: Text('${cart.totalItems}'),
+              child: FloatingActionButton(
+                shape: const StadiumBorder(),
+                heroTag: 'cart_fab',
+                backgroundColor: AppTheme.primaryPink,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                onPressed: () => setState(() => _index = 2),
+                child: const Icon(Icons.shopping_cart_outlined),
+              ),
+            ),
+      bottomNavigationBar: hideShellChrome
+          ? null
+          : _BottomNavigator(
+              currentIndex: _index,
+              onTap: (value) => setState(() => _index = value),
+            ),
     );
   }
 }
@@ -90,9 +99,9 @@ class _BottomNavigator extends StatelessWidget {
                   _NavButton(
                     index: 1,
                     currentIndex: currentIndex,
-                    icon: Icons.person_outline,
-                    selectedIcon: Icons.person,
-                    label: 'Profile',
+                    icon: Icons.search_outlined,
+                    selectedIcon: Icons.search,
+                    label: 'Search',
                     onTap: onTap,
                   ),
                 ],
@@ -104,17 +113,17 @@ class _BottomNavigator extends StatelessWidget {
                   _NavButton(
                     index: 3,
                     currentIndex: currentIndex,
-                    icon: Icons.search_outlined,
-                    selectedIcon: Icons.search,
-                    label: 'Search',
+                    icon: Icons.chat_bubble_outline,
+                    selectedIcon: Icons.chat_bubble,
+                    label: 'Chatbot',
                     onTap: onTap,
                   ),
                   _NavButton(
                     index: 4,
                     currentIndex: currentIndex,
-                    icon: Icons.chat_bubble_outline,
-                    selectedIcon: Icons.chat_bubble,
-                    label: 'Chatbot',
+                    icon: Icons.person_outline,
+                    selectedIcon: Icons.person,
+                    label: 'Profile',
                     onTap: onTap,
                   ),
                 ],

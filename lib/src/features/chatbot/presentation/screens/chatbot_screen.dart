@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
+import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
 import 'package:bakery_mobile/src/features/chatbot/domain/models/chat.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 
@@ -18,9 +19,12 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
     'Banh nao ban chay nhat?',
     'Toi thich vi it ngot',
   ];
+  static const double _hostBottomBarHeight = 20;
 
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
+  int _lastMessageCount = 0;
+  bool _lastKeyboardVisible = false;
 
   @override
   void dispose() {
@@ -32,23 +36,39 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
   @override
   Widget build(BuildContext context) {
     final vm = ref.watch(chatbotViewModelProvider);
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
+    final keyboardVisible = keyboardInset > 0;
+    final composerBottomInset =
+        (keyboardVisible
+            ? keyboardInset
+            : MediaQuery.paddingOf(context).bottom + _hostBottomBarHeight) +
+        8;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_scrollController.hasClients) return;
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-      );
-    });
+    final shouldAutoScroll =
+        _lastMessageCount != vm.messages.length ||
+        _lastKeyboardVisible != keyboardVisible;
+    if (shouldAutoScroll) {
+      _lastMessageCount = vm.messages.length;
+      _lastKeyboardVisible = keyboardVisible;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_scrollController.hasClients) return;
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      });
+    }
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(title: const Text('Chatbot')),
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.all(12),
               itemCount: vm.messages.length,
               itemBuilder: (context, index) {
@@ -65,56 +85,54 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
-          SizedBox(
-            height: 40,
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              scrollDirection: Axis.horizontal,
-              children: _quickPrompts
-                  .map(
-                    (prompt) => Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: ActionChip(
-                        label: Text(prompt),
-                        onPressed: vm.isSending
-                            ? null
-                            : () => _sendPrompt(context, prompt),
+          if (!keyboardVisible)
+            SizedBox(
+              height: 40,
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                scrollDirection: Axis.horizontal,
+                children: _quickPrompts
+                    .map(
+                      (prompt) => Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ActionChip(
+                          label: Text(prompt),
+                          onPressed: vm.isSending
+                              ? null
+                              : () => _sendPrompt(context, prompt),
+                        ),
                       ),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      minLines: 1,
-                      maxLines: 4,
-                      decoration: const InputDecoration(
-                        hintText: 'Nhap tin nhan...',
-                      ),
-                      onSubmitted: (_) => _send(context),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  FilledButton(
-                    onPressed: vm.isSending ? null : () => _send(context),
-                    child: vm.isSending
-                        ? const SizedBox(
-                            height: 18,
-                            width: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.send),
-                  ),
-                ],
+                    )
+                    .toList(),
               ),
+            ),
+          AnimatedPadding(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOut,
+            padding: EdgeInsets.fromLTRB(8, 8, 8, composerBottomInset),
+            child: Row(
+              children: [
+                Expanded(
+                  child: AppTextInput(
+                    controller: _controller,
+                    minLines: 1,
+                    maxLines: 4,
+                    hintText: 'Nhap tin nhan...',
+                    onSubmitted: (_) => _send(context),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                FilledButton(
+                  onPressed: vm.isSending ? null : () => _send(context),
+                  child: vm.isSending
+                      ? const SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.send),
+                ),
+              ],
             ),
           ),
         ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
+import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -40,44 +41,33 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          TextField(
+          AppTextInput(
             controller: _emailCtrl,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(labelText: 'Email'),
+            labelText: 'Email',
           ),
           const SizedBox(height: 12),
           if (_isRegister && _otpSent) ...[
-            TextField(
-              controller: _nameCtrl,
-              decoration: const InputDecoration(labelText: 'Name (optional)'),
-            ),
+            AppTextInput(controller: _nameCtrl, labelText: 'Name (optional)'),
             const SizedBox(height: 12),
-            TextField(
-              controller: _otpCtrl,
-              decoration: const InputDecoration(labelText: 'OTP'),
-            ),
+            AppTextInput(controller: _otpCtrl, labelText: 'OTP'),
             const SizedBox(height: 12),
           ],
           if (_isReset && _otpSent) ...[
-            TextField(
-              controller: _otpCtrl,
-              decoration: const InputDecoration(labelText: 'OTP'),
-            ),
+            AppTextInput(controller: _otpCtrl, labelText: 'OTP'),
             const SizedBox(height: 12),
-            TextField(
+            AppTextInput(
               controller: _newPasswordCtrl,
               obscureText: true,
-              decoration: const InputDecoration(labelText: 'New password'),
+              labelText: 'New password',
             ),
             const SizedBox(height: 12),
           ],
           if (!_isReset && (!_isRegister || _otpSent)) ...[
-            TextField(
+            AppTextInput(
               controller: _passwordCtrl,
               obscureText: true,
-              decoration: InputDecoration(
-                labelText: _isRegister ? 'Password' : 'Password',
-              ),
+              labelText: _isRegister ? 'Password' : 'Password',
             ),
             const SizedBox(height: 12),
           ],

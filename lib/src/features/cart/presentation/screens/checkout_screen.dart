@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
+import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
 import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
 
@@ -75,12 +76,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    TextFormField(
+                    AppTextInput(
                       controller: _nameCtrl,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelText: 'Customer name',
-                      ),
+                      labelText: 'Customer name',
                       validator: (value) {
                         if ((value ?? '').trim().isEmpty) {
                           return 'Customer name is required';
@@ -89,23 +88,19 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       },
                     ),
                     const SizedBox(height: 12),
-                    TextFormField(
+                    AppTextInput(
                       controller: _phoneCtrl,
                       keyboardType: TextInputType.phone,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelText: 'Customer phone',
-                      ),
+                      labelText: 'Customer phone',
                       validator: _validatePhone,
                     ),
                     const SizedBox(height: 12),
-                    TextFormField(
+                    AppTextInput(
                       controller: _addressCtrl,
                       minLines: 2,
                       maxLines: 3,
-                      decoration: const InputDecoration(
-                        labelText: 'Customer address (optional)',
-                      ),
+                      labelText: 'Customer address (optional)',
                     ),
                   ],
                 ),
