@@ -32,15 +32,18 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     ];
 
     return Scaffold(
+      extendBody: true,
       body: IndexedStack(index: _index, children: pages),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Badge(
         isLabelVisible: cart.totalItems > 0,
         label: Text('${cart.totalItems}'),
         child: FloatingActionButton(
+          shape: const StadiumBorder(),
           heroTag: 'cart_fab',
           backgroundColor: AppTheme.primaryPink,
           foregroundColor: Colors.white,
+          elevation: 0,
           onPressed: () => setState(() => _index = 2),
           child: const Icon(Icons.shopping_cart_outlined),
         ),
@@ -61,58 +64,64 @@ class _BottomNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomAppBar(
-      color: AppTheme.primaryPink,
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 8,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      height: 64,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Left side: Home, Person
-          Row(
+    return Container(
+      margin: EdgeInsets.only(bottom: 5),
+      child: ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(30)),
+        child: BottomAppBar(
+          color: AppTheme.primaryPink,
+          shape: CircularNotchedRectangle(),
+          height: 60,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _NavButton(
-                index: 0,
-                currentIndex: currentIndex,
-                icon: Icons.home_outlined,
-                selectedIcon: Icons.home,
-                label: 'Home',
-                onTap: onTap,
+              // Left side: Home, Person
+              Row(
+                spacing: 24,
+                children: [
+                  _NavButton(
+                    index: 0,
+                    currentIndex: currentIndex,
+                    icon: Icons.home_outlined,
+                    selectedIcon: Icons.home,
+                    label: 'Home',
+                    onTap: onTap,
+                  ),
+                  _NavButton(
+                    index: 1,
+                    currentIndex: currentIndex,
+                    icon: Icons.person_outline,
+                    selectedIcon: Icons.person,
+                    label: 'Profile',
+                    onTap: onTap,
+                  ),
+                ],
               ),
-              _NavButton(
-                index: 1,
-                currentIndex: currentIndex,
-                icon: Icons.person_outline,
-                selectedIcon: Icons.person,
-                label: 'Profile',
-                onTap: onTap,
+              // Right side: Favorite, Chatbot
+              Row(
+                spacing: 24,
+                children: [
+                  _NavButton(
+                    index: 3,
+                    currentIndex: currentIndex,
+                    icon: Icons.search_outlined,
+                    selectedIcon: Icons.search,
+                    label: 'Search',
+                    onTap: onTap,
+                  ),
+                  _NavButton(
+                    index: 4,
+                    currentIndex: currentIndex,
+                    icon: Icons.chat_bubble_outline,
+                    selectedIcon: Icons.chat_bubble,
+                    label: 'Chatbot',
+                    onTap: onTap,
+                  ),
+                ],
               ),
             ],
           ),
-          // Right side: Favorite, Chatbot
-          Row(
-            children: [
-              _NavButton(
-                index: 3,
-                currentIndex: currentIndex,
-                icon: Icons.favorite_border,
-                selectedIcon: Icons.favorite,
-                label: 'Wishlist',
-                onTap: onTap,
-              ),
-              _NavButton(
-                index: 4,
-                currentIndex: currentIndex,
-                icon: Icons.chat_bubble_outline,
-                selectedIcon: Icons.chat_bubble,
-                label: 'Chatbot',
-                onTap: onTap,
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
