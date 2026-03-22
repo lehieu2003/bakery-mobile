@@ -24,8 +24,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     final cart = ref.watch(cartViewModelProvider);
     final auth = ref.watch(authViewModelProvider);
     final keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
-    final isChatbotTab = _index == 3;
-    final hideShellChrome = isChatbotTab && keyboardVisible;
+    final hideShellChrome = keyboardVisible;
 
     final pages = [
       const HomeScreen(),

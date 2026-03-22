@@ -76,12 +76,18 @@ class _SearchViewState extends ConsumerState<_SearchView> {
   @override
   Widget build(BuildContext context) {
     final vm = ref.watch(searchViewModelProvider);
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
+    final keyboardVisible = keyboardInset > 0;
+    final bottomInset = keyboardVisible
+        ? keyboardInset + 16
+        : MediaQuery.paddingOf(context).bottom + 110;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Search products')),
       body: ListView(
         controller: _scrollController,
-        padding: const EdgeInsets.all(16),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: EdgeInsets.fromLTRB(16, 16, 16, bottomInset),
         children: [
           AppTextInput(
             controller: _controller,
