@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
+import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
+import 'package:bakery_mobile/src/features/blog/domain/models/blog.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/screens/blog_detail_screen.dart';
 
 class BlogScreen extends ConsumerWidget {
@@ -148,20 +150,9 @@ class _BlogViewState extends ConsumerState<_BlogView> {
                 child: Center(child: Text('No blog posts found.')),
               ),
             ...vm.posts.map(
-              (post) => Card(
-                margin: const EdgeInsets.only(bottom: 10),
-                child: ListTile(
-                  title: Text(post.title),
-                  subtitle: Text(post.excerpt ?? ''),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => BlogDetailScreen(slug: post.slug),
-                      ),
-                    );
-                  },
-                ),
+              (post) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _BlogPostCard(post: post),
               ),
             ),
             if (vm.isLoadingMore)
@@ -177,6 +168,69 @@ class _BlogViewState extends ConsumerState<_BlogView> {
                   child: const Text('Load more posts'),
                 ),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BlogPostCard extends StatelessWidget {
+  const _BlogPostCard({required this.post});
+
+  final BlogPost post;
+
+  @override
+  Widget build(BuildContext context) {
+    final imageUrl = resolveImageUrl(post.coverUrl);
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => BlogDetailScreen(slug: post.slug),
+            ),
+          );
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: imageUrl.isEmpty
+                  ? Container(
+                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                      alignment: Alignment.center,
+                      child: const Icon(Icons.image_outlined, size: 30),
+                    )
+                  : Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHigh,
+                        alignment: Alignment.center,
+                        child: const Icon(
+                          Icons.broken_image_outlined,
+                          size: 30,
+                        ),
+                      ),
+                    ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                post.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
           ],
         ),
       ),
