@@ -15,6 +15,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   bool _isRegister = false;
   bool _otpSent = false;
   bool _isReset = false;
+  bool _hidePassword = true;
+  bool _hideNewPassword = true;
 
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
@@ -58,16 +60,33 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             const SizedBox(height: 12),
             AppTextInput(
               controller: _newPasswordCtrl,
-              obscureText: true,
+              obscureText: _hideNewPassword,
               labelText: 'New password',
+              suffixIcon: IconButton(
+                onPressed: () =>
+                    setState(() => _hideNewPassword = !_hideNewPassword),
+                icon: Icon(
+                  _hideNewPassword
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                ),
+              ),
             ),
             const SizedBox(height: 12),
           ],
           if (!_isReset && (!_isRegister || _otpSent)) ...[
             AppTextInput(
               controller: _passwordCtrl,
-              obscureText: true,
+              obscureText: _hidePassword,
               labelText: _isRegister ? 'Password' : 'Password',
+              suffixIcon: IconButton(
+                onPressed: () => setState(() => _hidePassword = !_hidePassword),
+                icon: Icon(
+                  _hidePassword
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                ),
+              ),
             ),
             const SizedBox(height: 12),
           ],

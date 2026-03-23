@@ -13,7 +13,6 @@ import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_hea
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_product_card.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_subcategory_chips.dart';
 import 'package:bakery_mobile/src/features/notifications/presentation/screens/notifications_screen.dart';
-import 'package:bakery_mobile/src/features/pages/presentation/screens/pages_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -84,9 +83,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
           children: [
             HomeHeader(
               unreadCount: notifications.unreadCount,
-              onMenuTap: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const PagesScreen())),
+              onMenuTap: () => _openDrawer(context),
               onCartTap: () => Navigator.of(
                 context,
               ).push(MaterialPageRoute(builder: (_) => const CartScreen())),
@@ -220,5 +217,10 @@ class _HomeViewState extends ConsumerState<_HomeView> {
       if (_containsCategoryId(category.children, targetId)) return true;
     }
     return false;
+  }
+
+  void _openDrawer(BuildContext context) {
+    final rootScaffold = context.findRootAncestorStateOfType<ScaffoldState>();
+    rootScaffold?.openDrawer();
   }
 }
