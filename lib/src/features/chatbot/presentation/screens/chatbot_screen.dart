@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
 import 'package:bakery_mobile/src/features/chatbot/domain/models/chat.dart';
-import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
+import 'package:bakery_mobile/src/features/chatbot/presentation/widgets/suggested_product_tile.dart';
 
 class ChatbotScreen extends ConsumerStatefulWidget {
   const ChatbotScreen({super.key});
@@ -178,51 +178,13 @@ class _MessageBubble extends StatelessWidget {
                 if (!isUser && message.suggestedProducts.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   ...message.suggestedProducts.map(
-                    (product) => _SuggestedProductTile(product: product),
+                    (product) => SuggestedProductTile(product: product),
                   ),
                 ],
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _SuggestedProductTile extends ConsumerWidget {
-  const _SuggestedProductTile({required this.product});
-
-  final Product product;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final cart = ref.read(cartViewModelProvider.notifier);
-
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: product.thumbnail.isNotEmpty
-          ? Image.network(
-              product.thumbnail,
-              width: 38,
-              height: 38,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) =>
-                  const SizedBox(width: 38, height: 38),
-            )
-          : const SizedBox(width: 38, height: 38),
-      title: Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text('${product.price.toStringAsFixed(0)} VND'),
-      trailing: IconButton(
-        icon: const Icon(Icons.add_shopping_cart, size: 18),
-        onPressed: product.stock <= 0
-            ? null
-            : () {
-                cart.addProduct(product);
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('Added to cart')));
-              },
       ),
     );
   }
