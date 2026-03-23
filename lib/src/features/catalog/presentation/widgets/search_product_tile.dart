@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
+import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/product_detail_screen.dart';
 
@@ -13,13 +14,14 @@ class SearchProductTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cart = ref.read(cartViewModelProvider.notifier);
+    final imageUrl = resolveImageUrl(product.thumbnail);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       child: ListTile(
-        leading: product.thumbnail.isNotEmpty
+        leading: imageUrl.isNotEmpty
             ? Image.network(
-                product.thumbnail,
+                imageUrl,
                 width: 52,
                 height: 52,
                 fit: BoxFit.cover,
