@@ -16,6 +16,8 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  bool _requestedInitialOrders = false;
+
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authViewModelProvider);
@@ -24,10 +26,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     final user = auth.user;
     if (user == null) {
+      _requestedInitialOrders = false;
       return Scaffold(
         appBar: AppBar(title: const Text('Profile')),
         body: const Center(child: Text('Please sign in to see your profile.')),
       );
+    }
+
+    if (!_requestedInitialOrders &&
+        !orders.isLoading &&
+        orders.orders.isEmpty) {
+      _requestedInitialOrders = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref.read(ordersViewModelProvider.notifier).loadMyOrders();
+      });
     }
 
     return Scaffold(
@@ -96,16 +109,29 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           if (!orders.isLoading && orders.orders.isEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 12),
-              child: Row(
-                children: [
-                  const Expanded(child: Text('No orders loaded yet.')),
-                  TextButton(
-                    onPressed: () => ref
-                        .read(ordersViewModelProvider.notifier)
-                        .loadMyOrders(),
-                    child: const Text('Load'),
-                  ),
-                ],
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerLowest,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    const Text('No orders yet'),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Start shopping to see your order history.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton(
+                      onPressed: () => ref
+                          .read(ordersViewModelProvider.notifier)
+                          .loadMyOrders(),
+                      child: const Text('Refresh'),
+                    ),
+                  ],
+                ),
               ),
             ),
           ...orders.orders.map(
@@ -347,7 +373,7 @@ class _OrdersHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'My Orders',
+          'Order History',
           style: Theme.of(
             context,
           ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
@@ -371,45 +397,90 @@ class _OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final firstItemName = order.orderItems.isNotEmpty
         ? order.orderItems.first.name
+        : 'No items';
+    final extraItems = order.orderItems.length > 1
+        ? ' +${order.orderItems.length - 1} more'
         : '';
+    final pointsEarned = (order.total * 0.2).floor();
     final createdAt = order.createdAt.toLocal();
     final dateText =
         '${createdAt.day.toString().padLeft(2, '0')}/${createdAt.month.toString().padLeft(2, '0')}/${createdAt.year} ${createdAt.hour.toString().padLeft(2, '0')}:${createdAt.minute.toString().padLeft(2, '0')}';
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.fromLTRB(12, 12, 10, 12),
+        child: Row(
           children: [
-            Row(
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                order.orderNumber.length >= 3
+                    ? order.orderNumber.substring(order.orderNumber.length - 3)
+                    : order.orderNumber,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 11,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '#${order.orderNumber}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      _OrderStatusBadge(status: order.status.toString()),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '$firstItemName$extraItems',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(dateText, style: Theme.of(context).textTheme.bodySmall),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Expanded(
-                  child: Text(
-                    '#${order.orderNumber}',
-                    style: const TextStyle(fontWeight: FontWeight.w700),
+                Text(
+                  '${order.total.toStringAsFixed(0)} VND',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '+$pointsEarned pts',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                _OrderStatusBadge(status: order.status.toString()),
+                const SizedBox(height: 2),
+                const Icon(Icons.chevron_right, size: 18),
               ],
-            ),
-            const SizedBox(height: 8),
-            Text(dateText, style: Theme.of(context).textTheme.bodySmall),
-            if (firstItemName.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Text(
-                firstItemName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-            const SizedBox(height: 8),
-            Text(
-              '${order.total.toStringAsFixed(0)} VND',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
           ],
         ),
