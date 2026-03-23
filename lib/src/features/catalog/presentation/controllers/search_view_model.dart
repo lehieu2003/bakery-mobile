@@ -75,22 +75,15 @@ class SearchViewModel extends Notifier<SearchState> {
 
   Future<void> search(String raw) async {
     final query = raw.trim();
-    if (query.isEmpty) {
-      state = state.copyWith(
-        query: '',
-        products: const [],
-        total: 0,
-        page: 1,
-        clearError: true,
-      );
-      return;
-    }
-
     state = state.copyWith(isLoading: true, clearError: true, query: query);
     try {
       final result = await ref
           .read(catalogRepositoryProvider)
-          .getProductsPage(search: query, page: 1, limit: _pageSize);
+          .getProductsPage(
+            search: query.isEmpty ? null : query,
+            page: 1,
+            limit: _pageSize,
+          );
       state = state.copyWith(
         isLoading: false,
         page: 1,
@@ -108,10 +101,7 @@ class SearchViewModel extends Notifier<SearchState> {
   }
 
   Future<void> loadMore() async {
-    if (state.query.isEmpty ||
-        state.isLoading ||
-        state.isLoadingMore ||
-        !state.hasMore) {
+    if (state.isLoading || state.isLoadingMore || !state.hasMore) {
       return;
     }
 
@@ -121,7 +111,7 @@ class SearchViewModel extends Notifier<SearchState> {
       final result = await ref
           .read(catalogRepositoryProvider)
           .getProductsPage(
-            search: state.query,
+            search: state.query.isEmpty ? null : state.query,
             page: nextPage,
             limit: _pageSize,
           );

@@ -5,9 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
-import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
-import 'package:bakery_mobile/src/features/catalog/presentation/screens/product_detail_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/search_view_model.dart';
+import 'package:bakery_mobile/src/features/catalog/presentation/widgets/search_product_tile.dart';
 
 class SearchScreen extends ConsumerWidget {
   const SearchScreen({super.key, this.initialQuery = ''});
@@ -40,11 +39,9 @@ class _SearchViewState extends ConsumerState<_SearchView> {
     _controller = TextEditingController(text: widget.initialQuery);
     _controller.addListener(_onQueryChanged);
     _scrollController.addListener(_onScroll);
-    if (widget.initialQuery.trim().isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(searchViewModelProvider.notifier).search(widget.initialQuery);
-      });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(searchViewModelProvider.notifier).search(widget.initialQuery);
+    });
   }
 
   @override
@@ -108,19 +105,15 @@ class _SearchViewState extends ConsumerState<_SearchView> {
             ],
           ),
           const SizedBox(height: 14),
-          if (vm.query.isEmpty)
-            const Padding(
-              padding: EdgeInsets.only(top: 30),
-              child: Center(child: Text('Enter keyword to search products.')),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              vm.query.isEmpty
+                  ? 'All products (${vm.sortedProducts.length})'
+                  : 'Found ${vm.sortedProducts.length} products for "${vm.query}"',
+              style: Theme.of(context).textTheme.bodySmall,
             ),
-          if (vm.query.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Text(
-                'Found ${vm.sortedProducts.length} products for "${vm.query}"',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
+          ),
           if (vm.isLoading)
             const Padding(
               padding: EdgeInsets.only(top: 24),
@@ -134,13 +127,19 @@ class _SearchViewState extends ConsumerState<_SearchView> {
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
-          if (!vm.isLoading && vm.query.isNotEmpty && vm.sortedProducts.isEmpty)
-            const Padding(
-              padding: EdgeInsets.only(top: 24),
-              child: Center(child: Text('No products found.')),
+          if (!vm.isLoading && vm.sortedProducts.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 24),
+              child: Center(
+                child: Text(
+                  vm.query.isEmpty
+                      ? 'No products available.'
+                      : 'No products found.',
+                ),
+              ),
             ),
           ...vm.sortedProducts.map(
-            (product) => _SearchProductTile(product: product),
+            (product) => SearchProductTile(product: product),
           ),
           if (vm.isLoadingMore)
             const Padding(
@@ -171,51 +170,6 @@ class _SearchViewState extends ConsumerState<_SearchView> {
       selected: vm.sort == option,
       onSelected: (_) =>
           ref.read(searchViewModelProvider.notifier).setSort(option),
-    );
-  }
-}
-
-class _SearchProductTile extends ConsumerWidget {
-  const _SearchProductTile({required this.product});
-
-  final Product product;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final cart = ref.read(cartViewModelProvider.notifier);
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 10),
-      child: ListTile(
-        leading: product.thumbnail.isNotEmpty
-            ? Image.network(
-                product.thumbnail,
-                width: 52,
-                height: 52,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) =>
-                    const SizedBox(width: 52, height: 52),
-              )
-            : const SizedBox(width: 52, height: 52),
-        title: Text(product.name),
-        subtitle: Text('${product.price.toStringAsFixed(0)} VND'),
-        trailing: IconButton(
-          icon: const Icon(Icons.add_shopping_cart),
-          onPressed: product.stock <= 0
-              ? null
-              : () {
-                  cart.addProduct(product);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Added to cart')),
-                  );
-                },
-        ),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => ProductDetailScreen(productIdOrSlug: product.slug),
-          ),
-        ),
-      ),
     );
   }
 }
