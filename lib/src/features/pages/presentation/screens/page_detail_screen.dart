@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/pages/domain/models/app_page.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/states/static_page_fallbacks.dart';
+import 'package:bakery_mobile/src/features/pages/presentation/widgets/page_templates.dart';
 
 class PageDetailScreen extends ConsumerStatefulWidget {
   const PageDetailScreen({super.key, required this.slug});
@@ -18,11 +19,17 @@ class PageDetailScreen extends ConsumerStatefulWidget {
 class _PageDetailScreenState extends ConsumerState<PageDetailScreen> {
   AppPageDetail? _page;
   bool _isLoading = true;
+  PageTemplateData? _template;
 
   @override
   void initState() {
     super.initState();
-    _load();
+    _template = builtInPageTemplate(widget.slug);
+    if (_template != null) {
+      _isLoading = false;
+    } else {
+      _load();
+    }
   }
 
   Future<void> _load() async {
@@ -51,9 +58,11 @@ class _PageDetailScreenState extends ConsumerState<PageDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_page?.title ?? 'Page')),
+      appBar: AppBar(title: Text(_template?.title ?? _page?.title ?? 'Page')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
+          : _template != null
+          ? BuiltInPageBody(template: _template!)
           : _page == null
           ? const Center(child: Text('Page not found'))
           : ListView(

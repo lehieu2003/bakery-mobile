@@ -3,48 +3,78 @@ class StaticPageFallback {
     required this.slug,
     required this.title,
     required this.content,
+    this.summary,
   });
 
   final String slug;
   final String title;
   final String content;
+  final String? summary;
 }
 
 const staticPageFallbacks = <String, StaticPageFallback>{
   've-chung-toi': StaticPageFallback(
     slug: 've-chung-toi',
-    title: 'Ve chung toi',
+    title: 'Về chúng tôi',
+    summary: 'Câu chuyện thương hiệu, giá trị cốt lõi và hệ thống chi nhánh.',
     content:
-        'La Douceur la tiem banh thu cong tai TP.HCM. Chung toi tap trung vao nguyen lieu chat luong, quy trinh lam banh ky luong va trai nghiem khach hang than thien.',
+        'La Douceur là tiệm bánh thủ công tại TP.HCM. Chúng tôi tập trung vào nguyên liệu chất lượng, quy trình làm bánh kỹ lưỡng và trải nghiệm khách hàng thân thiện.',
+  ),
+  'thanh-vien': StaticPageFallback(
+    slug: 'thanh-vien',
+    title: 'Thành viên',
+    summary: 'Hạng thành viên, quyền lợi, cách tích điểm và đổi ưu đãi.',
+    content:
+        'Tham gia chương trình thành viên La Douceur để tích điểm, thăng hạng Silver - Gold - Platinum và nhận ưu đãi độc quyền.',
+  ),
+  'store': StaticPageFallback(
+    slug: 'store',
+    title: 'Cửa hàng',
+    summary: 'Địa chỉ, giờ mở cửa và thông tin liên hệ cửa hàng.',
+    content:
+        'Ghé cửa hàng để trải nghiệm bánh tươi mỗi ngày. Chúng tôi luôn sẵn sàng hỗ trợ tư vấn sản phẩm và nhận đặt bánh theo yêu cầu.',
   ),
   'chinh-sach-bao-mat': StaticPageFallback(
     slug: 'chinh-sach-bao-mat',
-    title: 'Chinh sach bao mat',
+    title: 'Chính sách bảo mật',
+    summary: 'Quy định thu thập, sử dụng và bảo vệ dữ liệu cá nhân.',
     content:
-        'Chung toi thu thap thong tin can thiet de xu ly don hang va cham soc khach hang. Du lieu ca nhan duoc bao mat, khong ban cho ben thu ba va chi chia se voi doi tac van chuyen/thanh toan khi can.',
+        'Chúng tôi thu thập thông tin cần thiết để xử lý đơn hàng và chăm sóc khách hàng. Dữ liệu cá nhân được bảo mật và chỉ chia sẻ cho đối tác liên quan khi cần.',
   ),
   'chinh-sach-giao-hang': StaticPageFallback(
     slug: 'chinh-sach-giao-hang',
-    title: 'Chinh sach giao hang',
+    title: 'Chính sách giao hàng',
+    summary: 'Khu vực giao, thời gian dự kiến và phí vận chuyển.',
     content:
-        'La Douceur ho tro giao hang tai TP.HCM va mot so khu vuc lan can. Thoi gian va phi giao hang phu thuoc dia ban va thoi diem dat don.',
+        'La Douceur hỗ trợ giao hàng tại TP.HCM và một số khu vực lân cận. Thời gian và phí giao hàng phụ thuộc địa bàn và thời điểm đặt đơn.',
   ),
   'chinh-sach-doi-tra': StaticPageFallback(
     slug: 'chinh-sach-doi-tra',
-    title: 'Chinh sach doi tra',
+    title: 'Chính sách đổi trả',
+    summary: 'Điều kiện đổi trả, quy trình xử lý và hình thức bồi hoàn.',
     content:
-        'Khach hang co the yeu cau doi/tra neu san pham loi chat luong, sai don hoac hu hong trong van chuyen. Vui long lien he som va cung cap hinh anh don hang de duoc ho tro.',
+        'Khách hàng có thể yêu cầu đổi trả nếu sản phẩm lỗi chất lượng, sai đơn hoặc hư hỏng trong vận chuyển. Vui lòng liên hệ sớm kèm hình ảnh đơn hàng để được hỗ trợ.',
   ),
   'dieu-khoan-su-dung': StaticPageFallback(
     slug: 'dieu-khoan-su-dung',
-    title: 'Dieu khoan su dung',
+    title: 'Điều khoản sử dụng',
+    summary: 'Quy định tài khoản, đặt hàng, thanh toán và trách nhiệm pháp lý.',
     content:
-        'Khi su dung dich vu tren website/app, ban dong y voi dieu khoan ve tai khoan, dat hang, thanh toan, so huu tri tue va cac quy dinh lien quan.',
+        'Khi sử dụng dịch vụ trên website/app, bạn đồng ý với điều khoản về tài khoản, đặt hàng, thanh toán, sở hữu trí tuệ và các quy định liên quan.',
+  ),
+  'cua-hang': StaticPageFallback(
+    slug: 'cua-hang',
+    title: 'Cửa hàng',
+    summary: 'Địa chỉ, giờ mở cửa và thông tin liên hệ cửa hàng.',
+    content:
+        'Ghé cửa hàng để trải nghiệm bánh tươi mỗi ngày. Chúng tôi luôn sẵn sàng hỗ trợ tư vấn sản phẩm và nhận đặt bánh theo yêu cầu.',
   ),
 };
 
 const staticPageOrder = <String>[
   've-chung-toi',
+  'thanh-vien',
+  'store',
   'chinh-sach-bao-mat',
   'chinh-sach-giao-hang',
   'chinh-sach-doi-tra',
