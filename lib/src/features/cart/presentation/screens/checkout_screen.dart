@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
@@ -21,16 +22,23 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     'MOMO',
     'ZALOPAY',
   ];
-  static final _vnPhoneRegex = RegExp(r'^(0|/+84)(3|5|7|8|9)/d{8}$');
+  static final _vnPhoneRegex = RegExp(r'^(0|\+84)(3|5|7|8|9)\d{8}$');
+  static const _nameDraftKey = 'checkout_draft_name';
+  static const _phoneDraftKey = 'checkout_draft_phone';
+  static const _addressDraftKey = 'checkout_draft_address';
 
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _addressCtrl = TextEditingController();
   String _paymentMethod = 'COD';
+  SharedPreferences? _prefs;
 
   @override
   void dispose() {
+    _nameCtrl.removeListener(_saveDraft);
+    _phoneCtrl.removeListener(_saveDraft);
+    _addressCtrl.removeListener(_saveDraft);
     _nameCtrl.dispose();
     _phoneCtrl.dispose();
     _addressCtrl.dispose();
@@ -40,10 +48,33 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   @override
   void initState() {
     super.initState();
+    _nameCtrl.addListener(_saveDraft);
+    _phoneCtrl.addListener(_saveDraft);
+    _addressCtrl.addListener(_saveDraft);
+    _restoreDraft();
+  }
+
+  Future<void> _restoreDraft() async {
     final auth = ref.read(authViewModelProvider);
-    _nameCtrl.text = _nameCtrl.text.isEmpty
-        ? (auth.user?.name ?? '')
-        : _nameCtrl.text;
+    final prefs = await SharedPreferences.getInstance();
+
+    final savedName = prefs.getString(_nameDraftKey) ?? '';
+    final savedPhone = prefs.getString(_phoneDraftKey) ?? '';
+    final savedAddress = prefs.getString(_addressDraftKey) ?? '';
+    if (!mounted) return;
+
+    _prefs = prefs;
+    _nameCtrl.text = savedName.isNotEmpty ? savedName : (auth.user?.name ?? '');
+    _phoneCtrl.text = savedPhone;
+    _addressCtrl.text = savedAddress;
+  }
+
+  void _saveDraft() {
+    final prefs = _prefs;
+    if (prefs == null) return;
+    prefs.setString(_nameDraftKey, _nameCtrl.text.trim());
+    prefs.setString(_phoneDraftKey, _phoneCtrl.text.trim());
+    prefs.setString(_addressDraftKey, _addressCtrl.text.trim());
   }
 
   @override
@@ -227,7 +258,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   String? _validatePhone(String? value) {
     final text = (value ?? '').trim();
     if (text.isEmpty) return 'Customer phone is required';
-    final normalized = text.replaceAll(RegExp(r'[/s.-]'), '');
+    final normalized = text.replaceAll(RegExp(r'[\s.-]'), '');
     if (!_vnPhoneRegex.hasMatch(normalized)) {
       return 'Please enter a valid Vietnamese phone number';
     }
@@ -247,7 +278,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         .createOrder(
           customerName: _nameCtrl.text.trim(),
           customerPhone: _phoneCtrl.text.trim().replaceAll(
-            RegExp(r'[/s.-]'),
+            RegExp(r'[\s.-]'),
             '',
           ),
           customerEmail: email,
