@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
+import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/screens/cart_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/search_screen.dart';
@@ -126,14 +127,11 @@ class _HomeViewState extends ConsumerState<_HomeView> {
               ),
             ],
             const SizedBox(height: 14),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Danh Mục Sản Phẩm',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.4,
-                ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: _HomeSectionTitle(
+                title: 'Danh Mục Sản Phẩm',
+                icon: Icons.grid_view_rounded,
               ),
             ),
             const SizedBox(height: 8),
@@ -153,14 +151,11 @@ class _HomeViewState extends ConsumerState<_HomeView> {
               ),
             ],
             const SizedBox(height: 14),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Sản Phẩm Nổi Bật',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.4,
-                ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: _HomeSectionTitle(
+                title: 'Sản Phẩm Nổi Bật',
+                icon: Icons.auto_awesome_rounded,
               ),
             ),
             if (vm.isLoading && vm.bestSellers.isEmpty)
@@ -229,5 +224,52 @@ class _HomeViewState extends ConsumerState<_HomeView> {
   void _openDrawer(BuildContext context) {
     final rootScaffold = context.findRootAncestorStateOfType<ScaffoldState>();
     rootScaffold?.openDrawer();
+  }
+}
+
+class _HomeSectionTitle extends StatelessWidget {
+  const _HomeSectionTitle({required this.title, required this.icon});
+
+  final String title;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: AppTheme.primaryPink.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, size: 16, color: AppTheme.primaryPink),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w900,
+                color: const Color(0xFF262626),
+                letterSpacing: 0.3,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Container(
+          width: 54,
+          height: 3,
+          decoration: BoxDecoration(
+            color: AppTheme.primaryPink,
+            borderRadius: BorderRadius.circular(999),
+          ),
+        ),
+      ],
+    );
   }
 }

@@ -77,8 +77,8 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
     return Card(
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
-      elevation: 2,
-      shadowColor: Colors.black12,
+      elevation: 3,
+      shadowColor: Colors.black.withValues(alpha: 0.14),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: InkWell(
         onTap: () => Navigator.of(context).push(
@@ -178,25 +178,27 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                 ),
                 Container(
                   color: Colors.white,
-                  padding: const EdgeInsets.fromLTRB(12, 10, 44, 12),
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         widget.product.name,
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 13,
+                          fontSize: 13.5,
                           fontWeight: FontWeight.w700,
+                          height: 1.25,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '${widget.product.price.toStringAsFixed(0)} VND',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF666666),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.primaryPink,
                         ),
                       ),
                     ],
