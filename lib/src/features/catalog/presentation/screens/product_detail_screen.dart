@@ -83,6 +83,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final cart = ref.read(cartViewModelProvider.notifier);
+    final wishlist = ref.watch(wishlistViewModelProvider);
+    final wishlistNotifier = ref.read(wishlistViewModelProvider.notifier);
 
     if (_isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -104,6 +106,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     final images = _productImages(product);
     final hasVariants = product.variants.isNotEmpty;
     final summaryText = _displayDescription(product);
+    final isFavorite = wishlist.isFavorite(product.id);
+    final isPendingFavorite = wishlist.isPending(product.id);
 
     return Scaffold(
       body: CustomScrollView(
@@ -117,6 +121,23 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               onPressed: () => Navigator.of(context).maybePop(),
               icon: const Icon(Icons.arrow_back),
             ),
+            actions: [
+              IconButton(
+                onPressed: isPendingFavorite
+                    ? null
+                    : () => wishlistNotifier.toggle(product),
+                icon: isPendingFavorite
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Icon(
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: isFavorite ? Colors.redAccent : null,
+                      ),
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,

@@ -13,6 +13,7 @@ import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_hea
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_product_card.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_subcategory_chips.dart';
 import 'package:bakery_mobile/src/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:bakery_mobile/src/features/wishlist/presentation/screens/wishlist_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -42,6 +43,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(homeViewModelProvider.notifier).loadInitial();
       ref.read(notificationsViewModelProvider.notifier).load();
+      ref.read(wishlistViewModelProvider.notifier).load();
     });
     _bannerTimer = Timer.periodic(const Duration(seconds: 2), (_) {
       if (!_bannerController.hasClients || _bannerCount <= 1) return;
@@ -65,6 +67,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
   Widget build(BuildContext context) {
     final vm = ref.watch(homeViewModelProvider);
     final notifications = ref.watch(notificationsViewModelProvider);
+    final wishlist = ref.watch(wishlistViewModelProvider);
     final selectedRootCategory = _resolveRootCategory(
       categories: vm.categories,
       selectedCategoryId: vm.selectedCategoryId,
@@ -83,6 +86,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
           children: [
             HomeHeader(
               unreadCount: notifications.unreadCount,
+              favoriteCount: wishlist.items.length,
               onMenuTap: () => _openDrawer(context),
               onCartTap: () => Navigator.of(
                 context,
@@ -90,6 +94,9 @@ class _HomeViewState extends ConsumerState<_HomeView> {
               onNotificationTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const NotificationsScreen()),
               ),
+              onFavoriteTap: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const WishlistScreen())),
               onSearchTap: () => Navigator.of(
                 context,
               ).push(MaterialPageRoute(builder: (_) => const SearchScreen())),

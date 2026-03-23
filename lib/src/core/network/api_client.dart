@@ -29,8 +29,8 @@ class ApiClient {
     return _request('PATCH', path, body: body);
   }
 
-  Future<dynamic> delete(String path) async {
-    return _request('DELETE', path);
+  Future<dynamic> delete(String path, {Object? body}) async {
+    return _request('DELETE', path, body: body);
   }
 
   Future<dynamic> _request(
@@ -68,7 +68,7 @@ class ApiClient {
       case 'PATCH':
         response = await http.patch(uri, headers: headers, body: payload);
       case 'DELETE':
-        response = await http.delete(uri, headers: headers);
+        response = await http.delete(uri, headers: headers, body: payload);
       default:
         throw ApiException('Unsupported HTTP method: $method');
     }

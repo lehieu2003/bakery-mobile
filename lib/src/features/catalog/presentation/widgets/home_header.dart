@@ -6,16 +6,20 @@ class HomeHeader extends StatelessWidget {
   const HomeHeader({
     super.key,
     required this.unreadCount,
+    required this.favoriteCount,
     required this.onMenuTap,
     required this.onCartTap,
     required this.onNotificationTap,
+    required this.onFavoriteTap,
     required this.onSearchTap,
   });
 
   final int unreadCount;
+  final int favoriteCount;
   final VoidCallback onMenuTap;
   final VoidCallback onCartTap;
   final VoidCallback onNotificationTap;
+  final VoidCallback onFavoriteTap;
   final VoidCallback onSearchTap;
 
   @override
@@ -47,6 +51,15 @@ class HomeHeader extends StatelessWidget {
               _HeaderSquareButton(
                 icon: Icons.shopping_cart_outlined,
                 onTap: onCartTap,
+              ),
+              const SizedBox(width: 10),
+              Badge(
+                isLabelVisible: favoriteCount > 0,
+                label: Text('$favoriteCount'),
+                child: _HeaderSquareButton(
+                  icon: Icons.favorite_border_rounded,
+                  onTap: onFavoriteTap,
+                ),
               ),
               const SizedBox(width: 10),
               Badge(

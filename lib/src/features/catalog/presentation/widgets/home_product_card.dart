@@ -67,8 +67,12 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
   @override
   Widget build(BuildContext context) {
     final cart = ref.read(cartViewModelProvider.notifier);
+    final wishlist = ref.watch(wishlistViewModelProvider);
+    final wishlistNotifier = ref.read(wishlistViewModelProvider.notifier);
     final product = widget.product;
     final images = _productImages(product);
+    final isFavorite = wishlist.isFavorite(product.id);
+    final isPendingFavorite = wishlist.isPending(product.id);
 
     return Card(
       margin: EdgeInsets.zero,
@@ -135,6 +139,40 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                             ),
                           ),
                         ),
+                      Positioned(
+                        left: 8,
+                        top: 8,
+                        child: Material(
+                          color: Colors.white.withValues(alpha: 0.92),
+                          borderRadius: BorderRadius.circular(999),
+                          child: InkWell(
+                            onTap: isPendingFavorite
+                                ? null
+                                : () => wishlistNotifier.toggle(product),
+                            borderRadius: BorderRadius.circular(999),
+                            child: SizedBox(
+                              width: 32,
+                              height: 32,
+                              child: isPendingFavorite
+                                  ? const Padding(
+                                      padding: EdgeInsets.all(7),
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : Icon(
+                                      isFavorite
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      size: 18,
+                                      color: isFavorite
+                                          ? Colors.redAccent
+                                          : const Color(0xFF555555),
+                                    ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

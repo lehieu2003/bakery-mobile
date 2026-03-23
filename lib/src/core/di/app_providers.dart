@@ -9,6 +9,7 @@ import 'package:bakery_mobile/src/features/chatbot/presentation/controllers/chat
 import 'package:bakery_mobile/src/features/notifications/presentation/controllers/notifications_view_model.dart';
 import 'package:bakery_mobile/src/features/orders/presentation/controllers/orders_view_model.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/controllers/pages_view_model.dart';
+import 'package:bakery_mobile/src/features/wishlist/presentation/controllers/wishlist_view_model.dart';
 
 final authViewModelProvider = NotifierProvider<AuthViewModel, AuthState>(
   AuthViewModel.new,
@@ -41,3 +42,5 @@ final blogViewModelProvider = NotifierProvider<BlogViewModel, BlogState>(
 final pagesViewModelProvider = NotifierProvider<PagesViewModel, PagesState>(
   PagesViewModel.new,
 );
+final wishlistViewModelProvider =
+    NotifierProvider<WishlistViewModel, WishlistState>(WishlistViewModel.new);
