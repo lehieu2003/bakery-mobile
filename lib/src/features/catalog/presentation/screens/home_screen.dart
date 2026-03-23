@@ -8,8 +8,8 @@ import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/screens/cart_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
-import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/search_screen.dart';
+import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_product_card.dart';
 import 'package:bakery_mobile/src/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/screens/pages_screen.dart';
 
@@ -64,6 +64,11 @@ class _HomeViewState extends ConsumerState<_HomeView> {
   Widget build(BuildContext context) {
     final vm = ref.watch(homeViewModelProvider);
     final notifications = ref.watch(notificationsViewModelProvider);
+    final selectedRootCategory = _resolveRootCategory(
+      categories: vm.categories,
+      selectedCategoryId: vm.selectedCategoryId,
+    );
+    final subCategories = selectedRootCategory?.children ?? const <Category>[];
     _bannerCount = vm.banners.length;
     if (_bannerIndex >= _bannerCount && _bannerCount > 0) {
       _bannerIndex = 0;
@@ -129,6 +134,44 @@ class _HomeViewState extends ConsumerState<_HomeView> {
               onSelect: (id) =>
                   ref.read(homeViewModelProvider.notifier).selectCategory(id),
             ),
+            if (subCategories.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'Danh Mục Con',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 36,
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  scrollDirection: Axis.horizontal,
+                  children: subCategories
+                      .map(
+                        (subcategory) => Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: Text(
+                              subcategory.children.isNotEmpty
+                                  ? '${subcategory.name} (${subcategory.children.length})'
+                                  : subcategory.name,
+                            ),
+                            selected: vm.selectedCategoryId == subcategory.id,
+                            onSelected: (_) => ref
+                                .read(homeViewModelProvider.notifier)
+                                .selectCategory(subcategory.id),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ],
             const SizedBox(height: 14),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -140,7 +183,6 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                 ),
               ),
             ),
-            const SizedBox(height: 10),
             if (vm.isLoading && vm.bestSellers.isEmpty)
               const Padding(
                 padding: EdgeInsets.only(top: 24),
@@ -148,7 +190,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
               ),
             if (vm.errorMessage != null)
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                 child: Text(
                   vm.errorMessage!,
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -156,7 +198,10 @@ class _HomeViewState extends ConsumerState<_HomeView> {
               ),
             if (vm.bestSellers.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 0,
+                ),
                 child: GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -168,13 +213,37 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                     childAspectRatio: 0.72,
                   ),
                   itemBuilder: (context, index) =>
-                      _ProductCard(product: vm.bestSellers[index]),
+                      HomeProductCard(product: vm.bestSellers[index]),
                 ),
               ),
           ],
         ),
       ),
     );
+  }
+
+  Category? _resolveRootCategory({
+    required List<Category> categories,
+    required String? selectedCategoryId,
+  }) {
+    if (selectedCategoryId == null) return null;
+    for (final root in categories) {
+      if (root.id == selectedCategoryId) {
+        return root;
+      }
+      if (_containsCategoryId(root.children, selectedCategoryId)) {
+        return root;
+      }
+    }
+    return null;
+  }
+
+  bool _containsCategoryId(List<Category> categories, String targetId) {
+    for (final category in categories) {
+      if (category.id == targetId) return true;
+      if (_containsCategoryId(category.children, targetId)) return true;
+    }
+    return false;
   }
 }
 
@@ -381,13 +450,27 @@ class _CategoryRail extends StatelessWidget {
             (category) => _CategoryCapsule(
               label: category.name,
               imageUrl: category.imageUrl,
-              isSelected: selectedCategoryId == category.id,
+              isSelected: _isRootSelected(category, selectedCategoryId),
               onTap: () => onSelect(category.id),
             ),
           ),
         ],
       ),
     );
+  }
+
+  bool _isRootSelected(Category root, String? selectedId) {
+    if (selectedId == null) return false;
+    if (root.id == selectedId) return true;
+    return _contains(root.children, selectedId);
+  }
+
+  bool _contains(List<Category> children, String selectedId) {
+    for (final category in children) {
+      if (category.id == selectedId) return true;
+      if (_contains(category.children, selectedId)) return true;
+    }
+    return false;
   }
 }
 
@@ -463,99 +546,6 @@ class _CategoryCapsule extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _ProductCard extends ConsumerWidget {
-  const _ProductCard({required this.product});
-
-  final Product product;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final cart = ref.read(cartViewModelProvider.notifier);
-
-    return Card(
-      margin: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
-      elevation: 2,
-      shadowColor: Colors.black12,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Stack(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: product.thumbnail.isNotEmpty
-                    ? Image.network(
-                        resolveImageUrl(product.thumbnail),
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
-                            const ColoredBox(color: Color(0xFFD8D8D8)),
-                      )
-                    : const ColoredBox(color: Color(0xFFD8D8D8)),
-              ),
-              Container(
-                color: Colors.white,
-                padding: const EdgeInsets.fromLTRB(12, 10, 44, 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${product.price.toStringAsFixed(0)} VND',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF666666),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: Material(
-              color: AppTheme.primaryPink,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(14),
-              ),
-              child: InkWell(
-                onTap: product.stock <= 0
-                    ? null
-                    : () {
-                        cart.addProduct(product);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Added to cart')),
-                        );
-                      },
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(14),
-                ),
-                child: const SizedBox(
-                  width: 42,
-                  height: 42,
-                  child: Icon(Icons.add, color: Colors.white),
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

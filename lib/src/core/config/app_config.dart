@@ -1,13 +1,12 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class AppConfig {
   const AppConfig();
 
-  static const _defaultBaseUrl = 'https://1f15-125-235-233-231.ngrok-free.app';
-
   String get baseUrl {
-    const value = String.fromEnvironment(
-      'API_BASE_URL',
-      defaultValue: _defaultBaseUrl,
-    );
+    final runtimeValue = dotenv.env['API_BASE_URL'] ?? '';
+    const compileTimeValue = String.fromEnvironment('API_BASE_URL');
+    final value = runtimeValue.isNotEmpty ? runtimeValue : compileTimeValue;
     return value.endsWith('/') ? value.substring(0, value.length - 1) : value;
   }
 }
