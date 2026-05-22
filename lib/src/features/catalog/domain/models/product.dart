@@ -39,6 +39,7 @@ class Product {
     required this.slug,
     required this.price,
     required this.stock,
+    this.comparePrice,
     this.imageUrl,
     this.description,
     this.shortDescription,
@@ -50,6 +51,7 @@ class Product {
   final String name;
   final String slug;
   final double price;
+  final double? comparePrice;
   final int stock;
   final String? imageUrl;
   final String? description;
@@ -65,6 +67,17 @@ class Product {
     return '';
   }
 
+  bool get hasDiscount {
+    final original = comparePrice;
+    return original != null && original > price;
+  }
+
+  int? get discountPercent {
+    final original = comparePrice;
+    if (original == null || original <= price || original <= 0) return null;
+    return ((1 - price / original) * 100).round();
+  }
+
   factory Product.fromJson(Map<String, dynamic> json) {
     final images = json['images'] as List<dynamic>? ?? const [];
     final variants = json['variants'] as List<dynamic>? ?? const [];
@@ -74,6 +87,7 @@ class Product {
       name: (json['name'] ?? '').toString(),
       slug: (json['slug'] ?? '').toString(),
       price: (json['price'] as num?)?.toDouble() ?? 0,
+      comparePrice: _toDoubleOrNull(json['comparePrice']),
       stock: json['stock'] is int
           ? json['stock'] as int
           : int.tryParse('${json['stock'] ?? ''}') ?? 0,
@@ -90,6 +104,12 @@ class Product {
           .toList(),
     );
   }
+}
+
+double? _toDoubleOrNull(Object? value) {
+  if (value == null) return null;
+  if (value is num) return value.toDouble();
+  return double.tryParse(value.toString());
 }
 
 class ProductAttributeFilter {

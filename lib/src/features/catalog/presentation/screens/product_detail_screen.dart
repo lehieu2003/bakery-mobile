@@ -133,6 +133,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     }
 
     final currentPrice = _selectedVariant?.price ?? product.price;
+    final originalPrice = product.comparePrice;
+    final detailDiscount = originalPrice != null && originalPrice > currentPrice
+        ? ((1 - currentPrice / originalPrice) * 100).round()
+        : null;
     final images = _productImages(product);
     final hasVariants = product.variants.isNotEmpty;
     final summaryText = _displayDescription(product);
@@ -198,6 +202,36 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     ),
                   ),
                   Positioned(
+                    top: 88,
+                    left: 16,
+                    child: detailDiscount == null
+                        ? const SizedBox.shrink()
+                        : Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 7,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE46F5B),
+                              borderRadius: BorderRadius.circular(999),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.14),
+                                  blurRadius: 14,
+                                  offset: const Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              '-$detailDiscount%',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                  ),
+                  Positioned(
                     bottom: 16,
                     left: 0,
                     right: 0,
@@ -239,10 +273,33 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Text(
-                        '${currentPrice.toStringAsFixed(0)} VND',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
+                      Flexible(
+                        child: Wrap(
+                          spacing: 10,
+                          runSpacing: 2,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(
+                              '${currentPrice.toStringAsFixed(0)} VND',
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(
+                                    color: AppTheme.warmBrown,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                            ),
+                            if (detailDiscount != null)
+                              Text(
+                                '${originalPrice!.toStringAsFixed(0)} VND',
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(
+                                      color: AppTheme.inkBrown.withValues(
+                                        alpha: 0.46,
+                                      ),
+                                      fontWeight: FontWeight.w600,
+                                      decoration: TextDecoration.lineThrough,
+                                    ),
+                              ),
+                          ],
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -322,11 +379,15 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     ),
                     child: Column(
                       children: [
-                        _InfoRow(
-                          label: 'Giá gốc',
-                          value: '${product.price.toStringAsFixed(0)} VND',
-                        ),
-                        const SizedBox(height: 8),
+                        if (detailDiscount != null) ...[
+                          _InfoRow(
+                            label: 'Giá trước ưu đãi',
+                            value: '${originalPrice!.toStringAsFixed(0)} VND',
+                          ),
+                          const SizedBox(height: 8),
+                          _InfoRow(label: 'Ưu đãi', value: '-$detailDiscount%'),
+                          const SizedBox(height: 8),
+                        ],
                         _InfoRow(
                           label: 'Giá đang chọn',
                           value: '${currentPrice.toStringAsFixed(0)} VND',

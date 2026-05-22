@@ -17,6 +17,7 @@ class SuggestedProductTile extends ConsumerWidget {
     final scheme = Theme.of(context).colorScheme;
     final imageUrl = resolveImageUrl(product.thumbnail);
     final outOfStock = product.stock <= 0;
+    final discount = product.discountPercent;
 
     return Container(
       margin: const EdgeInsets.only(top: 8),
@@ -46,20 +47,54 @@ class SuggestedProductTile extends ConsumerWidget {
           padding: const EdgeInsets.all(10),
           child: Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  color: scheme.surfaceContainerHighest,
-                  child: imageUrl.isEmpty
-                      ? const Icon(Icons.image_outlined, size: 20)
-                      : Image.network(
-                          imageUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              const Icon(Icons.broken_image_outlined, size: 20),
+              SizedBox(
+                width: 62,
+                height: 60,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        color: scheme.surfaceContainerHighest,
+                        child: imageUrl.isEmpty
+                            ? const Icon(Icons.image_outlined, size: 20)
+                            : Image.network(
+                                imageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => const Icon(
+                                  Icons.broken_image_outlined,
+                                  size: 20,
+                                ),
+                              ),
+                      ),
+                    ),
+                    if (discount != null)
+                      Positioned(
+                        right: 0,
+                        top: -3,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE46F5B),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            '-$discount%',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
                         ),
+                      ),
+                  ],
                 ),
               ),
               const SizedBox(width: 10),
@@ -76,24 +111,46 @@ class SuggestedProductTile extends ConsumerWidget {
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: scheme.primaryContainer.withValues(alpha: 0.8),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            '${product.price.toStringAsFixed(0)} VND',
-                            style: TextStyle(
-                              color: scheme.primary,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 12,
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: scheme.primaryContainer.withValues(
+                                alpha: 0.8,
+                              ),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              '${product.price.toStringAsFixed(0)} VND',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: scheme.primary,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                         ),
+                        if (product.hasDiscount) ...[
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              product.comparePrice!.toStringAsFixed(0),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: scheme.onSurface.withValues(alpha: 0.42),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                          ),
+                        ],
                         const SizedBox(width: 6),
                         if (outOfStock)
                           Text(
@@ -112,7 +169,10 @@ class SuggestedProductTile extends ConsumerWidget {
               const SizedBox(width: 8),
               FilledButton.tonalIcon(
                 style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 10,
+                  ),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   minimumSize: const Size(0, 36),
                 ),

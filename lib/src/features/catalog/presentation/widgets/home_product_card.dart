@@ -73,6 +73,7 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
     final images = _productImages(product);
     final isFavorite = wishlist.isFavorite(product.id);
     final isPendingFavorite = wishlist.isPending(product.id);
+    final discount = product.discountPercent;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -146,10 +147,40 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                             },
                           ),
                         ),
+                        if (discount != null)
+                          Positioned(
+                            right: 8,
+                            top: 8,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE46F5B),
+                                borderRadius: BorderRadius.circular(999),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.10),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Text(
+                                '-$discount%',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          ),
                         if (images.length > 1)
                           Positioned(
-                            right: 6,
-                            top: 6,
+                            right: 8,
+                            top: discount == null ? 8 : 40,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 6,
@@ -224,13 +255,40 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          '${widget.product.price.toStringAsFixed(0)} VND',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            color: AppTheme.warmBrown,
-                          ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                '${product.price.toStringAsFixed(0)} VND',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.warmBrown,
+                                ),
+                              ),
+                            ),
+                            if (product.hasDiscount) ...[
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  product.comparePrice!.toStringAsFixed(0),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.inkBrown.withValues(
+                                      alpha: 0.46,
+                                    ),
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ],
                     ),

@@ -60,42 +60,91 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
               }
 
               final imageUrl = resolveImageUrl(product.thumbnail);
+              final discount = product.discountPercent;
 
               return ListTile(
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 4,
                 ),
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: imageUrl.isNotEmpty
-                      ? Image.network(
-                          imageUrl,
-                          width: 48,
-                          height: 48,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            width: 48,
-                            height: 48,
-                            color: const Color(0xFFE0E0E0),
-                            child: const Icon(
-                              Icons.image_not_supported_outlined,
+                leading: SizedBox(
+                  width: 54,
+                  height: 54,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: imageUrl.isNotEmpty
+                            ? Image.network(
+                                imageUrl,
+                                width: 48,
+                                height: 48,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Container(
+                                  width: 48,
+                                  height: 48,
+                                  color: const Color(0xFFE0E0E0),
+                                  child: const Icon(
+                                    Icons.image_not_supported_outlined,
+                                  ),
+                                ),
+                              )
+                            : Container(
+                                width: 48,
+                                height: 48,
+                                color: const Color(0xFFE0E0E0),
+                                child: const Icon(Icons.image_outlined),
+                              ),
+                      ),
+                      if (discount != null)
+                        Positioned(
+                          right: 0,
+                          top: -3,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE46F5B),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              '-$discount%',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                           ),
-                        )
-                      : Container(
-                          width: 48,
-                          height: 48,
-                          color: const Color(0xFFE0E0E0),
-                          child: const Icon(Icons.image_outlined),
                         ),
+                    ],
+                  ),
                 ),
                 title: Text(
                   product.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                subtitle: Text('${product.price.toStringAsFixed(0)} VND'),
+                subtitle: Wrap(
+                  spacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text('${product.price.toStringAsFixed(0)} VND'),
+                    if (product.hasDiscount)
+                      Text(
+                        '${product.comparePrice!.toStringAsFixed(0)} VND',
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.44),
+                          decoration: TextDecoration.lineThrough,
+                        ),
+                      ),
+                  ],
+                ),
                 trailing: IconButton(
                   onPressed: vm.isPending(product.id)
                       ? null

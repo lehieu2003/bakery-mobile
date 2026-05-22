@@ -129,6 +129,7 @@ class ProductDto {
     required this.slug,
     required this.price,
     required this.stock,
+    this.comparePrice,
     this.imageUrl,
     this.description,
     this.shortDescription,
@@ -140,6 +141,7 @@ class ProductDto {
   final String name;
   final String slug;
   final double price;
+  final double? comparePrice;
   final int stock;
   final String? imageUrl;
   final String? description;
@@ -155,6 +157,12 @@ class ProductDto {
       name: (json['name'] ?? '').toString(),
       slug: (json['slug'] ?? '').toString(),
       price: ParseUtils.toDouble(json['price'], field: 'ProductDto.price'),
+      comparePrice: json['comparePrice'] == null
+          ? null
+          : ParseUtils.toDouble(
+              json['comparePrice'],
+              field: 'ProductDto.comparePrice',
+            ),
       stock: ParseUtils.toInt(json['stock'], field: 'ProductDto.stock'),
       imageUrl: json['imageUrl']?.toString(),
       description: json['description']?.toString(),
@@ -183,6 +191,7 @@ class ProductDto {
     name: name,
     slug: slug,
     price: price,
+    comparePrice: comparePrice,
     stock: stock,
     imageUrl: imageUrl,
     description: description,
