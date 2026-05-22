@@ -1,8 +1,13 @@
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import 'package:bakery_mobile/src/core/config/app_config.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
+import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/blog/domain/models/blog.dart';
 
 class BlogDetailScreen extends ConsumerStatefulWidget {
@@ -16,7 +21,10 @@ class BlogDetailScreen extends ConsumerStatefulWidget {
 
 class _BlogDetailScreenState extends ConsumerState<BlogDetailScreen> {
   BlogPost? _post;
+  List<BlogPost> _relatedPosts = const [];
   bool _isLoading = true;
+  bool _isLoadingRelated = false;
+  String? _error;
 
   @override
   void initState() {
@@ -26,69 +34,418 @@ class _BlogDetailScreenState extends ConsumerState<BlogDetailScreen> {
 
   Future<void> _load() async {
     final repo = ref.read(blogRepositoryProvider);
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
     try {
       final post = await repo.getPostBySlug(widget.slug);
       if (!mounted) return;
       setState(() => _post = post);
+      _loadRelatedPosts(post);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _error = error.toString().replaceFirst('Exception: ', ''));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
+  Future<void> _loadRelatedPosts(BlogPost post) async {
+    if (!mounted) return;
+    setState(() => _isLoadingRelated = true);
+
+    try {
+      final result = await ref
+          .read(blogRepositoryProvider)
+          .getPosts(limit: 4, categorySlug: post.category?.slug);
+      if (!mounted) return;
+      var posts = result.posts.where((item) => item.slug != post.slug).toList();
+
+      if (posts.isEmpty) {
+        final fallback = await ref
+            .read(blogRepositoryProvider)
+            .getPosts(limit: 4);
+        posts = fallback.posts
+            .where((item) => item.slug != post.slug)
+            .take(3)
+            .toList();
+      }
+
+      setState(() => _relatedPosts = posts.take(3).toList());
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _relatedPosts = const []);
+    } finally {
+      if (mounted) setState(() => _isLoadingRelated = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final post = _post;
+
     return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _post == null
-                  ? const Center(child: Text('Post not found'))
-                  : ListView(
-                      padding: const EdgeInsets.fromLTRB(16, 52, 16, 16),
-                      children: [
-                        Text(
-                          _post!.title,
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '${_post!.publishedAt?.toLocal() ?? ''} | ${_post!.viewCount} views',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        const SizedBox(height: 12),
-                        if (_post!.coverUrl != null &&
-                            _post!.coverUrl!.isNotEmpty)
-                          Image.network(
-                            _post!.coverUrl!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                const SizedBox.shrink(),
-                          ),
-                        const SizedBox(height: 12),
-                        if ((_post!.excerpt ?? '').isNotEmpty)
-                          Text(_post!.excerpt ?? ''),
-                        if ((_post!.content ?? '').isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          Html(data: _post!.content ?? ''),
-                        ],
-                      ],
-                    ),
+      backgroundColor: AppTheme.canvasCream,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            backgroundColor: AppTheme.canvasCream,
+            surfaceTintColor: Colors.transparent,
+            leading: IconButton(
+              onPressed: () => Navigator.of(context).maybePop(),
+              icon: const Icon(Icons.arrow_back),
+              tooltip: 'Back',
             ),
-            Positioned(
-              top: 4,
-              left: 4,
-              child: IconButton(
-                onPressed: () => Navigator.of(context).maybePop(),
-                icon: const Icon(Icons.arrow_back),
-                tooltip: 'Back',
+            actions: [
+              if (post != null)
+                IconButton(
+                  onPressed: () => _sharePost(post),
+                  icon: const Icon(Icons.ios_share_rounded),
+                  tooltip: 'Share',
+                ),
+            ],
+          ),
+          if (_isLoading)
+            const SliverFillRemaining(
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (_error != null || post == null)
+            SliverFillRemaining(
+              child: Center(child: Text(_error ?? 'Post not found')),
+            )
+          else
+            SliverToBoxAdapter(
+              child: _BlogPostContent(
+                post: post,
+                relatedPosts: _relatedPosts,
+                isLoadingRelated: _isLoadingRelated,
+                onShare: () => _sharePost(post),
               ),
             ),
-          ],
+        ],
+      ),
+    );
+  }
+
+  Future<void> _sharePost(BlogPost post) async {
+    final url = _postUrl(post);
+    await Clipboard.setData(ClipboardData(text: url));
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Blog link copied'),
+        action: SnackBarAction(
+          label: 'Open',
+          onPressed: () {
+            final uri = Uri.tryParse(url);
+            if (uri != null) {
+              launchUrl(uri, mode: LaunchMode.externalApplication);
+            }
+          },
         ),
       ),
     );
+  }
+
+  String _postUrl(BlogPost post) {
+    final base = const AppConfig().baseUrl;
+    final uri = Uri.tryParse(base);
+    if (uri == null) return '/blog/${post.slug}';
+    return uri.replace(path: '/blog/${post.slug}', query: null).toString();
+  }
+}
+
+class _BlogPostContent extends StatelessWidget {
+  const _BlogPostContent({
+    required this.post,
+    required this.relatedPosts,
+    required this.isLoadingRelated,
+    required this.onShare,
+  });
+
+  final BlogPost post;
+  final List<BlogPost> relatedPosts;
+  final bool isLoadingRelated;
+  final VoidCallback onShare;
+
+  @override
+  Widget build(BuildContext context) {
+    final imageUrl = resolveImageUrl(post.coverUrl);
+    final scheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (post.category != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppTheme.blushPink.withValues(alpha: 0.26),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                post.category!.name.toUpperCase(),
+                style: const TextStyle(
+                  color: AppTheme.warmBrown,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.6,
+                ),
+              ),
+            ),
+          const SizedBox(height: 12),
+          Text(
+            post.title,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: AppTheme.inkBrown,
+              fontWeight: FontWeight.w800,
+              height: 1.2,
+            ),
+          ),
+          if ((post.excerpt ?? '').trim().isNotEmpty) ...[
+            const SizedBox(height: 12),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(
+                    color: AppTheme.blushPink.withValues(alpha: 0.75),
+                    width: 4,
+                  ),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Text(
+                  post.excerpt!.trim(),
+                  style: TextStyle(
+                    color: scheme.onSurfaceVariant,
+                    fontSize: 16,
+                    height: 1.45,
+                  ),
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 14,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              _MetaItem(
+                icon: Icons.calendar_month_rounded,
+                label: _formatDate(post.publishedAt),
+              ),
+              _MetaItem(
+                icon: Icons.remove_red_eye_outlined,
+                label: '${post.viewCount} lượt xem',
+              ),
+              InkWell(
+                onTap: onShare,
+                borderRadius: BorderRadius.circular(999),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 2),
+                  child: _MetaItem(
+                    icon: Icons.ios_share_rounded,
+                    label: 'Chia sẻ',
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          if (imageUrl.isNotEmpty)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                ),
+              ),
+            ),
+          if ((post.content ?? '').isNotEmpty) ...[
+            const SizedBox(height: 18),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: AppTheme.surfaceCream,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.warmBrown.withValues(alpha: 0.07),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                child: Html(data: post.content ?? ''),
+              ),
+            ),
+          ],
+          if (post.tags.isNotEmpty) ...[
+            const SizedBox(height: 18),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: post.tags
+                  .map(
+                    (tag) => Chip(
+                      label: Text('#${tag.name}'),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
+          const SizedBox(height: 24),
+          if (isLoadingRelated)
+            const Center(child: CircularProgressIndicator())
+          else if (relatedPosts.isNotEmpty) ...[
+            Text(
+              'Bài viết liên quan',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: AppTheme.inkBrown,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...relatedPosts.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: _RelatedBlogPostTile(post: item),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime? value) {
+    if (value == null) return '--/--/----';
+    final day = value.day.toString().padLeft(2, '0');
+    final month = value.month.toString().padLeft(2, '0');
+    final year = value.year.toString();
+    return '$day/$month/$year';
+  }
+}
+
+class _MetaItem extends StatelessWidget {
+  const _MetaItem({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: const Color(0xFF8A7464)),
+        const SizedBox(width: 5),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFF8A7464),
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RelatedBlogPostTile extends StatelessWidget {
+  const _RelatedBlogPostTile({required this.post});
+
+  final BlogPost post;
+
+  @override
+  Widget build(BuildContext context) {
+    final imageUrl = resolveImageUrl(post.coverUrl);
+
+    return Material(
+      color: AppTheme.surfaceCream,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => BlogDetailScreen(slug: post.slug)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  width: 76,
+                  height: 58,
+                  child: imageUrl.isEmpty
+                      ? const ColoredBox(
+                          color: Color(0xFFE9DCCB),
+                          child: Icon(Icons.article_outlined, size: 22),
+                        )
+                      : Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const ColoredBox(
+                            color: Color(0xFFE9DCCB),
+                            child: Icon(Icons.article_outlined, size: 22),
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      post.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppTheme.inkBrown,
+                        fontWeight: FontWeight.w700,
+                        height: 1.25,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      _formatDate(post.publishedAt),
+                      style: const TextStyle(
+                        color: Color(0xFF8A7464),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.arrow_forward_rounded, size: 18),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime? value) {
+    if (value == null) return '--/--/----';
+    final day = value.day.toString().padLeft(2, '0');
+    final month = value.month.toString().padLeft(2, '0');
+    final year = value.year.toString();
+    return '$day/$month/$year';
   }
 }

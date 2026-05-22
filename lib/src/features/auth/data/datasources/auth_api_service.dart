@@ -55,7 +55,7 @@ class AuthApiService {
     String? name,
   }) async {
     final response = await _client.post(
-      '/api/auth/register/verify',
+      '/api/auth/verify-email',
       body: {
         'email': email,
         'otp': otp,
