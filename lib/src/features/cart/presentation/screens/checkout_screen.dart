@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
@@ -394,14 +395,48 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 },
                 child: const Text('Copy payment URL'),
               ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
+            if (result.paymentUrl != null)
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Later'),
+              ),
+            if (result.paymentUrl != null)
+              FilledButton.icon(
+                onPressed: () => _openPaymentUrl(context, result.paymentUrl!),
+                icon: const Icon(Icons.open_in_new_rounded),
+                label: const Text('Pay now'),
+              )
+            else
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
           ],
         );
       },
     );
+  }
+
+  Future<void> _openPaymentUrl(BuildContext context, String rawUrl) async {
+    final uri = Uri.tryParse(rawUrl);
+    if (uri == null || !uri.hasScheme) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Payment URL is invalid')));
+      return;
+    }
+
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!context.mounted) return;
+
+    if (opened) {
+      Navigator.of(context).pop();
+      return;
+    }
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Could not open payment URL')));
   }
 
   Future<void> _loadIncentivesAndPricing() async {
