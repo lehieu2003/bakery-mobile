@@ -248,3 +248,145 @@ class AvailableIncentiveDto {
     );
   }
 }
+
+class PrepareReorderResultDto {
+  const PrepareReorderResultDto({
+    required this.sourceOrderId,
+    required this.sourceOrderNumber,
+    this.items = const [],
+    this.unavailableItems = const [],
+  });
+
+  final String sourceOrderId;
+  final String sourceOrderNumber;
+  final List<ReorderPreparedItemDto> items;
+  final List<ReorderUnavailableItemDto> unavailableItems;
+
+  factory PrepareReorderResultDto.fromJson(Map<String, dynamic> json) {
+    return PrepareReorderResultDto(
+      sourceOrderId: (json['sourceOrderId'] ?? '').toString(),
+      sourceOrderNumber: (json['sourceOrderNumber'] ?? '').toString(),
+      items: (json['items'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(ReorderPreparedItemDto.fromJson)
+          .toList(),
+      unavailableItems: (json['unavailableItems'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(ReorderUnavailableItemDto.fromJson)
+          .toList(),
+    );
+  }
+
+  PrepareReorderResult toDomain() {
+    return PrepareReorderResult(
+      sourceOrderId: sourceOrderId,
+      sourceOrderNumber: sourceOrderNumber,
+      items: items.map((e) => e.toDomain()).toList(),
+      unavailableItems: unavailableItems.map((e) => e.toDomain()).toList(),
+    );
+  }
+}
+
+class ReorderPreparedItemDto {
+  const ReorderPreparedItemDto({
+    required this.productId,
+    required this.name,
+    required this.price,
+    required this.quantity,
+    required this.image,
+    required this.type,
+    this.variantId,
+    this.variantName,
+  });
+
+  final String productId;
+  final String? variantId;
+  final String name;
+  final String? variantName;
+  final double price;
+  final int quantity;
+  final String image;
+  final String type;
+
+  factory ReorderPreparedItemDto.fromJson(Map<String, dynamic> json) {
+    return ReorderPreparedItemDto(
+      productId: (json['productId'] ?? '').toString(),
+      variantId: json['variantId']?.toString(),
+      name: (json['name'] ?? '').toString(),
+      variantName: json['variantName']?.toString(),
+      price: ParseUtils.toDouble(
+        json['price'],
+        field: 'ReorderPreparedItemDto.price',
+      ),
+      quantity: ParseUtils.toInt(
+        json['quantity'],
+        field: 'ReorderPreparedItemDto.quantity',
+      ),
+      image: (json['image'] ?? '').toString(),
+      type: (json['type'] ?? '').toString(),
+    );
+  }
+
+  ReorderPreparedItem toDomain() {
+    return ReorderPreparedItem(
+      productId: productId,
+      variantId: variantId,
+      name: name,
+      variantName: variantName,
+      price: price,
+      quantity: quantity,
+      image: image,
+      type: type,
+    );
+  }
+}
+
+class ReorderUnavailableItemDto {
+  const ReorderUnavailableItemDto({
+    required this.productId,
+    required this.name,
+    required this.reason,
+    required this.requestedQuantity,
+    required this.availableQuantity,
+    required this.guidance,
+    this.variantId,
+  });
+
+  final String productId;
+  final String? variantId;
+  final String name;
+  final String reason;
+  final int requestedQuantity;
+  final int availableQuantity;
+  final String guidance;
+
+  factory ReorderUnavailableItemDto.fromJson(Map<String, dynamic> json) {
+    return ReorderUnavailableItemDto(
+      productId: (json['productId'] ?? '').toString(),
+      variantId: json['variantId']?.toString(),
+      name: (json['name'] ?? '').toString(),
+      reason: (json['reason'] ?? '').toString(),
+      requestedQuantity: ParseUtils.toInt(
+        json['requestedQuantity'],
+        field: 'ReorderUnavailableItemDto.requestedQuantity',
+      ),
+      availableQuantity: ParseUtils.toInt(
+        json['availableQuantity'],
+        field: 'ReorderUnavailableItemDto.availableQuantity',
+      ),
+      guidance: (json['guidance'] ?? '').toString(),
+    );
+  }
+
+  ReorderUnavailableItem toDomain() {
+    return ReorderUnavailableItem(
+      productId: productId,
+      variantId: variantId,
+      name: name,
+      reason: reason,
+      requestedQuantity: requestedQuantity,
+      availableQuantity: availableQuantity,
+      guidance: guidance,
+    );
+  }
+}

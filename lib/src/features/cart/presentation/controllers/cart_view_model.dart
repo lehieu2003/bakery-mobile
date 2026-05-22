@@ -68,6 +68,10 @@ class CartViewModel extends Notifier<CartState> {
     state = const CartState();
   }
 
+  void replaceItems(List<CartItem> items) {
+    state = CartState(items: items);
+  }
+
   void _updateQty(CartItem item, int qty) {
     final next = [...state.items];
     final index = next.indexOf(item);

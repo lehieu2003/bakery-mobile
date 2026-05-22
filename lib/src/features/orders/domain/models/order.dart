@@ -136,3 +136,59 @@ class AvailableIncentive {
   final double? maxDiscount;
   final DateTime endAt;
 }
+
+class PrepareReorderResult {
+  const PrepareReorderResult({
+    required this.sourceOrderId,
+    required this.sourceOrderNumber,
+    this.items = const [],
+    this.unavailableItems = const [],
+  });
+
+  final String sourceOrderId;
+  final String sourceOrderNumber;
+  final List<ReorderPreparedItem> items;
+  final List<ReorderUnavailableItem> unavailableItems;
+}
+
+class ReorderPreparedItem {
+  const ReorderPreparedItem({
+    required this.productId,
+    required this.name,
+    required this.price,
+    required this.quantity,
+    required this.image,
+    required this.type,
+    this.variantId,
+    this.variantName,
+  });
+
+  final String productId;
+  final String? variantId;
+  final String name;
+  final String? variantName;
+  final double price;
+  final int quantity;
+  final String image;
+  final String type;
+}
+
+class ReorderUnavailableItem {
+  const ReorderUnavailableItem({
+    required this.productId,
+    required this.name,
+    required this.reason,
+    required this.requestedQuantity,
+    required this.availableQuantity,
+    required this.guidance,
+    this.variantId,
+  });
+
+  final String productId;
+  final String? variantId;
+  final String name;
+  final String reason;
+  final int requestedQuantity;
+  final int availableQuantity;
+  final String guidance;
+}

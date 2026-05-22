@@ -53,4 +53,8 @@ class OrderRepository {
       cart: cart,
     )).map((e) => e.toDomain()).toList();
   }
+
+  Future<PrepareReorderResult> prepareReorder(String orderId) async {
+    return (await _orderApiService.prepareReorder(orderId)).toDomain();
+  }
 }

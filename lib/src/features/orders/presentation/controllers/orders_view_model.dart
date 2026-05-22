@@ -8,20 +8,26 @@ class OrdersState {
     this.orders = const [],
     this.isLoadingOrders = false,
     this.isCreatingOrder = false,
+    this.preparingReorderOrderId,
     this.errorMessage,
   });
 
   final List<Order> orders;
   final bool isLoadingOrders;
   final bool isCreatingOrder;
+  final String? preparingReorderOrderId;
   final String? errorMessage;
 
-  bool get isLoading => isLoadingOrders || isCreatingOrder;
+  bool get isPreparingReorder => preparingReorderOrderId != null;
+  bool get isLoading =>
+      isLoadingOrders || isCreatingOrder || isPreparingReorder;
 
   OrdersState copyWith({
     List<Order>? orders,
     bool? isLoadingOrders,
     bool? isCreatingOrder,
+    String? preparingReorderOrderId,
+    bool clearPreparingReorder = false,
     String? errorMessage,
     bool clearError = false,
   }) {
@@ -29,6 +35,9 @@ class OrdersState {
       orders: orders ?? this.orders,
       isLoadingOrders: isLoadingOrders ?? this.isLoadingOrders,
       isCreatingOrder: isCreatingOrder ?? this.isCreatingOrder,
+      preparingReorderOrderId: clearPreparingReorder
+          ? null
+          : (preparingReorderOrderId ?? this.preparingReorderOrderId),
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
@@ -81,6 +90,23 @@ class OrdersViewModel extends Notifier<OrdersState> {
     } catch (error) {
       state = state.copyWith(
         isCreatingOrder: false,
+        errorMessage: error.toString().replaceFirst('Exception: ', ''),
+      );
+      return null;
+    }
+  }
+
+  Future<PrepareReorderResult?> prepareReorder(String orderId) async {
+    state = state.copyWith(preparingReorderOrderId: orderId, clearError: true);
+    try {
+      final result = await ref
+          .read(orderRepositoryProvider)
+          .prepareReorder(orderId);
+      state = state.copyWith(clearPreparingReorder: true);
+      return result;
+    } catch (error) {
+      state = state.copyWith(
+        clearPreparingReorder: true,
         errorMessage: error.toString().replaceFirst('Exception: ', ''),
       );
       return null;

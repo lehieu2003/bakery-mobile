@@ -5,6 +5,7 @@ import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
 import 'package:bakery_mobile/src/features/auth/domain/models/user.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/screens/blog_screen.dart';
+import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
 import 'package:bakery_mobile/src/features/chatbot/presentation/screens/chatbot_screen.dart';
 import 'package:bakery_mobile/src/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
@@ -142,7 +143,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ...orders.orders.map(
             (order) => Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              child: _OrderCard(order: order),
+              child: _OrderCard(
+                order: order,
+                isPreparingReorder: orders.preparingReorderOrderId == order.id,
+                onReorder: () => _prepareReorder(order),
+              ),
             ),
           ),
         ],
@@ -211,6 +216,80 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     nameCtrl.dispose();
     phoneCtrl.dispose();
+  }
+
+  Future<void> _prepareReorder(Order order) async {
+    final result = await ref
+        .read(ordersViewModelProvider.notifier)
+        .prepareReorder(order.id);
+    if (!mounted || result == null) return;
+
+    final cartItems = result.items
+        .map(
+          (item) => CartItem(
+            productId: item.productId,
+            variantId: item.variantId,
+            variantName: item.variantName,
+            name: item.variantName == null || item.variantName!.isEmpty
+                ? item.name
+                : '${item.name} (${item.variantName})',
+            price: item.price,
+            quantity: item.quantity,
+            imageUrl: item.image,
+          ),
+        )
+        .toList();
+
+    ref.read(cartViewModelProvider.notifier).replaceItems(cartItems);
+
+    final unavailableCount = result.unavailableItems.length;
+    final message = cartItems.isEmpty
+        ? 'No items from #${result.sourceOrderNumber} could be reordered.'
+        : unavailableCount > 0
+        ? 'Reorder prepared with $unavailableCount unavailable item(s).'
+        : 'Reorder prepared from #${result.sourceOrderNumber}.';
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+
+    if (unavailableCount > 0) {
+      await _showUnavailableReorderItems(result.unavailableItems);
+    }
+  }
+
+  Future<void> _showUnavailableReorderItems(
+    List<ReorderUnavailableItem> items,
+  ) {
+    return showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) {
+        return ListView(
+          shrinkWrap: true,
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
+          children: [
+            Text(
+              'Items needing attention',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 10),
+            ...items.map(
+              (item) => ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(item.name),
+                subtitle: Text(item.guidance),
+                trailing: Text(
+                  '${item.availableQuantity}/${item.requestedQuantity}',
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -481,9 +560,15 @@ class _OrdersHeader extends StatelessWidget {
 }
 
 class _OrderCard extends StatelessWidget {
-  const _OrderCard({required this.order});
+  const _OrderCard({
+    required this.order,
+    required this.isPreparingReorder,
+    required this.onReorder,
+  });
 
   final Order order;
+  final bool isPreparingReorder;
+  final VoidCallback onReorder;
 
   @override
   Widget build(BuildContext context) {
@@ -497,83 +582,114 @@ class _OrderCard extends StatelessWidget {
     final createdAt = order.createdAt.toLocal();
     final dateText =
         '${createdAt.day.toString().padLeft(2, '0')}/${createdAt.month.toString().padLeft(2, '0')}/${createdAt.year} ${createdAt.hour.toString().padLeft(2, '0')}:${createdAt.minute.toString().padLeft(2, '0')}';
+    final canReorder = order.status.toUpperCase() == 'COMPLETED';
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 12, 10, 12),
-        child: Row(
+        padding: const EdgeInsets.fromLTRB(12, 12, 10, 10),
+        child: Column(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                order.orderNumber.length >= 3
-                    ? order.orderNumber.substring(order.orderNumber.length - 3)
-                    : order.orderNumber,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 11,
+            Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    order.orderNumber.length >= 3
+                        ? order.orderNumber.substring(
+                            order.orderNumber.length - 3,
+                          )
+                        : order.orderNumber,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 11,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          '#${order.orderNumber}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '#${order.orderNumber}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          _OrderStatusBadge(status: order.status.toString()),
+                        ],
                       ),
-                      _OrderStatusBadge(status: order.status.toString()),
+                      const SizedBox(height: 4),
+                      Text(
+                        '$firstItemName$extraItems',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        dateText,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '$firstItemName$extraItems',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(dateText, style: Theme.of(context).textTheme.bodySmall),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '${order.total.toStringAsFixed(0)} VND',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  '+$pointsEarned pts',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '${order.total.toStringAsFixed(0)} VND',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '+$pointsEarned pts',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 2),
-                const Icon(Icons.chevron_right, size: 18),
               ],
             ),
+            if (canReorder) ...[
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: isPreparingReorder ? null : onReorder,
+                  icon: isPreparingReorder
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.replay_outlined),
+                  label: Text(
+                    isPreparingReorder ? 'Preparing reorder...' : 'Reorder',
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

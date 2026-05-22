@@ -80,6 +80,15 @@ class OrderApiService {
         .toList();
   }
 
+  Future<PrepareReorderResultDto> prepareReorder(String orderId) async {
+    final response = await _client.post(
+      '/api/orders/reorder',
+      body: {'orderId': orderId},
+    );
+
+    return PrepareReorderResultDto.fromJson(response as Map<String, dynamic>);
+  }
+
   String _serializeCartParam(List<Map<String, dynamic>> cart) {
     final quantityByProductId = <String, int>{};
     for (final item in cart) {
