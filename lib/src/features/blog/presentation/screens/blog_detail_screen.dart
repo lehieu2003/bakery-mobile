@@ -8,6 +8,7 @@ import 'package:bakery_mobile/src/core/config/app_config.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
+import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
 import 'package:bakery_mobile/src/features/blog/domain/models/blog.dart';
 
 class BlogDetailScreen extends ConsumerStatefulWidget {
@@ -109,9 +110,7 @@ class _BlogDetailScreenState extends ConsumerState<BlogDetailScreen> {
             ],
           ),
           if (_isLoading)
-            const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
-            )
+            const SliverToBoxAdapter(child: SkeletonBlogDetail())
           else if (_error != null || post == null)
             SliverFillRemaining(
               child: Center(child: Text(_error ?? 'Post not found')),
@@ -309,7 +308,15 @@ class _BlogPostContent extends StatelessWidget {
           ],
           const SizedBox(height: 24),
           if (isLoadingRelated)
-            const Center(child: CircularProgressIndicator())
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SkeletonBox(width: 170, height: 18),
+                SizedBox(height: 12),
+                SkeletonTile(),
+                SkeletonTile(),
+              ],
+            )
           else if (relatedPosts.isNotEmpty) ...[
             Text(
               'Bài viết liên quan',

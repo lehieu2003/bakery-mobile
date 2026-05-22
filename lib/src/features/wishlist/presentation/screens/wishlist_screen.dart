@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
+import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/product_detail_screen.dart';
 
 class WishlistScreen extends ConsumerStatefulWidget {
@@ -32,10 +33,17 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
         onRefresh: notifier.load,
         child: ListView(
           children: [
-            if (vm.isLoading)
+            if (vm.isLoading && vm.items.isEmpty)
               const Padding(
-                padding: EdgeInsets.all(24),
-                child: Center(child: CircularProgressIndicator()),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Column(
+                  children: [
+                    SkeletonTile(),
+                    SkeletonTile(),
+                    SkeletonTile(),
+                    SkeletonTile(),
+                  ],
+                ),
               ),
             if (vm.error != null)
               Padding(

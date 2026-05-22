@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/screens/cart_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/home_view_model.dart';
@@ -79,6 +80,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
     if (_bannerIndex >= _bannerCount && _bannerCount > 0) {
       _bannerIndex = 0;
     }
+    final showInitialSkeleton = vm.isLoading && vm.bestSellers.isEmpty;
 
     return Scaffold(
       backgroundColor: AppTheme.canvasCream,
@@ -105,7 +107,10 @@ class _HomeViewState extends ConsumerState<_HomeView> {
               ).push(MaterialPageRoute(builder: (_) => const SearchScreen())),
             ),
             const SizedBox(height: 12),
-            if (vm.banners.isNotEmpty) ...[
+            if (showInitialSkeleton) ...[
+              const SkeletonBanner(),
+              const SizedBox(height: 10),
+            ] else if (vm.banners.isNotEmpty) ...[
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 child: SizedBox(
@@ -137,12 +142,15 @@ class _HomeViewState extends ConsumerState<_HomeView> {
               ),
             ),
             const SizedBox(height: 6),
-            HomeCategoryRail(
-              categories: vm.categories,
-              selectedCategoryId: vm.selectedCategoryId,
-              onSelect: (id) =>
-                  ref.read(homeViewModelProvider.notifier).selectCategory(id),
-            ),
+            if (showInitialSkeleton)
+              const SkeletonCategoryRail()
+            else
+              HomeCategoryRail(
+                categories: vm.categories,
+                selectedCategoryId: vm.selectedCategoryId,
+                onSelect: (id) =>
+                    ref.read(homeViewModelProvider.notifier).selectCategory(id),
+              ),
             if (subCategories.isNotEmpty) ...[
               const SizedBox(height: 6),
               HomeSubcategoryChips(
@@ -196,11 +204,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                 icon: Icons.auto_awesome_rounded,
               ),
             ),
-            if (vm.isLoading && vm.bestSellers.isEmpty)
-              const Padding(
-                padding: EdgeInsets.only(top: 24),
-                child: Center(child: CircularProgressIndicator()),
-              ),
+            if (showInitialSkeleton) const SkeletonProductGrid(),
             if (vm.errorMessage != null)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
+import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/search_view_model.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/search_product_tile.dart';
@@ -127,11 +128,14 @@ class _SearchViewState extends ConsumerState<_SearchView> {
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
-          if (vm.isLoading)
-            const Padding(
-              padding: EdgeInsets.only(top: 24),
-              child: Center(child: CircularProgressIndicator()),
-            ),
+          if (vm.isLoading && vm.sortedProducts.isEmpty) ...[
+            const SkeletonTile(),
+            const SkeletonTile(),
+            const SkeletonTile(),
+            const SkeletonTile(),
+            const SkeletonTile(),
+            const SkeletonTile(),
+          ],
           if (!vm.isLoading && vm.error != null)
             Padding(
               padding: const EdgeInsets.only(top: 18),

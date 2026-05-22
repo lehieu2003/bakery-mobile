@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
+import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/widgets/blog_post_card.dart';
 
 class BlogScreen extends ConsumerWidget {
@@ -127,13 +128,13 @@ class _BlogViewState extends ConsumerState<_BlogView> {
               ),
             ),
             const SizedBox(height: 16),
-            if (vm.isLoading)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(24),
-                  child: CircularProgressIndicator(),
-                ),
-              ),
+            if (vm.isLoading && vm.posts.isEmpty) ...[
+              const SkeletonBlogCard(),
+              const SizedBox(height: 12),
+              const SkeletonBlogCard(),
+              const SizedBox(height: 12),
+              const SkeletonBlogCard(),
+            ],
             if (vm.error != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),

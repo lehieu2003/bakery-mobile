@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
+import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
 import 'package:bakery_mobile/src/features/auth/domain/models/user.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/screens/blog_screen.dart';
 import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
@@ -107,13 +108,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ? null
                 : ref.read(ordersViewModelProvider.notifier).loadMyOrders,
           ),
-          if (orders.isLoading)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(24),
-                child: CircularProgressIndicator(),
-              ),
-            ),
+          if (orders.isLoadingOrders && orders.orders.isEmpty) ...[
+            const SkeletonOrderCard(),
+            const SizedBox(height: 10),
+            const SkeletonOrderCard(),
+            const SizedBox(height: 10),
+          ],
           if (orders.errorMessage != null)
             Text(
               orders.errorMessage!,

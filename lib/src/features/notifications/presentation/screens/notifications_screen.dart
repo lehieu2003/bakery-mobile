@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
+import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
@@ -68,10 +69,15 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         child: ListView(
           controller: _scrollController,
           children: [
-            if (vm.isLoading)
-              const Padding(
-                padding: EdgeInsets.all(24),
-                child: Center(child: CircularProgressIndicator()),
+            if (vm.isLoading && vm.notifications.isEmpty)
+              const Column(
+                children: [
+                  SkeletonNotificationTile(),
+                  SkeletonNotificationTile(),
+                  SkeletonNotificationTile(),
+                  SkeletonNotificationTile(),
+                  SkeletonNotificationTile(),
+                ],
               ),
             if (vm.error != null)
               Padding(

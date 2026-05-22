@@ -7,6 +7,7 @@ import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
+import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_product_card.dart';
 
@@ -117,7 +118,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     final wishlistNotifier = ref.read(wishlistViewModelProvider.notifier);
 
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const SkeletonProductDetail();
     }
 
     if (_error != null) {
@@ -400,7 +401,15 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   const SizedBox(height: 16),
                   if (_isLoadingRelated) ...[
                     const SizedBox(height: 18),
-                    const Center(child: CircularProgressIndicator()),
+                    Text(
+                      'Sản Phẩm Liên Quan',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: AppTheme.inkBrown,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const SkeletonProductRail(),
                   ] else if (_relatedProducts.isNotEmpty) ...[
                     const SizedBox(height: 18),
                     Text(

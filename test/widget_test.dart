@@ -1,4 +1,5 @@
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
 import 'package:bakery_mobile/src/features/navigation/presentation/screens/app_gate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -83,5 +84,39 @@ void main() {
 
     expect(find.text('Bánh mới mỗi ngày'), findsNothing);
     expect(find.text('Email'), findsOneWidget);
+  });
+
+  testWidgets('renders shared skeleton loading widgets', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        home: const Scaffold(
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                SkeletonTile(),
+                SkeletonBanner(),
+                SkeletonCategoryRail(),
+                SkeletonProductGrid(itemCount: 2),
+                SkeletonProductRail(itemCount: 2),
+                SkeletonBlogCard(),
+                SkeletonBlogDetail(),
+                SkeletonNotificationTile(),
+                SkeletonOrderCard(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(SkeletonTile), findsWidgets);
+    expect(find.byType(SkeletonBanner), findsOneWidget);
+    expect(find.byType(SkeletonProductGrid), findsOneWidget);
+    expect(find.byType(SkeletonProductRail), findsOneWidget);
+    expect(find.byType(SkeletonBlogCard), findsOneWidget);
+    expect(find.byType(SkeletonBlogDetail), findsOneWidget);
+    expect(find.byType(SkeletonNotificationTile), findsOneWidget);
+    expect(find.byType(SkeletonOrderCard), findsOneWidget);
   });
 }
