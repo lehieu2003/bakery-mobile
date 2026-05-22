@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/config/app_config.dart';
 import 'package:bakery_mobile/src/core/network/api_client.dart';
+import 'package:bakery_mobile/src/core/storage/onboarding_storage.dart';
 import 'package:bakery_mobile/src/core/storage/token_storage.dart';
 import 'package:bakery_mobile/src/features/auth/data/datasources/auth_api_service.dart';
 import 'package:bakery_mobile/src/features/auth/data/repositories/auth_repository.dart';
@@ -25,6 +26,9 @@ import 'package:bakery_mobile/src/features/wishlist/data/repositories/wishlist_r
 
 final appConfigProvider = Provider<AppConfig>((ref) => const AppConfig());
 final tokenStorageProvider = Provider<TokenStorage>((ref) => TokenStorage());
+final onboardingStorageProvider = Provider<OnboardingStorage>(
+  (ref) => OnboardingStorage(),
+);
 
 final apiClientProvider = Provider<ApiClient>((ref) {
   final config = ref.watch(appConfigProvider);

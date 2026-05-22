@@ -8,6 +8,7 @@ import 'package:bakery_mobile/src/features/catalog/presentation/controllers/sear
 import 'package:bakery_mobile/src/features/chatbot/presentation/controllers/chatbot_view_model.dart';
 import 'package:bakery_mobile/src/features/membership/presentation/controllers/membership_view_model.dart';
 import 'package:bakery_mobile/src/features/notifications/presentation/controllers/notifications_view_model.dart';
+import 'package:bakery_mobile/src/features/onboarding/presentation/controllers/onboarding_view_model.dart';
 import 'package:bakery_mobile/src/features/orders/presentation/controllers/orders_view_model.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/controllers/pages_view_model.dart';
 import 'package:bakery_mobile/src/features/wishlist/presentation/controllers/wishlist_view_model.dart';
@@ -15,6 +16,10 @@ import 'package:bakery_mobile/src/features/wishlist/presentation/controllers/wis
 final authViewModelProvider = NotifierProvider<AuthViewModel, AuthState>(
   AuthViewModel.new,
 );
+final onboardingViewModelProvider =
+    NotifierProvider<OnboardingViewModel, OnboardingState>(
+      OnboardingViewModel.new,
+    );
 final cartViewModelProvider = NotifierProvider<CartViewModel, CartState>(
   CartViewModel.new,
 );
