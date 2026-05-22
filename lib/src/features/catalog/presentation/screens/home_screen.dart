@@ -7,6 +7,7 @@ import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/screens/cart_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
+import 'package:bakery_mobile/src/features/catalog/presentation/controllers/home_view_model.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/search_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_banner_widgets.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_category_rail.dart';
@@ -152,6 +153,42 @@ class _HomeViewState extends ConsumerState<_HomeView> {
               ),
             ],
             const SizedBox(height: 12),
+            if (vm.personalizedProducts.isNotEmpty) ...[
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: _HomeSectionTitle(
+                  title: 'Gợi Ý Dành Cho Bạn',
+                  icon: Icons.favorite_rounded,
+                ),
+              ),
+              if (_personalizedMessage(vm) != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
+                  child: Text(
+                    _personalizedMessage(vm)!,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: const Color(0xFF8A7464),
+                    ),
+                  ),
+                ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: vm.personalizedProducts.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 14,
+                    childAspectRatio: 0.72,
+                  ),
+                  itemBuilder: (context, index) =>
+                      HomeProductCard(product: vm.personalizedProducts[index]),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: _HomeSectionTitle(
@@ -220,6 +257,22 @@ class _HomeViewState extends ConsumerState<_HomeView> {
       if (_containsCategoryId(category.children, targetId)) return true;
     }
     return false;
+  }
+
+  String? _personalizedMessage(HomeState vm) {
+    if (vm.personalizedSource == null ||
+        vm.personalizedSource == 'behavioral') {
+      return null;
+    }
+
+    switch (vm.personalizedReason) {
+      case 'no-user':
+        return 'Sign in to unlock personalized suggestions. Showing featured picks for now.';
+      case 'insufficient-signal':
+        return 'Showing a mix of personalized picks and featured products.';
+      default:
+        return null;
+    }
   }
 
   void _openDrawer(BuildContext context) {

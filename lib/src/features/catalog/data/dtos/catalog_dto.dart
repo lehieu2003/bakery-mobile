@@ -112,7 +112,10 @@ class ProductVariantDto {
     return ProductVariantDto(
       id: (json['id'] ?? '').toString(),
       name: (json['name'] ?? '').toString(),
-      price: ParseUtils.toDouble(json['price'], field: 'ProductVariantDto.price'),
+      price: ParseUtils.toDouble(
+        json['price'],
+        field: 'ProductVariantDto.price',
+      ),
     );
   }
 
@@ -194,4 +197,28 @@ class ProductListResultDto {
 
   final List<ProductDto> products;
   final int total;
+}
+
+class PersonalizedProductsDto {
+  const PersonalizedProductsDto({
+    required this.products,
+    required this.source,
+    required this.reason,
+  });
+
+  final List<ProductDto> products;
+  final String source;
+  final String reason;
+
+  factory PersonalizedProductsDto.fromJson(Map<String, dynamic> json) {
+    final rawProducts = json['products'] as List<dynamic>? ?? const [];
+    return PersonalizedProductsDto(
+      products: rawProducts
+          .whereType<Map<String, dynamic>>()
+          .map(ProductDto.fromJson)
+          .toList(),
+      source: (json['source'] ?? 'fallback').toString(),
+      reason: (json['reason'] ?? 'no-signal').toString(),
+    );
+  }
 }

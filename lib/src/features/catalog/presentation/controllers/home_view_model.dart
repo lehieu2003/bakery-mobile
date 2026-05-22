@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
+import 'package:bakery_mobile/src/features/catalog/data/repositories/catalog_repository.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/banner_item.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
@@ -12,6 +13,9 @@ class HomeState {
     this.banners = const [],
     this.categories = const [],
     this.bestSellers = const [],
+    this.personalizedProducts = const [],
+    this.personalizedSource,
+    this.personalizedReason,
     this.products = const [],
     this.selectedCategoryId,
     this.search = '',
@@ -22,6 +26,9 @@ class HomeState {
   final List<BannerItem> banners;
   final List<Category> categories;
   final List<Product> bestSellers;
+  final List<Product> personalizedProducts;
+  final String? personalizedSource;
+  final String? personalizedReason;
   final List<Product> products;
   final String? selectedCategoryId;
   final String search;
@@ -33,6 +40,9 @@ class HomeState {
     List<BannerItem>? banners,
     List<Category>? categories,
     List<Product>? bestSellers,
+    List<Product>? personalizedProducts,
+    String? personalizedSource,
+    String? personalizedReason,
     List<Product>? products,
     String? selectedCategoryId,
     bool clearCategory = false,
@@ -44,6 +54,9 @@ class HomeState {
       banners: banners ?? this.banners,
       categories: categories ?? this.categories,
       bestSellers: bestSellers ?? this.bestSellers,
+      personalizedProducts: personalizedProducts ?? this.personalizedProducts,
+      personalizedSource: personalizedSource ?? this.personalizedSource,
+      personalizedReason: personalizedReason ?? this.personalizedReason,
       products: products ?? this.products,
       selectedCategoryId: clearCategory
           ? null
@@ -66,14 +79,19 @@ class HomeViewModel extends Notifier<HomeState> {
         repo.getBanners(),
         repo.getCategories(),
         repo.getBestSellers(),
+        repo.getPersonalizedProducts(limit: 8),
       ]);
 
       final bestSellers = results[2] as List<Product>;
+      final personalized = results[3] as PersonalizedProductsResult;
       state = state.copyWith(
         isLoading: false,
         banners: results[0] as List<BannerItem>,
         categories: results[1] as List<Category>,
         bestSellers: bestSellers,
+        personalizedProducts: personalized.products,
+        personalizedSource: personalized.source,
+        personalizedReason: personalized.reason,
         products: bestSellers,
       );
     } catch (error) {

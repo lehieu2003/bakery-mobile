@@ -5,8 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
+import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
+import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_product_card.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
   const ProductDetailScreen({super.key, required this.productIdOrSlug});
@@ -22,8 +24,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   final PageController _imageController = PageController(viewportFraction: 1);
 
   Product? _product;
+  List<Product> _relatedProducts = const [];
   ProductVariant? _selectedVariant;
   bool _isLoading = true;
+  bool _isLoadingRelated = false;
   String? _error;
   int _activeImageIndex = 0;
   Timer? _imageTimer;
@@ -70,6 +74,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             : null;
         _activeImageIndex = 0;
       });
+      unawaited(_loadRelatedProducts(product));
     } catch (error) {
       if (!mounted) return;
       setState(() => _error = error.toString().replaceFirst('Exception: ', ''));
@@ -77,6 +82,31 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
       }
+    }
+  }
+
+  Future<void> _loadRelatedProducts(Product product) async {
+    if (!mounted) return;
+    setState(() => _isLoadingRelated = true);
+
+    try {
+      final products = await ref
+          .read(catalogRepositoryProvider)
+          .getRelatedProducts(
+            product.slug.isNotEmpty ? product.slug : product.id,
+          );
+      if (!mounted) return;
+      setState(() {
+        _relatedProducts = products
+            .where((item) => item.id != product.id)
+            .take(8)
+            .toList();
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _relatedProducts = const []);
+    } finally {
+      if (mounted) setState(() => _isLoadingRelated = false);
     }
   }
 
@@ -307,6 +337,36 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  if (_isLoadingRelated) ...[
+                    const SizedBox(height: 18),
+                    const Center(child: CircularProgressIndicator()),
+                  ] else if (_relatedProducts.isNotEmpty) ...[
+                    const SizedBox(height: 18),
+                    Text(
+                      'Sản Phẩm Liên Quan',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: AppTheme.inkBrown,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 252,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _relatedProducts.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 12),
+                        itemBuilder: (context, index) {
+                          return SizedBox(
+                            width: 166,
+                            child: HomeProductCard(
+                              product: _relatedProducts[index],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

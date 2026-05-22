@@ -75,6 +75,28 @@ class CatalogApiService {
         .toList();
   }
 
+  Future<PersonalizedProductsDto> getPersonalizedProducts({
+    int limit = 12,
+  }) async {
+    final response = await _client.get(
+      '/api/public/products/personalized',
+      query: {'limit': limit},
+    );
+
+    return PersonalizedProductsDto.fromJson(response as Map<String, dynamic>);
+  }
+
+  Future<List<ProductDto>> getRelatedProducts(String idOrSlug) async {
+    final response = await _client.get(
+      '/api/public/products/$idOrSlug/related',
+    );
+    final raw = response as List<dynamic>? ?? const [];
+    return raw
+        .whereType<Map<String, dynamic>>()
+        .map(ProductDto.fromJson)
+        .toList();
+  }
+
   Future<ProductDto> getProductDetail(String idOrSlug) async {
     final response = await _client.get('/api/public/products/$idOrSlug');
     final data = response as Map<String, dynamic>;

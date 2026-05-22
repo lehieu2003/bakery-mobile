@@ -10,6 +10,18 @@ class ProductListResult {
   final int total;
 }
 
+class PersonalizedProductsResult {
+  const PersonalizedProductsResult({
+    required this.products,
+    required this.source,
+    required this.reason,
+  });
+
+  final List<Product> products;
+  final String source;
+  final String reason;
+}
+
 class CatalogRepository {
   CatalogRepository(this._catalogApiService);
 
@@ -31,6 +43,25 @@ class CatalogRepository {
     return (await _catalogApiService.getBestSellers())
         .map((e) => e.toDomain())
         .toList();
+  }
+
+  Future<PersonalizedProductsResult> getPersonalizedProducts({
+    int limit = 12,
+  }) async {
+    final result = await _catalogApiService.getPersonalizedProducts(
+      limit: limit,
+    );
+    return PersonalizedProductsResult(
+      products: result.products.map((e) => e.toDomain()).toList(),
+      source: result.source,
+      reason: result.reason,
+    );
+  }
+
+  Future<List<Product>> getRelatedProducts(String idOrSlug) async {
+    return (await _catalogApiService.getRelatedProducts(
+      idOrSlug,
+    )).map((e) => e.toDomain()).toList();
   }
 
   Future<List<Product>> getProducts({
