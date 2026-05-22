@@ -30,6 +30,10 @@ class CatalogApiService {
   Future<ProductListResultDto> getProducts({
     String? categoryId,
     String? search,
+    double? minPrice,
+    double? maxPrice,
+    bool? inStock,
+    List<String> attributeFilters = const [],
     int page = 1,
     int limit = 20,
   }) async {
@@ -41,6 +45,10 @@ class CatalogApiService {
         if (categoryId != null && categoryId.isNotEmpty)
           'categoryId': categoryId,
         if (search != null && search.isNotEmpty) 'search': search,
+        if (minPrice != null) 'minPrice': minPrice,
+        if (maxPrice != null) 'maxPrice': maxPrice,
+        if (inStock != null) 'inStock': inStock,
+        if (attributeFilters.isNotEmpty) 'attribute': attributeFilters,
       },
     );
 
@@ -57,6 +65,18 @@ class CatalogApiService {
           ? pagination['total'] as int
           : int.tryParse('${pagination['total'] ?? ''}') ?? 0,
     );
+  }
+
+  Future<ProductFiltersDto> getProductFilters({String? categoryId}) async {
+    final response = await _client.get(
+      '/api/public/products/filters',
+      query: {
+        if (categoryId != null && categoryId.isNotEmpty)
+          'categoryId': categoryId,
+      },
+    );
+
+    return ProductFiltersDto.fromJson(response as Map<String, dynamic>);
   }
 
   Future<List<ProductDto>> getBestSellers({int limit = 10}) async {

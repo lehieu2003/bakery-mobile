@@ -67,10 +67,18 @@ class CatalogRepository {
   Future<List<Product>> getProducts({
     String? categoryId,
     String? search,
+    double? minPrice,
+    double? maxPrice,
+    bool? inStock,
+    List<ProductAttributeFilter> attributeFilters = const [],
   }) async {
     final result = await _catalogApiService.getProducts(
       categoryId: categoryId,
       search: search,
+      minPrice: minPrice,
+      maxPrice: maxPrice,
+      inStock: inStock,
+      attributeFilters: _serializeAttributeFilters(attributeFilters),
     );
     return result.products.map((e) => e.toDomain()).toList();
   }
@@ -78,12 +86,20 @@ class CatalogRepository {
   Future<ProductListResult> getProductsPage({
     String? categoryId,
     String? search,
+    double? minPrice,
+    double? maxPrice,
+    bool? inStock,
+    List<ProductAttributeFilter> attributeFilters = const [],
     int page = 1,
     int limit = 20,
   }) async {
     final result = await _catalogApiService.getProducts(
       categoryId: categoryId,
       search: search,
+      minPrice: minPrice,
+      maxPrice: maxPrice,
+      inStock: inStock,
+      attributeFilters: _serializeAttributeFilters(attributeFilters),
       page: page,
       limit: limit,
     );
@@ -95,5 +111,22 @@ class CatalogRepository {
 
   Future<Product> getProductDetail(String idOrSlug) async {
     return (await _catalogApiService.getProductDetail(idOrSlug)).toDomain();
+  }
+
+  Future<ProductFilters> getProductFilters({String? categoryId}) async {
+    return (await _catalogApiService.getProductFilters(
+      categoryId: categoryId,
+    )).toDomain();
+  }
+
+  List<String> _serializeAttributeFilters(
+    List<ProductAttributeFilter> filters,
+  ) {
+    return filters
+        .where((filter) => filter.valueSlugs.isNotEmpty)
+        .map(
+          (filter) => '${filter.attributeSlug}:${filter.valueSlugs.join(',')}',
+        )
+        .toList();
   }
 }

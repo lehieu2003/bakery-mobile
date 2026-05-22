@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
+import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/search_view_model.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/search_product_tile.dart';
 
@@ -40,6 +41,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
     _controller.addListener(_onQueryChanged);
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(searchViewModelProvider.notifier).loadFilters();
       ref.read(searchViewModelProvider.notifier).search(widget.initialQuery);
     });
   }
@@ -97,11 +99,22 @@ class _SearchViewState extends ConsumerState<_SearchView> {
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
+            runSpacing: 8,
             children: [
               _sortChip(context, vm, SearchSortOption.popular, 'Popular'),
               _sortChip(context, vm, SearchSortOption.newest, 'Newest'),
               _sortChip(context, vm, SearchSortOption.priceAsc, 'Price asc'),
               _sortChip(context, vm, SearchSortOption.priceDesc, 'Price desc'),
+              ActionChip(
+                avatar: Icon(
+                  vm.hasActiveFilters
+                      ? Icons.filter_alt
+                      : Icons.filter_alt_outlined,
+                  size: 18,
+                ),
+                label: Text(vm.hasActiveFilters ? 'Filters on' : 'Filters'),
+                onPressed: () => _openFilters(context, vm),
+              ),
             ],
           ),
           const SizedBox(height: 14),
@@ -171,5 +184,158 @@ class _SearchViewState extends ConsumerState<_SearchView> {
       onSelected: (_) =>
           ref.read(searchViewModelProvider.notifier).setSort(option),
     );
+  }
+
+  Future<void> _openFilters(BuildContext context, SearchState vm) async {
+    final minCtrl = TextEditingController(
+      text: vm.minPrice?.toStringAsFixed(0) ?? '',
+    );
+    final maxCtrl = TextEditingController(
+      text: vm.maxPrice?.toStringAsFixed(0) ?? '',
+    );
+    var inStock = vm.inStock == true;
+    final selected = <String, Set<String>>{
+      for (final filter in vm.selectedAttributeFilters)
+        filter.attributeSlug: filter.valueSlugs.toSet(),
+    };
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return SafeArea(
+              top: false,
+              child: ListView(
+                shrinkWrap: true,
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  0,
+                  16,
+                  MediaQuery.viewInsetsOf(context).bottom + 16,
+                ),
+                children: [
+                  Text(
+                    'Filter products',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: AppTextInput(
+                          controller: minCtrl,
+                          keyboardType: TextInputType.number,
+                          labelText: 'Min price',
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: AppTextInput(
+                          controller: maxCtrl,
+                          keyboardType: TextInputType.number,
+                          labelText: 'Max price',
+                        ),
+                      ),
+                    ],
+                  ),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('In stock only'),
+                    value: inStock,
+                    onChanged: (value) => setModalState(() => inStock = value),
+                  ),
+                  for (final group in vm.filters.groups) ...[
+                    const SizedBox(height: 10),
+                    Text(
+                      group.name,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: group.values.map((value) {
+                        final values = selected[group.slug] ?? <String>{};
+                        final isSelected = values.contains(value.slug);
+                        return FilterChip(
+                          label: Text('${value.label} (${value.productCount})'),
+                          selected: isSelected,
+                          onSelected: (checked) {
+                            setModalState(() {
+                              final next = {...values};
+                              if (checked) {
+                                next.add(value.slug);
+                              } else {
+                                next.remove(value.slug);
+                              }
+                              if (next.isEmpty) {
+                                selected.remove(group.slug);
+                              } else {
+                                selected[group.slug] = next;
+                              }
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                  const SizedBox(height: 18),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            ref
+                                .read(searchViewModelProvider.notifier)
+                                .clearFilters();
+                            Navigator.of(sheetContext).pop();
+                          },
+                          child: const Text('Clear'),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: () {
+                            final filters = selected.entries
+                                .map(
+                                  (entry) => ProductAttributeFilter(
+                                    attributeSlug: entry.key,
+                                    valueSlugs: entry.value.toList(),
+                                  ),
+                                )
+                                .toList();
+                            ref
+                                .read(searchViewModelProvider.notifier)
+                                .applyFilters(
+                                  attributeFilters: filters,
+                                  minPrice: double.tryParse(minCtrl.text),
+                                  maxPrice: double.tryParse(maxCtrl.text),
+                                  inStock: inStock ? true : null,
+                                );
+                            Navigator.of(sheetContext).pop();
+                          },
+                          child: const Text('Apply'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    minCtrl.dispose();
+    maxCtrl.dispose();
   }
 }

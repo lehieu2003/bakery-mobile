@@ -110,11 +110,30 @@ class ApiClient {
       return uri;
     }
 
-    return uri.replace(
-      queryParameters: query.map(
-        (key, value) => MapEntry(key, value.toString()),
-      ),
-    );
+    final queryParametersAll = <String, List<String>>{};
+    for (final entry in query.entries) {
+      final value = entry.value;
+      if (value == null) continue;
+      if (value is Iterable) {
+        queryParametersAll[entry.key] = value
+            .where((item) => item != null)
+            .map((item) => item.toString())
+            .toList();
+      } else {
+        queryParametersAll[entry.key] = [value.toString()];
+      }
+    }
+
+    final queryString = queryParametersAll.entries
+        .expand(
+          (entry) => entry.value.map(
+            (value) =>
+                '${Uri.encodeQueryComponent(entry.key)}=${Uri.encodeQueryComponent(value)}',
+          ),
+        )
+        .join('&');
+
+    return uri.replace(query: queryString.isEmpty ? null : queryString);
   }
 
   dynamic _decodeBody(String body) {

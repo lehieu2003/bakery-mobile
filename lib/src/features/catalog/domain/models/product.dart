@@ -91,3 +91,55 @@ class Product {
     );
   }
 }
+
+class ProductAttributeFilter {
+  const ProductAttributeFilter({
+    required this.attributeSlug,
+    required this.valueSlugs,
+  });
+
+  final String attributeSlug;
+  final List<String> valueSlugs;
+}
+
+class ProductFilters {
+  const ProductFilters({
+    this.groups = const [],
+    this.minPrice = 0,
+    this.maxPrice = 0,
+  });
+
+  final List<ProductFilterGroup> groups;
+  final double minPrice;
+  final double maxPrice;
+}
+
+class ProductFilterGroup {
+  const ProductFilterGroup({
+    required this.id,
+    required this.name,
+    required this.slug,
+    this.values = const [],
+  });
+
+  final String id;
+  final String name;
+  final String slug;
+  final List<ProductFilterValue> values;
+}
+
+class ProductFilterValue {
+  const ProductFilterValue({
+    required this.id,
+    required this.slug,
+    required this.label,
+    required this.productCount,
+    this.colorHex,
+  });
+
+  final String id;
+  final String slug;
+  final String label;
+  final int productCount;
+  final String? colorHex;
+}

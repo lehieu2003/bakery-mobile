@@ -222,3 +222,117 @@ class PersonalizedProductsDto {
     );
   }
 }
+
+class ProductFiltersDto {
+  const ProductFiltersDto({
+    required this.groups,
+    required this.minPrice,
+    required this.maxPrice,
+  });
+
+  final List<ProductFilterGroupDto> groups;
+  final double minPrice;
+  final double maxPrice;
+
+  factory ProductFiltersDto.fromJson(Map<String, dynamic> json) {
+    final rawGroups = json['filters'] as List<dynamic>? ?? const [];
+    final priceRange = json['priceRange'] as Map<String, dynamic>? ?? const {};
+    return ProductFiltersDto(
+      groups: rawGroups
+          .whereType<Map<String, dynamic>>()
+          .map(ProductFilterGroupDto.fromJson)
+          .toList(),
+      minPrice: ParseUtils.toDouble(
+        priceRange['min'],
+        field: 'ProductFiltersDto.minPrice',
+      ),
+      maxPrice: ParseUtils.toDouble(
+        priceRange['max'],
+        field: 'ProductFiltersDto.maxPrice',
+      ),
+    );
+  }
+
+  ProductFilters toDomain() {
+    return ProductFilters(
+      groups: groups.map((e) => e.toDomain()).toList(),
+      minPrice: minPrice,
+      maxPrice: maxPrice,
+    );
+  }
+}
+
+class ProductFilterGroupDto {
+  const ProductFilterGroupDto({
+    required this.id,
+    required this.name,
+    required this.slug,
+    this.values = const [],
+  });
+
+  final String id;
+  final String name;
+  final String slug;
+  final List<ProductFilterValueDto> values;
+
+  factory ProductFilterGroupDto.fromJson(Map<String, dynamic> json) {
+    final rawValues = json['values'] as List<dynamic>? ?? const [];
+    return ProductFilterGroupDto(
+      id: (json['id'] ?? '').toString(),
+      name: (json['name'] ?? '').toString(),
+      slug: (json['slug'] ?? '').toString(),
+      values: rawValues
+          .whereType<Map<String, dynamic>>()
+          .map(ProductFilterValueDto.fromJson)
+          .toList(),
+    );
+  }
+
+  ProductFilterGroup toDomain() {
+    return ProductFilterGroup(
+      id: id,
+      name: name,
+      slug: slug,
+      values: values.map((e) => e.toDomain()).toList(),
+    );
+  }
+}
+
+class ProductFilterValueDto {
+  const ProductFilterValueDto({
+    required this.id,
+    required this.slug,
+    required this.label,
+    required this.productCount,
+    this.colorHex,
+  });
+
+  final String id;
+  final String slug;
+  final String label;
+  final int productCount;
+  final String? colorHex;
+
+  factory ProductFilterValueDto.fromJson(Map<String, dynamic> json) {
+    return ProductFilterValueDto(
+      id: (json['id'] ?? '').toString(),
+      slug: (json['slug'] ?? '').toString(),
+      label: (json['label'] ?? json['value'] ?? '').toString(),
+      colorHex: json['colorHex']?.toString(),
+      productCount: ParseUtils.toInt(
+        json['productCount'],
+        field: 'ProductFilterValueDto.productCount',
+      ),
+    );
+  }
+
+  ProductFilterValue toDomain() {
+    return ProductFilterValue(
+      id: id,
+      slug: slug,
+      label: label,
+      colorHex: colorHex,
+      productCount: productCount,
+    );
+  }
+}

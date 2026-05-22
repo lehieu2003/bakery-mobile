@@ -12,6 +12,11 @@ class SearchState {
     this.error,
     this.query = '',
     this.sort = SearchSortOption.popular,
+    this.filters = const ProductFilters(),
+    this.selectedAttributeFilters = const [],
+    this.minPrice,
+    this.maxPrice,
+    this.inStock,
     this.products = const [],
     this.page = 1,
     this.total = 0,
@@ -22,11 +27,21 @@ class SearchState {
   final String? error;
   final String query;
   final SearchSortOption sort;
+  final ProductFilters filters;
+  final List<ProductAttributeFilter> selectedAttributeFilters;
+  final double? minPrice;
+  final double? maxPrice;
+  final bool? inStock;
   final List<Product> products;
   final int page;
   final int total;
 
   bool get hasMore => products.length < total;
+  bool get hasActiveFilters =>
+      minPrice != null ||
+      maxPrice != null ||
+      inStock == true ||
+      selectedAttributeFilters.isNotEmpty;
 
   List<Product> get sortedProducts {
     final list = [...products];
@@ -50,6 +65,14 @@ class SearchState {
     bool clearError = false,
     String? query,
     SearchSortOption? sort,
+    ProductFilters? filters,
+    List<ProductAttributeFilter>? selectedAttributeFilters,
+    double? minPrice,
+    bool clearMinPrice = false,
+    double? maxPrice,
+    bool clearMaxPrice = false,
+    bool? inStock,
+    bool clearInStock = false,
     List<Product>? products,
     int? page,
     int? total,
@@ -60,6 +83,12 @@ class SearchState {
       error: clearError ? null : (error ?? this.error),
       query: query ?? this.query,
       sort: sort ?? this.sort,
+      filters: filters ?? this.filters,
+      selectedAttributeFilters:
+          selectedAttributeFilters ?? this.selectedAttributeFilters,
+      minPrice: clearMinPrice ? null : (minPrice ?? this.minPrice),
+      maxPrice: clearMaxPrice ? null : (maxPrice ?? this.maxPrice),
+      inStock: clearInStock ? null : (inStock ?? this.inStock),
       products: products ?? this.products,
       page: page ?? this.page,
       total: total ?? this.total,
@@ -73,6 +102,17 @@ class SearchViewModel extends Notifier<SearchState> {
   @override
   SearchState build() => const SearchState();
 
+  Future<void> loadFilters() async {
+    try {
+      final filters = await ref
+          .read(catalogRepositoryProvider)
+          .getProductFilters();
+      state = state.copyWith(filters: filters);
+    } catch (_) {
+      // Filters are enhancement-only; keep search usable if unavailable.
+    }
+  }
+
   Future<void> search(String raw) async {
     final query = raw.trim();
     state = state.copyWith(isLoading: true, clearError: true, query: query);
@@ -81,6 +121,10 @@ class SearchViewModel extends Notifier<SearchState> {
           .read(catalogRepositoryProvider)
           .getProductsPage(
             search: query.isEmpty ? null : query,
+            minPrice: state.minPrice,
+            maxPrice: state.maxPrice,
+            inStock: state.inStock,
+            attributeFilters: state.selectedAttributeFilters,
             page: 1,
             limit: _pageSize,
           );
@@ -112,6 +156,10 @@ class SearchViewModel extends Notifier<SearchState> {
           .read(catalogRepositoryProvider)
           .getProductsPage(
             search: state.query.isEmpty ? null : state.query,
+            minPrice: state.minPrice,
+            maxPrice: state.maxPrice,
+            inStock: state.inStock,
+            attributeFilters: state.selectedAttributeFilters,
             page: nextPage,
             limit: _pageSize,
           );
@@ -131,5 +179,27 @@ class SearchViewModel extends Notifier<SearchState> {
 
   void setSort(SearchSortOption value) {
     state = state.copyWith(sort: value);
+  }
+
+  Future<void> applyFilters({
+    required List<ProductAttributeFilter> attributeFilters,
+    double? minPrice,
+    double? maxPrice,
+    bool? inStock,
+  }) async {
+    state = state.copyWith(
+      selectedAttributeFilters: attributeFilters,
+      minPrice: minPrice,
+      clearMinPrice: minPrice == null,
+      maxPrice: maxPrice,
+      clearMaxPrice: maxPrice == null,
+      inStock: inStock,
+      clearInStock: inStock == null,
+    );
+    await search(state.query);
+  }
+
+  Future<void> clearFilters() {
+    return applyFilters(attributeFilters: const []);
   }
 }
