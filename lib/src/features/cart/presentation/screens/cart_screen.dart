@@ -12,6 +12,24 @@ class CartScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cart = ref.watch(cartViewModelProvider);
+    final auth = ref.watch(authViewModelProvider);
+    final membership = ref.watch(membershipViewModelProvider);
+
+    if (auth.user != null &&
+        !membership.isLoading &&
+        membership.benefits == null &&
+        membership.errorMessage == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(membershipViewModelProvider.notifier).load();
+      });
+    }
+
+    final discountPercent =
+        membership.benefits?.currentTier.discountPercent ?? 0;
+    final membershipDiscount = auth.user == null
+        ? 0.0
+        : (cart.subtotal * (discountPercent / 100)).roundToDouble();
+    final estimatedTotal = cart.subtotal - membershipDiscount;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Cart')),
@@ -66,6 +84,52 @@ class CartScreen extends ConsumerWidget {
                                 ),
                               ],
                             ),
+                            if (auth.user != null && discountPercent > 0) ...[
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      '${membership.benefits?.currentTier.label ?? 'Member'} saving',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodyMedium,
+                                    ),
+                                  ),
+                                  Text(
+                                    '-${membershipDiscount.toStringAsFixed(0)} VND',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Divider(height: 20),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Estimated total',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    '${estimatedTotal.toStringAsFixed(0)} VND',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.w800),
+                                  ),
+                                ],
+                              ),
+                            ] else if (auth.user == null) ...[
+                              const SizedBox(height: 8),
+                              Text(
+                                'Sign in to apply membership savings.',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
                             const SizedBox(height: 10),
                             FilledButton.icon(
                               onPressed: () {

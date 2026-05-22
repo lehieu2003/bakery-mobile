@@ -11,6 +11,8 @@ import 'package:bakery_mobile/src/features/catalog/data/datasources/catalog_api_
 import 'package:bakery_mobile/src/features/catalog/data/repositories/catalog_repository.dart';
 import 'package:bakery_mobile/src/features/chatbot/data/datasources/chat_api_service.dart';
 import 'package:bakery_mobile/src/features/chatbot/data/repositories/chat_repository.dart';
+import 'package:bakery_mobile/src/features/membership/data/datasources/membership_api_service.dart';
+import 'package:bakery_mobile/src/features/membership/data/repositories/membership_repository.dart';
 import 'package:bakery_mobile/src/features/notifications/data/datasources/notification_api_service.dart';
 import 'package:bakery_mobile/src/features/notifications/data/repositories/notification_repository.dart';
 import 'package:bakery_mobile/src/features/orders/application/services/order_checkout_service.dart';
@@ -45,6 +47,9 @@ final catalogApiServiceProvider = Provider<CatalogApiService>(
 final chatApiServiceProvider = Provider<ChatApiService>(
   (ref) => ChatApiService(ref.watch(apiClientProvider)),
 );
+final membershipApiServiceProvider = Provider<MembershipApiService>(
+  (ref) => MembershipApiService(ref.watch(apiClientProvider)),
+);
 final notificationApiServiceProvider = Provider<NotificationApiService>(
   (ref) => NotificationApiService(ref.watch(apiClientProvider)),
 );
@@ -72,6 +77,9 @@ final catalogRepositoryProvider = Provider<CatalogRepository>(
 );
 final chatRepositoryProvider = Provider<ChatRepository>(
   (ref) => ChatRepository(ref.watch(chatApiServiceProvider)),
+);
+final membershipRepositoryProvider = Provider<MembershipRepository>(
+  (ref) => MembershipRepository(ref.watch(membershipApiServiceProvider)),
 );
 final notificationRepositoryProvider = Provider<NotificationRepository>(
   (ref) => NotificationRepository(ref.watch(notificationApiServiceProvider)),

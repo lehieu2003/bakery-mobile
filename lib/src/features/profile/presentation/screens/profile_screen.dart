@@ -24,6 +24,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authViewModelProvider);
+    final membership = ref.watch(membershipViewModelProvider);
     final orders = ref.watch(ordersViewModelProvider);
     final notifications = ref.watch(notificationsViewModelProvider);
 
@@ -43,6 +44,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         ref.read(ordersViewModelProvider.notifier).loadMyOrders();
+        ref.read(membershipViewModelProvider.notifier).load();
       });
     }
 
@@ -67,6 +69,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             phone: user.phone,
             level: user.memberLevel,
             points: user.points ?? 0,
+            currentTierLabel: membership.benefits?.currentTier.label,
+            discountPercent: membership.benefits?.currentTier.discountPercent,
+            eligibilityMessage: membership.benefits?.eligibilityMessage,
+            nextTierLabel: membership.benefits?.nextTier?.label,
+            pointsNeeded: membership.benefits?.nextTier?.pointsNeeded,
             isSaving: auth.isSubmitting,
             onEdit: () => _openEditProfile(user),
           ),
@@ -302,6 +309,11 @@ class _ProfileHeaderCard extends StatelessWidget {
     this.name,
     this.phone,
     this.level,
+    this.currentTierLabel,
+    this.discountPercent,
+    this.eligibilityMessage,
+    this.nextTierLabel,
+    this.pointsNeeded,
   });
 
   final String? name;
@@ -309,6 +321,11 @@ class _ProfileHeaderCard extends StatelessWidget {
   final String? phone;
   final String? level;
   final int points;
+  final String? currentTierLabel;
+  final double? discountPercent;
+  final String? eligibilityMessage;
+  final String? nextTierLabel;
+  final int? pointsNeeded;
   final bool isSaving;
   final VoidCallback onEdit;
 
@@ -320,6 +337,9 @@ class _ProfileHeaderCard extends StatelessWidget {
     final displayLevel = (level?.trim().isNotEmpty ?? false)
         ? level!.trim()
         : 'SILVER';
+    final tierLabel = (currentTierLabel?.trim().isNotEmpty ?? false)
+        ? currentTierLabel!.trim()
+        : displayLevel;
     final initial = displayName.substring(0, 1).toUpperCase();
 
     return Card(
@@ -387,7 +407,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                   child: _ProfileStatChip(
                     icon: Icons.workspace_premium_outlined,
                     label: 'Level',
-                    value: displayLevel,
+                    value: tierLabel,
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -400,6 +420,46 @@ class _ProfileHeaderCard extends StatelessWidget {
                 ),
               ],
             ),
+            if (discountPercent != null || eligibilityMessage != null) ...[
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer.withValues(alpha: 0.42),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (discountPercent != null)
+                      Text(
+                        '${discountPercent!.toStringAsFixed(0)}% membership discount',
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                    if (eligibilityMessage != null &&
+                        eligibilityMessage!.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        eligibilityMessage!,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                    if (nextTierLabel != null && pointsNeeded != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        '$pointsNeeded points to $nextTierLabel',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),
