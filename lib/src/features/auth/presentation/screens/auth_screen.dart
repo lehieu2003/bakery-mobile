@@ -1,8 +1,11 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
+import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_view_model.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -39,120 +42,241 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     final viewModel = ref.watch(authViewModelProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(_title())),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          AppTextInput(
-            controller: _emailCtrl,
-            keyboardType: TextInputType.emailAddress,
-            labelText: 'Email',
-          ),
-          const SizedBox(height: 12),
-          if (_isRegister && _otpSent) ...[
-            AppTextInput(controller: _nameCtrl, labelText: 'Name (optional)'),
-            const SizedBox(height: 12),
-            AppTextInput(controller: _otpCtrl, labelText: 'OTP'),
-            const SizedBox(height: 12),
-          ],
-          if (_isReset && _otpSent) ...[
-            AppTextInput(controller: _otpCtrl, labelText: 'OTP'),
-            const SizedBox(height: 12),
-            AppTextInput(
-              controller: _newPasswordCtrl,
-              obscureText: _hideNewPassword,
-              labelText: 'New password',
-              suffixIcon: IconButton(
-                onPressed: () =>
-                    setState(() => _hideNewPassword = !_hideNewPassword),
-                icon: Icon(
-                  _hideNewPassword
-                      ? Icons.visibility_off_outlined
-                      : Icons.visibility_outlined,
+      backgroundColor: const Color(0xFFF8F1E8),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, _) {
+            return Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 28,
+                ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(color: const Color(0xFFF0E3D5)),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x1A9F7A5A),
+                          blurRadius: 32,
+                          offset: Offset(0, 18),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(28),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const _BakeryHeader(),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(24, 24, 24, 26),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // Text(
+                                //   _title(),
+                                //   textAlign: TextAlign.center,
+                                //   style: Theme.of(context)
+                                //       .textTheme
+                                //       .headlineSmall
+                                //       ?.copyWith(
+                                //         color: const Color(0xFF3E3028),
+                                //         fontWeight: FontWeight.w700,
+                                //       ),
+                                // ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  _subtitle(),
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(
+                                        color: const Color(0xFF8A7464),
+                                        height: 1.35,
+                                      ),
+                                ),
+                                const SizedBox(height: 24),
+                                _buildForm(context, viewModel),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-          ],
-          if (!_isReset && (!_isRegister || _otpSent)) ...[
-            AppTextInput(
-              controller: _passwordCtrl,
-              obscureText: _hidePassword,
-              labelText: _isRegister ? 'Password' : 'Password',
-              suffixIcon: IconButton(
-                onPressed: () => setState(() => _hidePassword = !_hidePassword),
-                icon: Icon(
-                  _hidePassword
-                      ? Icons.visibility_off_outlined
-                      : Icons.visibility_outlined,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-          ],
-          if (viewModel.errorMessage != null) ...[
-            Text(
-              viewModel.errorMessage!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-            const SizedBox(height: 12),
-          ],
-          FilledButton(
-            onPressed: viewModel.isSubmitting ? null : _submit,
-            child: viewModel.isSubmitting
-                ? const SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(_primaryCta()),
-          ),
-          const SizedBox(height: 12),
-          if (!_isReset && !_isRegister)
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _isReset = true;
-                  _otpSent = false;
-                  _otpCtrl.clear();
-                  _newPasswordCtrl.clear();
-                });
-              },
-              child: const Text('Forgot password?'),
-            ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _isRegister = !_isRegister;
-                _isReset = false;
-                _otpSent = false;
-                _otpCtrl.clear();
-              });
-            },
-            child: Text(
-              _isRegister ? 'Have an account? Sign in' : 'No account? Register',
-            ),
-          ),
-          if (_isReset)
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _isReset = false;
-                  _otpSent = false;
-                  _otpCtrl.clear();
-                  _newPasswordCtrl.clear();
-                });
-              },
-              child: const Text('Back to sign in'),
-            ),
-        ],
+            );
+          },
+        ),
       ),
     );
   }
 
-  String _title() {
-    if (_isReset) return 'Reset password';
-    return _isRegister ? 'Register' : 'Sign in';
+  Widget _buildForm(BuildContext context, AuthState viewModel) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AppTextInput(
+          controller: _emailCtrl,
+          keyboardType: TextInputType.emailAddress,
+          labelText: 'Email',
+          prefixIcon: const Icon(Icons.mail_outline),
+        ),
+        const SizedBox(height: 12),
+        if (_isRegister && _otpSent) ...[
+          AppTextInput(
+            controller: _nameCtrl,
+            labelText: 'Name (optional)',
+            prefixIcon: const Icon(Icons.person_outline),
+          ),
+          const SizedBox(height: 12),
+          AppTextInput(
+            controller: _otpCtrl,
+            labelText: 'OTP',
+            prefixIcon: const Icon(Icons.pin_outlined),
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (_isReset && _otpSent) ...[
+          AppTextInput(
+            controller: _otpCtrl,
+            labelText: 'OTP',
+            prefixIcon: const Icon(Icons.pin_outlined),
+          ),
+          const SizedBox(height: 12),
+          AppTextInput(
+            controller: _newPasswordCtrl,
+            obscureText: _hideNewPassword,
+            labelText: 'New password',
+            prefixIcon: const Icon(Icons.lock_reset_outlined),
+            suffixIcon: IconButton(
+              onPressed: () =>
+                  setState(() => _hideNewPassword = !_hideNewPassword),
+              icon: Icon(
+                _hideNewPassword
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (!_isReset && (!_isRegister || _otpSent)) ...[
+          AppTextInput(
+            controller: _passwordCtrl,
+            obscureText: _hidePassword,
+            labelText: 'Password',
+            prefixIcon: const Icon(Icons.lock_outline),
+            suffixIcon: IconButton(
+              onPressed: () => setState(() => _hidePassword = !_hidePassword),
+              icon: Icon(
+                _hidePassword
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (viewModel.errorMessage != null) ...[
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.errorContainer,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                viewModel.errorMessage!,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onErrorContainer,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: const Color(0xFFB87B58),
+            foregroundColor: Colors.white,
+            minimumSize: const Size.fromHeight(50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          onPressed: viewModel.isSubmitting ? null : _submit,
+          child: viewModel.isSubmitting
+              ? const SizedBox(
+                  height: 18,
+                  width: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : Text(_primaryCta()),
+        ),
+        const SizedBox(height: 12),
+        if (!_isReset && !_isRegister)
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _isReset = true;
+                _otpSent = false;
+                _otpCtrl.clear();
+                _newPasswordCtrl.clear();
+              });
+            },
+            child: const Text('Forgot password?'),
+          ),
+        TextButton(
+          onPressed: () {
+            setState(() {
+              _isRegister = !_isRegister;
+              _isReset = false;
+              _otpSent = false;
+              _otpCtrl.clear();
+            });
+          },
+          child: Text(
+            _isRegister ? 'Have an account? Sign in' : 'No account? Register',
+          ),
+        ),
+        if (_isReset)
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _isReset = false;
+                _otpSent = false;
+                _otpCtrl.clear();
+                _newPasswordCtrl.clear();
+              });
+            },
+            child: const Text('Back to sign in'),
+          ),
+      ],
+    );
+  }
+
+  // String _title() {
+  //   if (_isReset) return 'Reset password';
+  //   return _isRegister ? 'Register' : 'Sign in';
+  // }
+
+  String _subtitle() {
+    if (_isReset) return 'Get a fresh password and return to your bakery cart.';
+    if (_isRegister && !_otpSent) {
+      return 'Create your bakery account with email OTP.';
+    }
+    if (_isRegister) return 'Enter the OTP we sent and finish your profile.';
+    return 'Welcome back to your daily bread and pastry picks.';
   }
 
   String _primaryCta() {
@@ -221,15 +345,72 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       email: _emailCtrl.text.trim(),
       password: _passwordCtrl.text,
     );
-
-    if (ok && mounted) {
-      _showSnack(context, 'Welcome back.');
-    }
   }
 
   void _showSnack(BuildContext context, String message) {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
+  }
+}
+
+class _BakeryHeader extends StatelessWidget {
+  const _BakeryHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 178,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          ImageFiltered(
+            imageFilter: ImageFilter.blur(sigmaX: 2.2, sigmaY: 2.2),
+            child: Image.asset(
+              'assets/images/auth_bakery_header.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0x24FFFFFF),
+                  Color(0x66FFF8F0),
+                  Color(0xEEFFFFFF),
+                ],
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 18),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.78),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: const Color(0xFFEBDCCA)),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(
+                    'BAKERY SHOP',
+                    style: TextStyle(
+                      color: Color(0xFF7A513A),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
