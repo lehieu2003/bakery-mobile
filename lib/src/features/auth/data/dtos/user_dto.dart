@@ -6,6 +6,7 @@ class UserDto {
     required this.email,
     required this.role,
     this.name,
+    this.phone,
     this.memberLevel,
     this.points,
   });
@@ -14,6 +15,7 @@ class UserDto {
   final String email;
   final String role;
   final String? name;
+  final String? phone;
   final String? memberLevel;
   final int? points;
 
@@ -23,6 +25,7 @@ class UserDto {
       email: (json['email'] ?? '').toString(),
       role: (json['role'] ?? '').toString(),
       name: json['name']?.toString(),
+      phone: json['phone']?.toString(),
       memberLevel: json['memberLevel']?.toString(),
       points: json['points'] is int
           ? json['points'] as int
@@ -36,6 +39,7 @@ class UserDto {
       email: email,
       role: role,
       name: name,
+      phone: phone,
       memberLevel: memberLevel,
       points: points,
     );
@@ -50,13 +54,14 @@ class AuthSessionDto {
 
   factory AuthSessionDto.fromJson(Map<String, dynamic> json) {
     final data = json['data'];
-    final dataMap = data is Map<String, dynamic> ? data : const <String, dynamic>{};
-    final userMap =
-        (json['user'] is Map<String, dynamic>)
-            ? json['user'] as Map<String, dynamic>
-            : (dataMap['user'] is Map<String, dynamic>
-                  ? dataMap['user'] as Map<String, dynamic>
-                  : const <String, dynamic>{});
+    final dataMap = data is Map<String, dynamic>
+        ? data
+        : const <String, dynamic>{};
+    final userMap = (json['user'] is Map<String, dynamic>)
+        ? json['user'] as Map<String, dynamic>
+        : (dataMap['user'] is Map<String, dynamic>
+              ? dataMap['user'] as Map<String, dynamic>
+              : const <String, dynamic>{});
     final token =
         json['token']?.toString() ??
         json['accessToken']?.toString() ??
@@ -64,9 +69,6 @@ class AuthSessionDto {
         dataMap['accessToken']?.toString() ??
         '';
 
-    return AuthSessionDto(
-      user: UserDto.fromJson(userMap),
-      token: token,
-    );
+    return AuthSessionDto(user: UserDto.fromJson(userMap), token: token);
   }
 }

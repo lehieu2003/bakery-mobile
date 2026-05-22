@@ -59,17 +59,80 @@ class CreateOrderResult {
     required this.order,
     this.paymentUrl,
     this.paymentError,
+    this.appliedIncentives = const [],
   });
 
   final Order order;
   final String? paymentUrl;
   final String? paymentError;
+  final List<AppliedIncentiveSummary> appliedIncentives;
 
   factory CreateOrderResult.fromJson(Map<String, dynamic> json) {
     return CreateOrderResult(
       order: Order.fromJson((json['order'] as Map<String, dynamic>? ?? {})),
       paymentUrl: json['paymentUrl']?.toString(),
       paymentError: json['paymentError']?.toString(),
+      appliedIncentives:
+          (json['appliedIncentives'] as List<dynamic>? ?? const [])
+              .whereType<Map<String, dynamic>>()
+              .map(AppliedIncentiveSummary.fromJson)
+              .toList(),
     );
   }
+}
+
+class AppliedIncentiveSummary {
+  const AppliedIncentiveSummary({
+    required this.code,
+    required this.type,
+    required this.discount,
+  });
+
+  final String code;
+  final String type;
+  final double discount;
+
+  factory AppliedIncentiveSummary.fromJson(Map<String, dynamic> json) {
+    return AppliedIncentiveSummary(
+      code: (json['code'] ?? '').toString(),
+      type: (json['type'] ?? '').toString(),
+      discount: (json['discount'] as num?)?.toDouble() ?? 0,
+    );
+  }
+}
+
+class PreviewIncentiveResult {
+  const PreviewIncentiveResult({
+    required this.subtotal,
+    required this.membershipDiscount,
+    required this.couponDiscount,
+    required this.totalDiscount,
+    required this.total,
+    this.appliedIncentives = const [],
+  });
+
+  final double subtotal;
+  final double membershipDiscount;
+  final double couponDiscount;
+  final double totalDiscount;
+  final double total;
+  final List<AppliedIncentiveSummary> appliedIncentives;
+}
+
+class AvailableIncentive {
+  const AvailableIncentive({
+    required this.code,
+    required this.type,
+    required this.value,
+    required this.endAt,
+    this.minOrder,
+    this.maxDiscount,
+  });
+
+  final String code;
+  final String type;
+  final double value;
+  final double? minOrder;
+  final double? maxDiscount;
+  final DateTime endAt;
 }

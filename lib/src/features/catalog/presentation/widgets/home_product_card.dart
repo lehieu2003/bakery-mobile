@@ -74,167 +74,199 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
     final isFavorite = wishlist.isFavorite(product.id);
     final isPendingFavorite = wishlist.isPending(product.id);
 
-    return Card(
-      margin: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
-      elevation: 3,
-      shadowColor: Colors.black.withValues(alpha: 0.14),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: InkWell(
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) =>
-                ProductDetailScreen(productIdOrSlug: widget.product.slug),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.warmBrown.withValues(alpha: 0.09),
+            blurRadius: 18,
+            offset: const Offset(0, 9),
           ),
-        ),
-        child: Stack(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: PageView.builder(
-                          controller: _imageController,
-                          itemCount: images.length,
-                          onPageChanged: (index) =>
-                              setState(() => _activeIndex = index),
-                          itemBuilder: (context, index) {
-                            final imageUrl = images[index];
-                            if (imageUrl.isEmpty) {
-                              return const ColoredBox(color: Color(0xFFD8D8D8));
-                            }
-                            return Image.network(
-                              imageUrl,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) =>
-                                  const ColoredBox(color: Color(0xFFD8D8D8)),
-                            );
-                          },
-                        ),
-                      ),
-                      if (images.length > 1)
-                        Positioned(
-                          right: 6,
-                          top: 6,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
+        ],
+      ),
+      child: Card(
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
+        elevation: 0,
+        color: AppTheme.surfaceCream,
+        shadowColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        child: InkWell(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) =>
+                  ProductDetailScreen(productIdOrSlug: widget.product.slug),
+            ),
+          ),
+          child: Stack(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: DecoratedBox(
                             decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.45),
-                              borderRadius: BorderRadius.circular(999),
+                              color: AppTheme.surfaceCream,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.warmBrown.withValues(
+                                    alpha: 0.10,
+                                  ),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
                             ),
-                            child: Text(
-                              '${_activeIndex + 1}/${images.length}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Positioned.fill(
+                          child: PageView.builder(
+                            controller: _imageController,
+                            itemCount: images.length,
+                            onPageChanged: (index) =>
+                                setState(() => _activeIndex = index),
+                            itemBuilder: (context, index) {
+                              final imageUrl = images[index];
+                              if (imageUrl.isEmpty) {
+                                return const ColoredBox(
+                                  color: Color(0xFFD8D8D8),
+                                );
+                              }
+                              return Image.network(
+                                imageUrl,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) =>
+                                    const ColoredBox(color: Color(0xFFD8D8D8)),
+                              );
+                            },
+                          ),
+                        ),
+                        if (images.length > 1)
+                          Positioned(
+                            right: 6,
+                            top: 6,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.45),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                '${_activeIndex + 1}/${images.length}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        Positioned(
+                          left: 8,
+                          top: 8,
+                          child: Material(
+                            color: Colors.white.withValues(alpha: 0.92),
+                            borderRadius: BorderRadius.circular(999),
+                            child: InkWell(
+                              onTap: isPendingFavorite
+                                  ? null
+                                  : () => wishlistNotifier.toggle(product),
+                              borderRadius: BorderRadius.circular(999),
+                              child: SizedBox(
+                                width: 32,
+                                height: 32,
+                                child: isPendingFavorite
+                                    ? const Padding(
+                                        padding: EdgeInsets.all(7),
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : Icon(
+                                        isFavorite
+                                            ? Icons.favorite
+                                            : Icons.favorite_border,
+                                        size: 18,
+                                        color: isFavorite
+                                            ? Colors.redAccent
+                                            : const Color(0xFF555555),
+                                      ),
                               ),
                             ),
                           ),
                         ),
-                      Positioned(
-                        left: 8,
-                        top: 8,
-                        child: Material(
-                          color: Colors.white.withValues(alpha: 0.92),
-                          borderRadius: BorderRadius.circular(999),
-                          child: InkWell(
-                            onTap: isPendingFavorite
-                                ? null
-                                : () => wishlistNotifier.toggle(product),
-                            borderRadius: BorderRadius.circular(999),
-                            child: SizedBox(
-                              width: 32,
-                              height: 32,
-                              child: isPendingFavorite
-                                  ? const Padding(
-                                      padding: EdgeInsets.all(7),
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : Icon(
-                                      isFavorite
-                                          ? Icons.favorite
-                                          : Icons.favorite_border,
-                                      size: 18,
-                                      color: isFavorite
-                                          ? Colors.redAccent
-                                          : const Color(0xFF555555),
-                                    ),
-                            ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    color: AppTheme.surfaceCream,
+                    padding: const EdgeInsets.fromLTRB(12, 10, 44, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.product.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w600,
+                            height: 1.25,
+                            color: AppTheme.inkBrown,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.product.name,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w700,
-                          height: 1.25,
+                        const SizedBox(height: 4),
+                        Text(
+                          '${widget.product.price.toStringAsFixed(0)} VND',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.warmBrown,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${widget.product.price.toStringAsFixed(0)} VND',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          color: AppTheme.primaryPink,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            Positioned(
-              right: 0,
-              bottom: 0,
-              child: Material(
-                color: AppTheme.primaryPink,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(14),
-                ),
-                child: InkWell(
-                  onTap: widget.product.stock <= 0
-                      ? null
-                      : () {
-                          cart.addProduct(widget.product);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Added to cart')),
-                          );
-                        },
+                ],
+              ),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Material(
+                  color: AppTheme.primaryPink,
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(14),
                   ),
-                  child: const SizedBox(
-                    width: 42,
-                    height: 42,
-                    child: Icon(Icons.add, color: Colors.white),
+                  child: InkWell(
+                    onTap: widget.product.stock <= 0
+                        ? null
+                        : () {
+                            cart.addProduct(widget.product);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Added to cart')),
+                            );
+                          },
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(14),
+                    ),
+                    child: const SizedBox(
+                      width: 38,
+                      height: 38,
+                      child: Icon(Icons.add, color: Colors.white, size: 22),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

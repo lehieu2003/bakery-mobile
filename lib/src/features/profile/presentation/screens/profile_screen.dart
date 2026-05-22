@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
+import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
+import 'package:bakery_mobile/src/features/auth/domain/models/user.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/screens/blog_screen.dart';
 import 'package:bakery_mobile/src/features/chatbot/presentation/screens/chatbot_screen.dart';
 import 'package:bakery_mobile/src/features/notifications/presentation/screens/notifications_screen.dart';
@@ -61,8 +63,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           _ProfileHeaderCard(
             name: user.name,
             email: user.email,
+            phone: user.phone,
             level: user.memberLevel,
             points: user.points ?? 0,
+            isSaving: auth.isSubmitting,
+            onEdit: () => _openEditProfile(user),
           ),
           const SizedBox(height: 12),
           _QuickActionsCard(
@@ -144,20 +149,89 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       ),
     );
   }
+
+  Future<void> _openEditProfile(User user) async {
+    final nameCtrl = TextEditingController(text: user.name ?? '');
+    final phoneCtrl = TextEditingController(text: user.phone ?? '');
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        return Padding(
+          padding: EdgeInsets.fromLTRB(
+            16,
+            16,
+            16,
+            MediaQuery.viewInsetsOf(sheetContext).bottom + 16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Edit profile',
+                style: Theme.of(
+                  sheetContext,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 14),
+              AppTextInput(
+                controller: nameCtrl,
+                labelText: 'Name',
+                textInputAction: TextInputAction.next,
+                prefixIcon: const Icon(Icons.person_outline),
+              ),
+              const SizedBox(height: 12),
+              AppTextInput(
+                controller: phoneCtrl,
+                labelText: 'Phone',
+                keyboardType: TextInputType.phone,
+                prefixIcon: const Icon(Icons.phone_outlined),
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: () async {
+                  final ok = await ref
+                      .read(authViewModelProvider.notifier)
+                      .updateProfile(
+                        name: nameCtrl.text.trim(),
+                        phone: phoneCtrl.text.trim(),
+                      );
+                  if (!sheetContext.mounted) return;
+                  if (ok) Navigator.of(sheetContext).pop();
+                },
+                child: const Text('Save profile'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    nameCtrl.dispose();
+    phoneCtrl.dispose();
+  }
 }
 
 class _ProfileHeaderCard extends StatelessWidget {
   const _ProfileHeaderCard({
     required this.email,
     required this.points,
+    required this.isSaving,
+    required this.onEdit,
     this.name,
+    this.phone,
     this.level,
   });
 
   final String? name;
   final String email;
+  final String? phone;
   final String? level;
   final int points;
+  final bool isSaving;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -204,8 +278,26 @@ class _ProfileHeaderCard extends StatelessWidget {
                         email,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
+                      if (phone?.trim().isNotEmpty ?? false) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          phone!.trim(),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
                     ],
                   ),
+                ),
+                IconButton(
+                  onPressed: isSaving ? null : onEdit,
+                  icon: isSaving
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.edit_outlined),
+                  tooltip: 'Edit profile',
                 ),
               ],
             ),

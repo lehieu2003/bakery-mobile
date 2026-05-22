@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
 
 class HomeSubcategoryChips extends StatelessWidget {
@@ -25,9 +26,10 @@ class HomeSubcategoryChips extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             'Danh Mục Con',
-            style: Theme.of(
-              context,
-            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: AppTheme.inkBrown,
+            ),
           ),
         ),
         const SizedBox(height: 8),
@@ -41,10 +43,19 @@ class HomeSubcategoryChips extends StatelessWidget {
                   (subcategory) => Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: FilterChip(
+                      backgroundColor: AppTheme.surfaceCream,
+                      selectedColor: const Color(0xFFFFE8DC),
+                      checkmarkColor: AppTheme.warmBrown,
+                      side: BorderSide(
+                        color: selectedCategoryId == subcategory.id
+                            ? AppTheme.pastryPeach.withValues(alpha: 0.65)
+                            : const Color(0xFFE8DCD0),
+                      ),
                       label: Text(
                         subcategory.children.isNotEmpty
                             ? '${subcategory.name} (${subcategory.children.length})'
                             : subcategory.name,
+                        style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
                       selected: selectedCategoryId == subcategory.id,
                       onSelected: (_) => onSelect(subcategory.id),

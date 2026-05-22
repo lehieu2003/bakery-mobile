@@ -18,6 +18,7 @@ class OrderRepository {
     String? customerEmail,
     String? customerAddress,
     required String paymentMethod,
+    List<String> incentiveCodes = const [],
     required List<Map<String, dynamic>> items,
   }) async {
     final result = await _orderApiService.createOrder(
@@ -26,8 +27,30 @@ class OrderRepository {
       customerEmail: customerEmail,
       customerAddress: customerAddress,
       paymentMethod: paymentMethod,
+      incentiveCodes: incentiveCodes,
       items: items,
     );
     return result.toDomain();
+  }
+
+  Future<PreviewIncentiveResult> previewIncentives({
+    required List<String> incentiveCodes,
+    required List<Map<String, dynamic>> items,
+  }) async {
+    final result = await _orderApiService.previewIncentives(
+      incentiveCodes: incentiveCodes,
+      items: items,
+    );
+    return result.toDomain();
+  }
+
+  Future<List<AvailableIncentive>> getAvailableIncentives({
+    required double subtotal,
+    required List<Map<String, dynamic>> cart,
+  }) async {
+    return (await _orderApiService.getAvailableIncentives(
+      subtotal: subtotal,
+      cart: cart,
+    )).map((e) => e.toDomain()).toList();
   }
 }

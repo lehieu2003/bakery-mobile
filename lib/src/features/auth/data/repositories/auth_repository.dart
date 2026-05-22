@@ -70,6 +70,13 @@ class AuthRepository {
     }
   }
 
+  Future<User> updateProfile({String? name, String? phone}) async {
+    return (await authApiService.updateProfile(
+      name: name,
+      phone: phone,
+    )).toDomain();
+  }
+
   Future<void> logout() async {
     try {
       await authApiService.logout();

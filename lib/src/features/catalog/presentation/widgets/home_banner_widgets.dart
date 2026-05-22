@@ -13,7 +13,16 @@ class HomeHeroBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 190,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(18)),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.warmBrown.withValues(alpha: 0.10),
+            blurRadius: 22,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -30,7 +39,14 @@ class HomeHeroBanner extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(18),
-                color: Colors.black.withValues(alpha: 0.16),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.02),
+                    Colors.black.withValues(alpha: 0.24),
+                  ],
+                ),
               ),
             ),
           if (title != null && title!.isNotEmpty)
@@ -45,7 +61,7 @@ class HomeHeroBanner extends StatelessWidget {
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
             ),
@@ -77,7 +93,7 @@ class HomeBannerDots extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: active ? AppTheme.primaryPink : const Color(0xFFD0D0D0),
+            color: active ? AppTheme.warmBrown : const Color(0xFFE3D8CF),
           ),
         );
       }),

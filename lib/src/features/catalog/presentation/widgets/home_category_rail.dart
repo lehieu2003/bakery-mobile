@@ -19,14 +19,14 @@ class HomeCategoryRail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 92,
+      height: 104,
       child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
         children: [
           ...categories.map(
             (category) => _CategoryCapsule(
-              label: category.name,
+              label: _shortCategoryLabel(category.name),
               imageUrl: category.imageUrl,
               isSelected: _isRootSelected(category, selectedCategoryId),
               onTap: () => onSelect(category.id),
@@ -50,6 +50,28 @@ class HomeCategoryRail extends StatelessWidget {
     }
     return false;
   }
+
+  String _shortCategoryLabel(String name) {
+    final normalized = name.trim().toLowerCase();
+    if (normalized.contains('pha') || normalized.contains('drink')) {
+      return 'Drinks';
+    }
+    if (normalized.contains('làm') ||
+        normalized.contains('lam') ||
+        normalized.contains('baking')) {
+      return 'Baking';
+    }
+    if (normalized.contains('birthday') || normalized.contains('sinh')) {
+      return 'Birthday';
+    }
+    if (normalized.contains('tiramisu')) {
+      return 'Tiramisu';
+    }
+
+    final words = name.trim().split(RegExp(r'\s+'));
+    if (words.length <= 2) return name.trim();
+    return words.take(2).join(' ');
+  }
 }
 
 class _CategoryCapsule extends StatelessWidget {
@@ -68,57 +90,70 @@ class _CategoryCapsule extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 10),
+      padding: const EdgeInsets.only(right: 14),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
-        child: SizedBox(
-          width: 64,
+        borderRadius: BorderRadius.circular(22),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          width: 72,
+          padding: const EdgeInsets.fromLTRB(6, 6, 6, 8),
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFFFFEFE6) : Colors.transparent,
+            borderRadius: BorderRadius.circular(22),
+          ),
           child: Column(
             children: [
-              Container(
-                width: 54,
-                height: 82,
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                width: 56,
+                height: 56,
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? AppTheme.primaryPink
-                      : const Color(0xFFD3D3D3),
-                  borderRadius: BorderRadius.circular(22),
-                ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 7),
-                    ClipOval(
-                      child: Container(
-                        width: 34,
-                        height: 34,
-                        color: Colors.white.withValues(alpha: 0.68),
-                        child: resolveImageUrl(imageUrl).isNotEmpty
-                            ? Image.network(
-                                resolveImageUrl(imageUrl),
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) =>
-                                    const SizedBox.shrink(),
-                              )
-                            : null,
+                      ? AppTheme.blushPink.withValues(alpha: 0.55)
+                      : const Color(0xFFFFF8F0),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.warmBrown.withValues(
+                        alpha: isSelected ? 0.12 : 0.06,
                       ),
-                    ),
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(6, 0, 6, 8),
-                      child: Text(
-                        label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      blurRadius: isSelected ? 14 : 10,
+                      offset: const Offset(0, 7),
                     ),
                   ],
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: resolveImageUrl(imageUrl).isNotEmpty
+                    ? Image.network(
+                        resolveImageUrl(imageUrl),
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.bakery_dining_outlined,
+                          color: AppTheme.warmBrown,
+                          size: 24,
+                        ),
+                      )
+                    : const Icon(
+                        Icons.bakery_dining_outlined,
+                        color: AppTheme.warmBrown,
+                        size: 24,
+                      ),
+              ),
+              const SizedBox(height: 7),
+              Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: isSelected
+                      ? AppTheme.warmBrown
+                      : const Color(0xFF76665C),
+                  fontSize: 11,
+                  height: 1.08,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 ),
               ),
             ],

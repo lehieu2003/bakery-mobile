@@ -3,14 +3,19 @@ import 'package:flutter/material.dart';
 class AppTheme {
   // Synced with web primary/pink-deep tone.
   static const Color primaryPink = Color.fromARGB(255, 243, 146, 184);
-  static const Color canvasCream = Color(0xFFF8F4F2);
+  static const Color blushPink = Color(0xFFF6C8D6);
+  static const Color pastryPeach = Color(0xFFF4B887);
+  static const Color warmBrown = Color(0xFF8D5D43);
+  static const Color inkBrown = Color(0xFF332923);
+  static const Color canvasCream = Color(0xFFFBF6EF);
+  static const Color surfaceCream = Color(0xFFFFFCF7);
 
   static ThemeData light() {
     const seed = primaryPink;
     final scheme = ColorScheme.fromSeed(
       seedColor: seed,
       brightness: Brightness.light,
-      surface: const Color(0xFFFFFBFC),
+      surface: surfaceCream,
     );
 
     return ThemeData(
@@ -29,7 +34,7 @@ class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: Colors.white,
+        color: surfaceCream,
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
@@ -39,7 +44,7 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white,
+        fillColor: surfaceCream,
         hintStyle: TextStyle(color: scheme.onSurfaceVariant),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,
@@ -78,7 +83,7 @@ class AppTheme {
       chipTheme: ChipThemeData(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
         side: BorderSide(color: scheme.outlineVariant),
-        selectedColor: scheme.primaryContainer,
+        selectedColor: const Color(0xFFFFE8DC),
         checkmarkColor: scheme.primary,
       ),
       navigationBarTheme: NavigationBarThemeData(

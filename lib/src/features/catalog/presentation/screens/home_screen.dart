@@ -80,10 +80,11 @@ class _HomeViewState extends ConsumerState<_HomeView> {
     }
 
     return Scaffold(
+      backgroundColor: AppTheme.canvasCream,
       body: RefreshIndicator(
         onRefresh: ref.read(homeViewModelProvider.notifier).loadInitial,
         child: ListView(
-          padding: const EdgeInsets.only(bottom: 110),
+          padding: const EdgeInsets.only(bottom: 96),
           children: [
             HomeHeader(
               unreadCount: notifications.unreadCount,
@@ -102,7 +103,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                 context,
               ).push(MaterialPageRoute(builder: (_) => const SearchScreen())),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
             if (vm.banners.isNotEmpty) ...[
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -120,13 +121,13 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               HomeBannerDots(
                 activeIndex: _bannerIndex,
                 count: vm.banners.length,
               ),
             ],
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: _HomeSectionTitle(
@@ -134,7 +135,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                 icon: Icons.grid_view_rounded,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             HomeCategoryRail(
               categories: vm.categories,
               selectedCategoryId: vm.selectedCategoryId,
@@ -142,7 +143,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                   ref.read(homeViewModelProvider.notifier).selectCategory(id),
             ),
             if (subCategories.isNotEmpty) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               HomeSubcategoryChips(
                 subCategories: subCategories,
                 selectedCategoryId: vm.selectedCategoryId,
@@ -150,7 +151,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                     ref.read(homeViewModelProvider.notifier).selectCategory(id),
               ),
             ],
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: _HomeSectionTitle(
@@ -183,7 +184,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                   itemCount: vm.bestSellers.length,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    mainAxisSpacing: 14,
+                    mainAxisSpacing: 16,
                     crossAxisSpacing: 14,
                     childAspectRatio: 0.72,
                   ),
@@ -244,18 +245,18 @@ class _HomeSectionTitle extends StatelessWidget {
               width: 28,
               height: 28,
               decoration: BoxDecoration(
-                color: AppTheme.primaryPink.withValues(alpha: 0.14),
+                color: const Color(0xFFFFE5D4),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(icon, size: 16, color: AppTheme.primaryPink),
+              child: Icon(icon, size: 16, color: AppTheme.warmBrown),
             ),
             const SizedBox(width: 8),
             Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w900,
-                color: const Color(0xFF262626),
-                letterSpacing: 0.3,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.warmBrown,
+                letterSpacing: 0,
               ),
             ),
           ],
@@ -265,7 +266,7 @@ class _HomeSectionTitle extends StatelessWidget {
           width: 54,
           height: 3,
           decoration: BoxDecoration(
-            color: AppTheme.primaryPink,
+            color: AppTheme.blushPink.withValues(alpha: 0.62),
             borderRadius: BorderRadius.circular(999),
           ),
         ),

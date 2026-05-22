@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
+import 'package:bakery_mobile/src/core/di/data_providers.dart';
+import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
 import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
@@ -31,7 +33,15 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   final _nameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _addressCtrl = TextEditingController();
+  final _incentiveCtrl = TextEditingController();
   String _paymentMethod = 'COD';
+  List<String> _selectedIncentiveCodes = const [];
+  List<AvailableIncentive> _availableIncentives = const [];
+  PreviewIncentiveResult? _previewPricing;
+  bool _isLoadingIncentives = false;
+  bool _isApplyingIncentive = false;
+  String? _incentiveMessage;
+  String? _incentiveError;
   SharedPreferences? _prefs;
 
   @override
@@ -42,6 +52,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     _nameCtrl.dispose();
     _phoneCtrl.dispose();
     _addressCtrl.dispose();
+    _incentiveCtrl.dispose();
     super.dispose();
   }
 
@@ -52,6 +63,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     _phoneCtrl.addListener(_saveDraft);
     _addressCtrl.addListener(_saveDraft);
     _restoreDraft();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadIncentivesAndPricing();
+    });
   }
 
   Future<void> _restoreDraft() async {
@@ -82,6 +96,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final cart = ref.watch(cartViewModelProvider);
     final auth = ref.watch(authViewModelProvider);
     final orders = ref.watch(ordersViewModelProvider);
+    final subtotal = cart.subtotal;
+    final pricing = _previewPricing;
+    final membershipDiscount = pricing?.membershipDiscount ?? 0;
+    final couponDiscount = pricing?.couponDiscount ?? 0;
+    final total = pricing?.total ?? subtotal;
 
     if (cart.items.isEmpty) {
       return const Scaffold(body: Center(child: Text('Cart is empty')));
@@ -136,6 +155,19 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   ],
                 ),
               ),
+            ),
+            const SizedBox(height: 12),
+            _IncentivesCard(
+              controller: _incentiveCtrl,
+              selectedCodes: _selectedIncentiveCodes,
+              availableIncentives: _availableIncentives,
+              isLoading: _isLoadingIncentives,
+              isApplying: _isApplyingIncentive,
+              message: _incentiveMessage,
+              error: _incentiveError,
+              onApply: () => _applyIncentive(_incentiveCtrl.text),
+              onApplyCode: _applyIncentive,
+              onRemoveCode: _removeIncentive,
             ),
             const SizedBox(height: 12),
             Card(
@@ -203,6 +235,18 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       ),
                     ),
                     const Divider(height: 20),
+                    if (membershipDiscount > 0)
+                      _SummaryRow(
+                        label: 'Membership saving',
+                        value: '-${_formatMoney(membershipDiscount)}',
+                        valueColor: AppTheme.warmBrown,
+                      ),
+                    if (couponDiscount > 0)
+                      _SummaryRow(
+                        label: 'Coupon saving',
+                        value: '-${_formatMoney(couponDiscount)}',
+                        valueColor: AppTheme.warmBrown,
+                      ),
                     Row(
                       children: [
                         const Expanded(
@@ -212,7 +256,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           ),
                         ),
                         Text(
-                          '${cart.subtotal.toStringAsFixed(0)} VND',
+                          _formatMoney(total),
                           style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
                       ],
@@ -284,6 +328,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           customerEmail: email,
           customerAddress: _addressCtrl.text.trim(),
           paymentMethod: _paymentMethod,
+          incentiveCodes: _selectedIncentiveCodes,
           items: items.map((item) => item.toOrderItemPayload()).toList(),
         );
 
@@ -304,6 +349,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       'Status: ${result.order.status}',
       if (result.paymentError != null && result.paymentError!.isNotEmpty)
         'Payment warning: ${result.paymentError}',
+      if (result.appliedIncentives.isNotEmpty)
+        'Savings: ${result.appliedIncentives.map((item) => '${item.code} -${_formatMoney(item.discount)}').join(', ')}',
     ];
 
     await showDialog<void>(
@@ -354,6 +401,296 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           ],
         );
       },
+    );
+  }
+
+  Future<void> _loadIncentivesAndPricing() async {
+    if (!mounted) return;
+    final cart = ref.read(cartViewModelProvider);
+    if (cart.items.isEmpty) return;
+
+    setState(() {
+      _isLoadingIncentives = true;
+      _incentiveError = null;
+    });
+
+    try {
+      final repository = ref.read(orderRepositoryProvider);
+      final contextItems = _cartContextPayload(cart.items);
+      final results = await Future.wait([
+        repository.previewIncentives(
+          incentiveCodes: _selectedIncentiveCodes,
+          items: contextItems,
+        ),
+        repository.getAvailableIncentives(
+          subtotal: cart.subtotal,
+          cart: contextItems,
+        ),
+      ]);
+      if (!mounted) return;
+      setState(() {
+        _previewPricing = results[0] as PreviewIncentiveResult;
+        _availableIncentives = results[1] as List<AvailableIncentive>;
+        _isLoadingIncentives = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _isLoadingIncentives = false;
+        _incentiveError = error.toString().replaceFirst('Exception: ', '');
+      });
+    }
+  }
+
+  Future<void> _applyIncentive(String rawCode) async {
+    final code = rawCode.trim().toUpperCase();
+    if (code.isEmpty) {
+      setState(() {
+        _incentiveError = 'Please enter an incentive code.';
+        _incentiveMessage = null;
+      });
+      return;
+    }
+
+    final nextCodes = {..._selectedIncentiveCodes, code}.toList();
+    if (nextCodes.length > 5) {
+      setState(() => _incentiveError = 'You can apply up to 5 codes.');
+      return;
+    }
+
+    await _previewCodes(nextCodes, successMessage: 'Applied $code.');
+    if (mounted) _incentiveCtrl.clear();
+  }
+
+  Future<void> _removeIncentive(String code) async {
+    final nextCodes = _selectedIncentiveCodes
+        .where((item) => item != code)
+        .toList();
+    await _previewCodes(nextCodes, successMessage: 'Updated incentive codes.');
+  }
+
+  Future<void> _previewCodes(
+    List<String> codes, {
+    required String successMessage,
+  }) async {
+    final cart = ref.read(cartViewModelProvider);
+    setState(() {
+      _isApplyingIncentive = true;
+      _incentiveError = null;
+      _incentiveMessage = null;
+    });
+
+    try {
+      final preview = await ref
+          .read(orderRepositoryProvider)
+          .previewIncentives(
+            incentiveCodes: codes,
+            items: _cartContextPayload(cart.items),
+          );
+      if (!mounted) return;
+      setState(() {
+        _selectedIncentiveCodes = codes;
+        _previewPricing = preview;
+        _isApplyingIncentive = false;
+        _incentiveMessage = codes.isEmpty
+            ? 'Removed all incentive codes.'
+            : '$successMessage Coupon saving: -${_formatMoney(preview.couponDiscount)}';
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _isApplyingIncentive = false;
+        _incentiveError = error.toString().replaceFirst('Exception: ', '');
+      });
+    }
+  }
+
+  List<Map<String, dynamic>> _cartContextPayload(List<CartItem> items) {
+    return items
+        .map((item) => {'productId': item.productId, 'quantity': item.quantity})
+        .toList();
+  }
+
+  String _formatMoney(double value) {
+    return '${value.toStringAsFixed(0)} VND';
+  }
+}
+
+class _IncentivesCard extends StatelessWidget {
+  const _IncentivesCard({
+    required this.controller,
+    required this.selectedCodes,
+    required this.availableIncentives,
+    required this.isLoading,
+    required this.isApplying,
+    required this.onApply,
+    required this.onApplyCode,
+    required this.onRemoveCode,
+    this.message,
+    this.error,
+  });
+
+  final TextEditingController controller;
+  final List<String> selectedCodes;
+  final List<AvailableIncentive> availableIncentives;
+  final bool isLoading;
+  final bool isApplying;
+  final VoidCallback onApply;
+  final ValueChanged<String> onApplyCode;
+  final ValueChanged<String> onRemoveCode;
+  final String? message;
+  final String? error;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.local_offer_outlined,
+                  color: AppTheme.warmBrown,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Savings',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const Spacer(),
+                if (isLoading)
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: AppTextInput(
+                    controller: controller,
+                    textInputAction: TextInputAction.done,
+                    labelText: 'Incentive code',
+                    prefixIcon: const Icon(Icons.confirmation_num_outlined),
+                    enabled: !isApplying,
+                    onSubmitted: (_) => onApply(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                FilledButton(
+                  onPressed: isApplying ? null : onApply,
+                  child: isApplying
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Apply'),
+                ),
+              ],
+            ),
+            if (selectedCodes.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: selectedCodes
+                    .map(
+                      (code) => InputChip(
+                        label: Text(code),
+                        onDeleted: isApplying ? null : () => onRemoveCode(code),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ],
+            if (availableIncentives.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Available now',
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: AppTheme.inkBrown,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: availableIncentives.take(4).map((incentive) {
+                  return ActionChip(
+                    label: Text(_incentiveLabel(incentive)),
+                    onPressed: isApplying
+                        ? null
+                        : () => onApplyCode(incentive.code),
+                  );
+                }).toList(),
+              ),
+            ],
+            if (message != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                message!,
+                style: const TextStyle(
+                  color: AppTheme.warmBrown,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+            if (error != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                error!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _incentiveLabel(AvailableIncentive incentive) {
+    final value = incentive.type == 'PERCENTAGE'
+        ? '${incentive.value.toStringAsFixed(0)}%'
+        : '${incentive.value.toStringAsFixed(0)} VND';
+    return '${incentive.code} • $value';
+  }
+}
+
+class _SummaryRow extends StatelessWidget {
+  const _SummaryRow({
+    required this.label,
+    required this.value,
+    this.valueColor,
+  });
+
+  final String label;
+  final String value;
+  final Color? valueColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        children: [
+          Expanded(child: Text(label)),
+          Text(
+            value,
+            style: TextStyle(color: valueColor, fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
     );
   }
 }

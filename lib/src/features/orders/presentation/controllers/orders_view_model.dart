@@ -57,6 +57,7 @@ class OrdersViewModel extends Notifier<OrdersState> {
     String? customerEmail,
     String? customerAddress,
     required String paymentMethod,
+    List<String> incentiveCodes = const [],
     required List<Map<String, dynamic>> items,
   }) async {
     state = state.copyWith(isCreatingOrder: true, clearError: true);
@@ -69,6 +70,7 @@ class OrdersViewModel extends Notifier<OrdersState> {
             customerEmail: customerEmail,
             customerAddress: customerAddress,
             paymentMethod: paymentMethod,
+            incentiveCodes: incentiveCodes,
             items: items,
           );
       state = state.copyWith(

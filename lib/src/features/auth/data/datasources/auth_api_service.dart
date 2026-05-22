@@ -35,6 +35,15 @@ class AuthApiService {
     return UserDto.fromJson(data['user'] as Map<String, dynamic>? ?? {});
   }
 
+  Future<UserDto> updateProfile({String? name, String? phone}) async {
+    final response = await _client.patch(
+      '/api/auth/me',
+      body: {'name': name?.trim() ?? '', 'phone': phone?.trim() ?? ''},
+    );
+    final data = response as Map<String, dynamic>;
+    return UserDto.fromJson(data['user'] as Map<String, dynamic>? ?? {});
+  }
+
   Future<void> register({required String email}) async {
     await _client.post('/api/auth/register', body: {'email': email});
   }

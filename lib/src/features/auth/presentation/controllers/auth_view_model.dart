@@ -130,6 +130,16 @@ class AuthViewModel extends Notifier<AuthState> {
     }
   }
 
+  Future<bool> updateProfile({String? name, String? phone}) {
+    return _submit(() async {
+      final user = await ref
+          .read(authRepositoryProvider)
+          .updateProfile(name: name, phone: phone);
+      state = state.copyWith(user: user);
+      return true;
+    });
+  }
+
   Future<bool> _submit(Future<bool> Function() action) async {
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {

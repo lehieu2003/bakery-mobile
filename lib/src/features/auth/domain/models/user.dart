@@ -4,6 +4,7 @@ class User {
     required this.email,
     required this.role,
     this.name,
+    this.phone,
     this.memberLevel,
     this.points,
   });
@@ -12,6 +13,7 @@ class User {
   final String email;
   final String role;
   final String? name;
+  final String? phone;
   final String? memberLevel;
   final int? points;
 
@@ -23,6 +25,7 @@ class User {
       email: (json['email'] ?? '').toString(),
       role: (json['role'] ?? '').toString(),
       name: json['name']?.toString(),
+      phone: json['phone']?.toString(),
       memberLevel: json['memberLevel']?.toString(),
       points: json['points'] is int
           ? json['points'] as int
