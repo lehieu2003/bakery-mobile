@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
 import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
+import 'package:bakery_mobile/src/features/addresses/presentation/screens/addresses_screen.dart';
 import 'package:bakery_mobile/src/features/auth/domain/models/user.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/screens/blog_screen.dart';
 import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
@@ -102,6 +103,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 context,
               ).push(MaterialPageRoute(builder: (_) => const PagesScreen()));
             },
+          ),
+          const SizedBox(height: 12),
+          // "Sổ địa chỉ" — only reachable while signed in, same guard as the
+          // order history section below (the body early-returns for guests).
+          Card(
+            child: _ActionTile(
+              icon: Icons.location_on_outlined,
+              title: 'Sổ địa chỉ',
+              subtitle: 'Quản lý địa chỉ giao hàng đã lưu',
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const AddressesScreen()),
+                );
+              },
+              hideDivider: true,
+            ),
           ),
           const SizedBox(height: 16),
           _OrdersHeader(
