@@ -19,7 +19,7 @@ class BakeryMobileApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Bakery Mobile',
+      title: 'Phương Loan Bakery',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       home: const AppGate(),

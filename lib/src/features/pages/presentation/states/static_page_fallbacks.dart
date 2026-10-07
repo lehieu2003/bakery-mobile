@@ -18,14 +18,14 @@ const staticPageFallbacks = <String, StaticPageFallback>{
     title: 'Về chúng tôi',
     summary: 'Câu chuyện thương hiệu, giá trị cốt lõi và hệ thống chi nhánh.',
     content:
-        'La Douceur là tiệm bánh thủ công tại TP.HCM. Chúng tôi tập trung vào nguyên liệu chất lượng, quy trình làm bánh kỹ lưỡng và trải nghiệm khách hàng thân thiện.',
+        'Phương Loan Bakery là tiệm bánh thủ công tại Quảng Ngãi. Chúng tôi tập trung vào nguyên liệu chất lượng, quy trình làm bánh kỹ lưỡng và trải nghiệm khách hàng thân thiện.',
   ),
   'thanh-vien': StaticPageFallback(
     slug: 'thanh-vien',
     title: 'Thành viên',
     summary: 'Hạng thành viên, quyền lợi, cách tích điểm và đổi ưu đãi.',
     content:
-        'Tham gia chương trình thành viên La Douceur để tích điểm, thăng hạng Silver - Gold - Platinum và nhận ưu đãi độc quyền.',
+        'Tham gia chương trình thành viên Phương Loan Bakery để tích điểm, thăng hạng Bạc - Vàng - Bạch kim và nhận ưu đãi độc quyền.',
   ),
   'store': StaticPageFallback(
     slug: 'store',
@@ -46,7 +46,7 @@ const staticPageFallbacks = <String, StaticPageFallback>{
     title: 'Chính sách giao hàng',
     summary: 'Khu vực giao, thời gian dự kiến và phí vận chuyển.',
     content:
-        'La Douceur hỗ trợ giao hàng tại TP.HCM và một số khu vực lân cận. Thời gian và phí giao hàng phụ thuộc địa bàn và thời điểm đặt đơn.',
+        'Phương Loan Bakery hỗ trợ giao hàng tại Quảng Ngãi và một số khu vực lân cận. Thời gian và phí giao hàng phụ thuộc địa bàn và thời điểm đặt đơn.',
   ),
   'chinh-sach-doi-tra': StaticPageFallback(
     slug: 'chinh-sach-doi-tra',

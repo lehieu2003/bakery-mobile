@@ -70,7 +70,7 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
                   ),
                 ),
                 child: Text(
-                  'Thông tin thương hiệu, chính sách và hướng dẫn sử dụng dịch vụ La Douceur.',
+                  'Thông tin thương hiệu, chính sách và hướng dẫn sử dụng dịch vụ Phương Loan Bakery.',
                   style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
                 ),
               ),

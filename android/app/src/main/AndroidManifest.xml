@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="bakery_mobile"
+        android:label="Phương Loan Bakery"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
