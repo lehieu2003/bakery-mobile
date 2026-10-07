@@ -24,7 +24,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     'BANK_TRANSFER',
     'MOMO',
     'ZALOPAY',
+    'VNPAY',
   ];
+  static const _paymentMethodLabels = <String, String>{
+    'VNPAY': 'VNPAY (QR/ATM/Visa)',
+  };
   static final _vnPhoneRegex = RegExp(r'^(0|\+84)(3|5|7|8|9)\d{8}$');
   static const _nameDraftKey = 'checkout_draft_name';
   static const _phoneDraftKey = 'checkout_draft_phone';
@@ -190,7 +194,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       children: _paymentMethods
                           .map(
                             (method) => ChoiceChip(
-                              label: Text(method),
+                              label: Text(
+                                _paymentMethodLabels[method] ?? method,
+                              ),
                               selected: _paymentMethod == method,
                               onSelected: orders.isCreatingOrder
                                   ? null
