@@ -58,9 +58,6 @@ class AuthViewModel extends Notifier<AuthState> {
       final user = await ref
           .read(authRepositoryProvider)
           .login(email: email, password: password);
-      if (!user.isCustomer) {
-        throw Exception('Mobile app only supports CUSTOMER accounts.');
-      }
       state = state.copyWith(user: user);
       return true;
     });
@@ -88,9 +85,6 @@ class AuthViewModel extends Notifier<AuthState> {
             password: password,
             name: name,
           );
-      if (!user.isCustomer) {
-        throw Exception('Mobile app only supports CUSTOMER accounts.');
-      }
       state = state.copyWith(user: user);
       return true;
     });
