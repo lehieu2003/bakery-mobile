@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bakery_mobile/src/features/admin/dashboard/presentation/controllers/dashboard_view_model.dart';
 import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_view_model.dart';
 import 'package:bakery_mobile/src/features/addresses/presentation/controllers/addresses_view_model.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/controllers/blog_view_model.dart';
@@ -64,3 +65,8 @@ final reviewsViewModelProvider =
     );
 final wishlistViewModelProvider =
     NotifierProvider<WishlistViewModel, WishlistState>(WishlistViewModel.new);
+
+final dashboardViewModelProvider =
+    NotifierProvider<DashboardViewModel, DashboardState>(
+      DashboardViewModel.new,
+    );
