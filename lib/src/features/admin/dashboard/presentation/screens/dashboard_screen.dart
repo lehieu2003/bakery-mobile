@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/domain/models/dashboard_stats.dart';
+import 'package:bakery_mobile/src/features/admin/dashboard/presentation/controllers/dashboard_view_model.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/presentation/widgets/dashboard_charts.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/presentation/widgets/kpi_card.dart';
 import 'package:bakery_mobile/src/features/admin/shared/presentation/widgets/status_pill.dart';
@@ -19,6 +20,11 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  /// The notifier this screen is currently bound to, refreshed on every
+  /// build. Captured because flutter_riverpod forbids using `ref` inside
+  /// dispose() — the stop call below must not touch it.
+  DashboardViewModel? _boundViewModel;
+
   @override
   void initState() {
     super.initState();
@@ -33,6 +39,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    // The view model provider is keep-alive (it outlives this screen), so its
+    // ref.onDispose cancel only fires when the whole container dies — without
+    // this stop, polling would keep firing in other sections and after
+    // logout.
+    _boundViewModel?.stopAutoRefresh();
+    super.dispose();
+  }
+
   Future<void> _reload() =>
       ref.read(dashboardViewModelProvider.notifier).load();
 
@@ -41,6 +57,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = ref.watch(dashboardViewModelProvider.notifier);
+    _boundViewModel = viewModel;
     final state = ref.watch(dashboardViewModelProvider);
     final stats = state.stats;
 
