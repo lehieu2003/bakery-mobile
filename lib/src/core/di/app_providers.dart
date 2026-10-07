@@ -12,6 +12,7 @@ import 'package:bakery_mobile/src/features/notifications/presentation/controller
 import 'package:bakery_mobile/src/features/onboarding/presentation/controllers/onboarding_view_model.dart';
 import 'package:bakery_mobile/src/features/orders/presentation/controllers/orders_view_model.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/controllers/pages_view_model.dart';
+import 'package:bakery_mobile/src/features/reviews/presentation/controllers/reviews_view_model.dart';
 import 'package:bakery_mobile/src/features/wishlist/presentation/controllers/wishlist_view_model.dart';
 
 final addressesViewModelProvider =
@@ -57,5 +58,7 @@ final blogViewModelProvider = NotifierProvider<BlogViewModel, BlogState>(
 final pagesViewModelProvider = NotifierProvider<PagesViewModel, PagesState>(
   PagesViewModel.new,
 );
+final reviewsViewModelProvider =
+    NotifierProvider<ReviewsViewModel, ReviewsState>(ReviewsViewModel.new);
 final wishlistViewModelProvider =
     NotifierProvider<WishlistViewModel, WishlistState>(WishlistViewModel.new);

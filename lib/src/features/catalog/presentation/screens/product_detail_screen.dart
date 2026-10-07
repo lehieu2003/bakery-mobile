@@ -10,6 +10,7 @@ import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_product_card.dart';
+import 'package:bakery_mobile/src/features/reviews/presentation/widgets/product_reviews_section.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
   const ProductDetailScreen({super.key, required this.productIdOrSlug});
@@ -75,6 +76,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             : null;
         _activeImageIndex = 0;
       });
+      unawaited(ref.read(reviewsViewModelProvider.notifier).load(product.id));
       unawaited(_loadRelatedProducts(product));
     } catch (error) {
       if (!mounted) return;
@@ -399,6 +401,14 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 8),
+                  ProductReviewsSection(
+                    productId: product.id,
+                    productRatingAverage: product.ratingAverage,
+                    productReviewCount: product.reviewCount,
+                  ),
+                  const SizedBox(height: 8),
                   if (_isLoadingRelated) ...[
                     const SizedBox(height: 18),
                     Text(
