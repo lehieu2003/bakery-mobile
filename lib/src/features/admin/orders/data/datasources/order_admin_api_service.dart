@@ -37,6 +37,32 @@ class OrderAdminApiService {
     return response as Map<String, dynamic>? ?? const {};
   }
 
+  /// GET /api/admin/orders/{id}/audit — paginated audit trail for an order
+  /// by id or order number. Returns `{ logs: [...], pagination: {...} }`.
+  Future<Map<String, dynamic>> getOrderAudit(
+    String idOrOrderNumber, {
+    int page = 1,
+    int limit = 20,
+  }) async {
+    final response = await _client.get(
+      '/api/admin/orders/$idOrOrderNumber/audit',
+      query: {'page': page, 'limit': limit},
+    );
+    return response as Map<String, dynamic>? ?? const {};
+  }
+
+  /// GET /api/admin/orders/{id}/investigation — payment forensics for an
+  /// order by id or order number. Returns `{ order, payment?, callbackTimeline,
+  /// reconciliationAttempts, auditTrail }`.
+  Future<Map<String, dynamic>> getInvestigation(
+    String idOrOrderNumber,
+  ) async {
+    final response = await _client.get(
+      '/api/admin/orders/$idOrOrderNumber/investigation',
+    );
+    return response as Map<String, dynamic>? ?? const {};
+  }
+
   /// PATCH /api/admin/orders/{id} — update status and/or attach a note
   /// (typically the cancellation reason). Only non-null keys are sent; the
   /// server re-validates the transition. Returns `{ order: {...} }`.

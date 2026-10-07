@@ -1,6 +1,8 @@
 import 'package:bakery_mobile/src/features/admin/orders/data/datasources/order_admin_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/orders/data/dtos/order_admin_dto.dart';
+import 'package:bakery_mobile/src/features/admin/orders/data/dtos/order_audit_dto.dart';
 import 'package:bakery_mobile/src/features/admin/orders/domain/models/admin_order.dart';
+import 'package:bakery_mobile/src/features/admin/orders/domain/models/order_audit.dart';
 
 /// One page of the admin orders list.
 class AdminOrderPage {
@@ -49,6 +51,30 @@ class OrderAdminRepository {
   Future<AdminOrder> getOrder(String idOrOrderNumber) async {
     final payload = await _service.getOrder(idOrOrderNumber);
     return AdminOrderDto.fromJson(payload);
+  }
+
+  /// Loads one page of an order's audit trail (newest page last, matching
+  /// the server's `page`/`limit` semantics).
+  Future<({List<OrderAuditLog> logs, int totalPages})> getOrderAudit(
+    String idOrOrderNumber, {
+    int page = 1,
+    int limit = 20,
+  }) async {
+    final payload = await _service.getOrderAudit(
+      idOrOrderNumber,
+      page: page,
+      limit: limit,
+    );
+    final dto = OrderAuditPageDto.fromJson(payload);
+    return (logs: dto.logs, totalPages: dto.pagination.totalPages);
+  }
+
+  /// Loads the payment investigation (order summary, payment, callback
+  /// timeline, reconciliation attempts) for an order. The endpoint's raw
+  /// `auditTrail` is not surfaced — use [getOrderAudit] instead.
+  Future<OrderInvestigation> getInvestigation(String idOrOrderNumber) async {
+    final payload = await _service.getInvestigation(idOrOrderNumber);
+    return OrderInvestigationDto.fromJson(payload);
   }
 
   /// Updates an order's status and/or attaches a note (typically the
