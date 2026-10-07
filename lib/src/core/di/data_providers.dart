@@ -4,6 +4,8 @@ import 'package:bakery_mobile/src/core/config/app_config.dart';
 import 'package:bakery_mobile/src/core/network/api_client.dart';
 import 'package:bakery_mobile/src/core/storage/onboarding_storage.dart';
 import 'package:bakery_mobile/src/core/storage/token_storage.dart';
+import 'package:bakery_mobile/src/features/admin/dashboard/data/datasources/dashboard_api_service.dart';
+import 'package:bakery_mobile/src/features/admin/dashboard/data/repositories/dashboard_repository.dart';
 import 'package:bakery_mobile/src/features/auth/data/datasources/auth_api_service.dart';
 import 'package:bakery_mobile/src/features/auth/data/repositories/auth_repository.dart';
 import 'package:bakery_mobile/src/features/addresses/data/datasources/address_api_service.dart';
@@ -76,6 +78,9 @@ final reviewsApiServiceProvider = Provider<ReviewsApiService>(
 final wishlistApiServiceProvider = Provider<WishlistApiService>(
   (ref) => WishlistApiService(ref.watch(apiClientProvider)),
 );
+final dashboardApiServiceProvider = Provider<DashboardApiService>(
+  (ref) => DashboardApiService(ref.watch(apiClientProvider)),
+);
 
 final addressRepositoryProvider = Provider<AddressRepository>(
   (ref) => AddressRepository(ref.watch(addressApiServiceProvider)),
@@ -112,6 +117,9 @@ final reviewsRepositoryProvider = Provider<ReviewsRepository>(
 );
 final wishlistRepositoryProvider = Provider<WishlistRepository>(
   (ref) => WishlistRepository(ref.watch(wishlistApiServiceProvider)),
+);
+final dashboardRepositoryProvider = Provider<DashboardRepository>(
+  (ref) => DashboardRepository(ref.watch(dashboardApiServiceProvider)),
 );
 
 final orderCheckoutServiceProvider = Provider<OrderCheckoutService>(
