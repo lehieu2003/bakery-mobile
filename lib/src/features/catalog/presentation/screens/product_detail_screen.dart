@@ -76,7 +76,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             : null;
         _activeImageIndex = 0;
       });
-      unawaited(ref.read(reviewsViewModelProvider.notifier).load(product.id));
+      unawaited(
+        ref.read(reviewsViewModelProvider(product.id).notifier).load(),
+      );
       unawaited(_loadRelatedProducts(product));
     } catch (error) {
       if (!mounted) return;

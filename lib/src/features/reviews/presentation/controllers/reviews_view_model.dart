@@ -12,7 +12,6 @@ class ReviewsState {
     this.reviewCount,
     this.isSubmitting = false,
     this.submitError,
-    this.loadedProductId,
   });
 
   final bool isLoading;
@@ -24,10 +23,6 @@ class ReviewsState {
   final int? reviewCount;
   final bool isSubmitting;
   final String? submitError;
-
-  /// Product the current list belongs to; lets the PDP section detect a
-  /// stale screen (e.g. after returning from another product).
-  final String? loadedProductId;
 
   /// Average of the loaded reviews; only used when the product payload
   /// carries no `ratingAverage`.
@@ -47,8 +42,6 @@ class ReviewsState {
     bool? isSubmitting,
     String? submitError,
     bool clearSubmitError = false,
-    String? loadedProductId,
-    bool clearLoadedProductId = false,
   }) {
     return ReviewsState(
       isLoading: isLoading ?? this.isLoading,
@@ -59,36 +52,30 @@ class ReviewsState {
       submitError: clearSubmitError
           ? null
           : (submitError ?? this.submitError),
-      loadedProductId: clearLoadedProductId
-          ? null
-          : (loadedProductId ?? this.loadedProductId),
     );
   }
 }
 
-/// Reviews of the product currently shown on the PDP. `load` and `submit`
-/// both take the product id so the section can point the controller at a
-/// different product when the screen is reused.
-class ReviewsViewModel extends Notifier<ReviewsState> {
+/// Reviews of one product. Family-keyed by productId so every product
+/// detail screen owns independent state: a second (stacked) PDP loads its
+/// own reviews without overwriting or triggering reloads on the covered
+/// one, and revisiting the first screen restores its list instantly.
+class ReviewsViewModel extends FamilyNotifier<ReviewsState, String> {
   @override
-  ReviewsState build() => const ReviewsState();
+  ReviewsState build(String arg) => const ReviewsState();
 
-  Future<void> load(String productId) async {
+  Future<void> load() async {
     state = state.copyWith(
       isLoading: true,
       clearError: true,
       clearReviewCount: true,
-      clearLoadedProductId: true,
     );
     try {
-      final page = await ref.read(reviewsRepositoryProvider).getReviews(
-        productId,
-      );
+      final page = await ref.read(reviewsRepositoryProvider).getReviews(arg);
       state = state.copyWith(
         isLoading: false,
         reviews: page.reviews,
         reviewCount: page.reviewCount,
-        loadedProductId: productId,
       );
     } catch (error) {
       state = state.copyWith(
@@ -100,17 +87,13 @@ class ReviewsViewModel extends Notifier<ReviewsState> {
 
   /// Submits the signed-in user's review and reloads the list on success.
   /// Returns true when the review went through.
-  Future<bool> submit({
-    required String productId,
-    required int rating,
-    String? comment,
-  }) async {
+  Future<bool> submit({required int rating, String? comment}) async {
     state = state.copyWith(isSubmitting: true, clearSubmitError: true);
     try {
       await ref
           .read(reviewsRepositoryProvider)
-          .submitReview(productId, rating: rating, comment: comment);
-      await _reload(productId);
+          .submitReview(arg, rating: rating, comment: comment);
+      await _reload();
       state = state.copyWith(isSubmitting: false);
       return true;
     } catch (error) {
@@ -124,11 +107,9 @@ class ReviewsViewModel extends Notifier<ReviewsState> {
 
   /// Refreshes the list after a successful submit without flashing the
   /// loading state.
-  Future<void> _reload(String productId) async {
+  Future<void> _reload() async {
     try {
-      final page = await ref.read(reviewsRepositoryProvider).getReviews(
-        productId,
-      );
+      final page = await ref.read(reviewsRepositoryProvider).getReviews(arg);
       state = state.copyWith(
         reviews: page.reviews,
         reviewCount: page.reviewCount,

@@ -25,19 +25,10 @@ class ProductReviewsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final vm = ref.watch(reviewsViewModelProvider);
+    final vm = ref.watch(reviewsViewModelProvider(productId));
     final isAuthenticated = ref.watch(
       authViewModelProvider.select((auth) => auth.isAuthenticated),
     );
-
-    // The controller is app-wide; when the section renders for a product
-    // other than the one currently loaded (e.g. an earlier PDP revisited
-    // via the back button), refresh it once.
-    if (!vm.isLoading && vm.error == null && vm.loadedProductId != productId) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(reviewsViewModelProvider.notifier).load(productId);
-      });
-    }
 
     final reviewCount =
         vm.reviewCount ?? productReviewCount ?? vm.reviews.length;
@@ -233,12 +224,8 @@ class _ReviewFormSheetState extends ConsumerState<_ReviewFormSheet> {
 
   Future<void> _submit() async {
     final submitted = await ref
-        .read(reviewsViewModelProvider.notifier)
-        .submit(
-          productId: widget.productId,
-          rating: _rating,
-          comment: _commentController.text.trim(),
-        );
+        .read(reviewsViewModelProvider(widget.productId).notifier)
+        .submit(rating: _rating, comment: _commentController.text.trim());
     if (!mounted) return;
     if (submitted) {
       Navigator.of(context).pop(true);
@@ -247,7 +234,7 @@ class _ReviewFormSheetState extends ConsumerState<_ReviewFormSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final vm = ref.watch(reviewsViewModelProvider);
+    final vm = ref.watch(reviewsViewModelProvider(widget.productId));
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Padding(

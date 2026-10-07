@@ -59,6 +59,8 @@ final pagesViewModelProvider = NotifierProvider<PagesViewModel, PagesState>(
   PagesViewModel.new,
 );
 final reviewsViewModelProvider =
-    NotifierProvider<ReviewsViewModel, ReviewsState>(ReviewsViewModel.new);
+    NotifierProvider.family<ReviewsViewModel, ReviewsState, String>(
+      ReviewsViewModel.new,
+    );
 final wishlistViewModelProvider =
     NotifierProvider<WishlistViewModel, WishlistState>(WishlistViewModel.new);
