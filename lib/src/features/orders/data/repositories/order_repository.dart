@@ -12,6 +12,13 @@ class OrderRepository {
         .toList();
   }
 
+  /// Fetches a single order by its order number.
+  /// Throws [ApiException] (statusCode 404) when the order does not exist
+  /// or does not belong to the signed-in user.
+  Future<Order> getOrder(String orderNumber) async {
+    return (await _orderApiService.getOrder(orderNumber)).toDomain();
+  }
+
   Future<CreateOrderResult> createOrder({
     required String customerName,
     required String customerPhone,

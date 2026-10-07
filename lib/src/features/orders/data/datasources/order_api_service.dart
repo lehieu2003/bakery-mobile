@@ -17,6 +17,17 @@ class OrderApiService {
         .toList();
   }
 
+  /// GET /api/orders/[orderNumber] — same `serializeOrder` payload as the
+  /// web app. Throws [ApiException] (e.g. 404 "Order not found") on failure.
+  Future<OrderDto> getOrder(String orderNumber) async {
+    final response = await _client.get(
+      '/api/orders/${Uri.encodeComponent(orderNumber)}',
+    );
+    final order =
+        (response as Map<String, dynamic>)['order'] as Map<String, dynamic>?;
+    return OrderDto.fromJson(order ?? const {});
+  }
+
   Future<CreateOrderResultDto> createOrder({
     required String customerName,
     required String customerPhone,
