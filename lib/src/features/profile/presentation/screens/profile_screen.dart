@@ -10,6 +10,7 @@ import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
 import 'package:bakery_mobile/src/features/chatbot/presentation/screens/chatbot_screen.dart';
 import 'package:bakery_mobile/src/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
+import 'package:bakery_mobile/src/features/orders/presentation/screens/order_detail_screen.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/screens/pages_screen.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -154,6 +155,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 order: order,
                 isPreparingReorder: orders.preparingReorderOrderId == order.id,
                 onReorder: () => _prepareReorder(order),
+                onOpenDetail: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          OrderDetailScreen(orderNumber: order.orderNumber),
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -624,11 +633,13 @@ class _OrderCard extends StatelessWidget {
     required this.order,
     required this.isPreparingReorder,
     required this.onReorder,
+    required this.onOpenDetail,
   });
 
   final Order order;
   final bool isPreparingReorder;
   final VoidCallback onReorder;
+  final VoidCallback onOpenDetail;
 
   @override
   Widget build(BuildContext context) {
@@ -645,112 +656,116 @@ class _OrderCard extends StatelessWidget {
     final canReorder = order.status.toUpperCase() == 'COMPLETED';
 
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 12, 10, 10),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest,
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    order.orderNumber.length >= 3
-                        ? order.orderNumber.substring(
-                            order.orderNumber.length - 3,
-                          )
-                        : order.orderNumber,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 11,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onOpenDetail,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 12, 10, 10),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      order.orderNumber.length >= 3
+                          ? order.orderNumber.substring(
+                              order.orderNumber.length - 3,
+                            )
+                          : order.orderNumber,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 11,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              '#${order.orderNumber}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                '#${order.orderNumber}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
-                          ),
-                          _OrderStatusBadge(status: order.status.toString()),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
+                            _OrderStatusBadge(status: order.status.toString()),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '$firstItemName$extraItems',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          dateText,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
                       Text(
-                        '$firstItemName$extraItems',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall,
+                        '${order.total.toStringAsFixed(0)} VND',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        dateText,
-                        style: Theme.of(context).textTheme.bodySmall,
+                        '+$pointsEarned pts',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '${order.total.toStringAsFixed(0)} VND',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                ],
+              ),
+              if (canReorder) ...[
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: isPreparingReorder ? null : onReorder,
+                    icon: isPreparingReorder
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.replay_outlined),
+                    label: Text(
+                      isPreparingReorder ? 'Preparing reorder...' : 'Reorder',
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '+$pointsEarned pts',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            if (canReorder) ...[
-              const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: isPreparingReorder ? null : onReorder,
-                  icon: isPreparingReorder
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.replay_outlined),
-                  label: Text(
-                    isPreparingReorder ? 'Preparing reorder...' : 'Reorder',
                   ),
                 ),
-              ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

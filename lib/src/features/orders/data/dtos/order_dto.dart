@@ -6,11 +6,20 @@ class OrderItemDto {
     required this.name,
     required this.price,
     required this.quantity,
+    this.subtotal = 0,
+    this.imageUrl = '',
   });
 
   final String name;
   final double price;
   final int quantity;
+
+  /// Line total as reported by the server (`orderItems[].subtotal`).
+  final double subtotal;
+
+  /// Primary product image URL (`product.images[].url`), raw and possibly
+  /// relative; resolve with `resolveImageUrl` before displaying.
+  final String imageUrl;
 
   factory OrderItemDto.fromJson(Map<String, dynamic> json) {
     return OrderItemDto(
@@ -20,11 +29,39 @@ class OrderItemDto {
         json['quantity'],
         field: 'OrderItemDto.quantity',
       ),
+      subtotal: ParseUtils.toDouble(
+        json['subtotal'],
+        field: 'OrderItemDto.subtotal',
+      ),
+      imageUrl: _extractPrimaryImageUrl(json['product']),
     );
   }
 
-  OrderItem toDomain() =>
-      OrderItem(name: name, price: price, quantity: quantity);
+  /// Picks the primary product image, falling back to the first non-empty
+  /// one; tolerates a missing/null product or missing images.
+  static String _extractPrimaryImageUrl(dynamic product) {
+    if (product is! Map<String, dynamic>) return '';
+    final images = product['images'];
+    if (images is! List<dynamic>) return '';
+
+    String? firstUrl;
+    for (final image in images) {
+      if (image is! Map<String, dynamic>) continue;
+      final url = (image['url'] ?? '').toString();
+      if (url.isEmpty) continue;
+      firstUrl ??= url;
+      if (image['isPrimary'] == true) return url;
+    }
+    return firstUrl ?? '';
+  }
+
+  OrderItem toDomain() => OrderItem(
+    name: name,
+    price: price,
+    quantity: quantity,
+    subtotal: subtotal,
+    imageUrl: imageUrl,
+  );
 }
 
 class OrderDto {
@@ -35,6 +72,14 @@ class OrderDto {
     required this.total,
     required this.createdAt,
     required this.orderItems,
+    this.subtotal = 0,
+    this.deliveryFee = 0,
+    this.discount = 0,
+    this.paymentMethod = '',
+    this.paymentStatus,
+    this.pickupDate,
+    this.customerName,
+    this.customerAddress,
   });
 
   final String id;
@@ -44,8 +89,30 @@ class OrderDto {
   final DateTime createdAt;
   final List<OrderItemDto> orderItems;
 
+  /// Order subtotal as reported by the web `serializeOrder` payload.
+  final double subtotal;
+
+  /// Delivery fee as reported by the web `serializeOrder` payload.
+  final double deliveryFee;
+
+  /// Total discount as reported by the web `serializeOrder` payload.
+  final double discount;
+
+  /// Payment method code, e.g. `COD`, `BANK_TRANSFER`, `MOMO`, `VNPAY`.
+  final String paymentMethod;
+
+  /// Payment status (`payment.status`), null when `payment` is absent/null.
+  final String? paymentStatus;
+
+  /// Requested pickup date; null when missing or unparseable.
+  final DateTime? pickupDate;
+
+  final String? customerName;
+  final String? customerAddress;
+
   factory OrderDto.fromJson(Map<String, dynamic> json) {
     final items = json['orderItems'] as List<dynamic>? ?? const [];
+    final payment = json['payment'];
     return OrderDto(
       id: (json['id'] ?? '').toString(),
       orderNumber: (json['orderNumber'] ?? '').toString(),
@@ -57,6 +124,27 @@ class OrderDto {
           .whereType<Map<String, dynamic>>()
           .map(OrderItemDto.fromJson)
           .toList(),
+      subtotal: ParseUtils.toDouble(
+        json['subtotal'],
+        field: 'OrderDto.subtotal',
+      ),
+      deliveryFee: ParseUtils.toDouble(
+        json['deliveryFee'],
+        field: 'OrderDto.deliveryFee',
+      ),
+      discount: ParseUtils.toDouble(
+        json['discount'],
+        field: 'OrderDto.discount',
+      ),
+      paymentMethod: (json['paymentMethod'] ?? '').toString(),
+      paymentStatus: payment is Map<String, dynamic>
+          ? payment['status']?.toString()
+          : null,
+      pickupDate: json['pickupDate'] == null
+          ? null
+          : DateTime.tryParse('${json['pickupDate']}'),
+      customerName: json['customerName']?.toString(),
+      customerAddress: json['customerAddress']?.toString(),
     );
   }
 
@@ -68,6 +156,14 @@ class OrderDto {
       total: total,
       createdAt: createdAt,
       orderItems: orderItems.map((e) => e.toDomain()).toList(),
+      subtotal: subtotal,
+      deliveryFee: deliveryFee,
+      discount: discount,
+      paymentMethod: paymentMethod,
+      paymentStatus: paymentStatus,
+      pickupDate: pickupDate,
+      customerName: customerName,
+      customerAddress: customerAddress,
     );
   }
 }
