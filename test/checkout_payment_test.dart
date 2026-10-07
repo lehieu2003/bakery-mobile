@@ -47,6 +47,7 @@ class _CapturingOrderRepository extends OrderRepository {
     required String customerPhone,
     String? customerEmail,
     String? customerAddress,
+    String? addressId,
     required String paymentMethod,
     List<String> incentiveCodes = const [],
     required List<Map<String, dynamic>> items,

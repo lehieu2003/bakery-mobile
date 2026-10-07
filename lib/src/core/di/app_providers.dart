@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_view_model.dart';
+import 'package:bakery_mobile/src/features/addresses/presentation/controllers/addresses_view_model.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/controllers/blog_view_model.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/controllers/cart_view_model.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/home_view_model.dart';
@@ -13,6 +14,10 @@ import 'package:bakery_mobile/src/features/orders/presentation/controllers/order
 import 'package:bakery_mobile/src/features/pages/presentation/controllers/pages_view_model.dart';
 import 'package:bakery_mobile/src/features/wishlist/presentation/controllers/wishlist_view_model.dart';
 
+final addressesViewModelProvider =
+    NotifierProvider<AddressesViewModel, AddressesState>(
+      AddressesViewModel.new,
+    );
 final authViewModelProvider = NotifierProvider<AuthViewModel, AuthState>(
   AuthViewModel.new,
 );

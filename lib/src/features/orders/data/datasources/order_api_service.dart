@@ -33,6 +33,7 @@ class OrderApiService {
     required String customerPhone,
     String? customerEmail,
     String? customerAddress,
+    String? addressId,
     required String paymentMethod,
     List<String> incentiveCodes = const [],
     required List<Map<String, dynamic>> items,
@@ -46,6 +47,7 @@ class OrderApiService {
           'customerEmail': customerEmail,
         if (customerAddress != null && customerAddress.isNotEmpty)
           'customerAddress': customerAddress,
+        if (addressId != null && addressId.isNotEmpty) 'addressId': addressId,
         'paymentMethod': paymentMethod,
         if (incentiveCodes.isNotEmpty) 'incentiveCodes': incentiveCodes,
         'items': items,

@@ -8,6 +8,8 @@ import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
+import 'package:bakery_mobile/src/features/addresses/domain/models/address.dart';
+import 'package:bakery_mobile/src/features/addresses/presentation/controllers/addresses_view_model.dart';
 import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
 
@@ -49,11 +51,18 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   String? _incentiveError;
   SharedPreferences? _prefs;
 
+  /// Id of the saved address picked from the radio list; null when the user
+  /// types a manual address. Hand-editing the address text drops the id so
+  /// the backend never snapshots a saved address for edited text.
+  String? _selectedAddressId;
+  String? _selectedAddressLine;
+
   @override
   void dispose() {
     _nameCtrl.removeListener(_saveDraft);
     _phoneCtrl.removeListener(_saveDraft);
     _addressCtrl.removeListener(_saveDraft);
+    _addressCtrl.removeListener(_onAddressTextChanged);
     _nameCtrl.dispose();
     _phoneCtrl.dispose();
     _addressCtrl.dispose();
@@ -67,10 +76,17 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     _nameCtrl.addListener(_saveDraft);
     _phoneCtrl.addListener(_saveDraft);
     _addressCtrl.addListener(_saveDraft);
+    _addressCtrl.addListener(_onAddressTextChanged);
     _restoreDraft();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadIncentivesAndPricing();
+      _loadSavedAddresses();
     });
+  }
+
+  Future<void> _loadSavedAddresses() async {
+    if (ref.read(authViewModelProvider).user == null) return;
+    await ref.read(addressesViewModelProvider.notifier).load();
   }
 
   Future<void> _restoreDraft() async {
@@ -83,9 +99,15 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     if (!mounted) return;
 
     _prefs = prefs;
-    _nameCtrl.text = savedName.isNotEmpty ? savedName : (auth.user?.name ?? '');
-    _phoneCtrl.text = savedPhone;
-    _addressCtrl.text = savedAddress;
+    // Only non-empty drafts overwrite the fields: an empty draft must not
+    // clobber a saved-address selection that was auto-filled in the meantime.
+    if (savedName.isNotEmpty) {
+      _nameCtrl.text = savedName;
+    } else if ((auth.user?.name ?? '').isNotEmpty) {
+      _nameCtrl.text = auth.user!.name!;
+    }
+    if (savedPhone.isNotEmpty) _phoneCtrl.text = savedPhone;
+    if (savedAddress.isNotEmpty) _addressCtrl.text = savedAddress;
   }
 
   void _saveDraft() {
@@ -96,11 +118,60 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     prefs.setString(_addressDraftKey, _addressCtrl.text.trim());
   }
 
+  /// Mirrors the web behavior: any hand edit that no longer matches the
+  /// selected saved address line drops the addressId.
+  void _onAddressTextChanged() {
+    if (_selectedAddressId == null) return;
+    final current = _addressCtrl.text.trim();
+    if (current != (_selectedAddressLine ?? '').trim()) {
+      setState(() {
+        _selectedAddressId = null;
+        _selectedAddressLine = null;
+      });
+    }
+  }
+
+  void _selectAddress(Address address) {
+    final line = address.addressLine;
+    setState(() {
+      _selectedAddressId = address.id;
+      _selectedAddressLine = line;
+      _nameCtrl.text = address.fullName;
+      _phoneCtrl.text = address.phone;
+      _addressCtrl.text = line;
+    });
+  }
+
+  void _handleAddressesChanged(AddressesState next) {
+    // Drop a selection whose address disappeared (deleted in the address
+    // book, or on sign-out).
+    if (_selectedAddressId != null &&
+        !next.items.any((item) => item.id == _selectedAddressId)) {
+      setState(() {
+        _selectedAddressId = null;
+        _selectedAddressLine = null;
+      });
+      return;
+    }
+    // Pre-select the default (or first) saved address, but never clobber a
+    // restored draft or typed text.
+    if (_selectedAddressId == null &&
+        _addressCtrl.text.trim().isEmpty &&
+        next.items.isNotEmpty) {
+      final selected = next.defaultOrFirst();
+      if (selected != null) _selectAddress(selected);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cart = ref.watch(cartViewModelProvider);
     final auth = ref.watch(authViewModelProvider);
     final orders = ref.watch(ordersViewModelProvider);
+    final addresses = ref.watch(addressesViewModelProvider);
+    ref.listen(addressesViewModelProvider, (_, next) {
+      _handleAddressesChanged(next);
+    });
     final subtotal = cart.subtotal;
     final pricing = _previewPricing;
     final membershipDiscount = pricing?.membershipDiscount ?? 0;
@@ -151,6 +222,37 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       validator: _validatePhone,
                     ),
                     const SizedBox(height: 12),
+                    if (auth.user != null && addresses.items.isNotEmpty) ...[
+                      Text(
+                        'Địa chỉ đã lưu',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      ...addresses.items.map(
+                        (address) => RadioListTile<String>(
+                          value: address.id,
+                          groupValue: _selectedAddressId,
+                          onChanged: orders.isCreatingOrder
+                              ? null
+                              : (_) => _selectAddress(address),
+                          contentPadding: EdgeInsets.zero,
+                          dense: true,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          title: Text(
+                            address.fullName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          subtitle: Text(
+                            '${address.phone}\n${address.addressLine}',
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
                     AppTextInput(
                       controller: _addressCtrl,
                       minLines: 2,
@@ -324,6 +426,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       return;
     }
 
+    // Only signed-in users can reference a saved address; the server resolves
+    // the addressId against the current user's address book.
+    final isLoggedIn = ref.read(authViewModelProvider).user != null;
     final result = await ref
         .read(ordersViewModelProvider.notifier)
         .createOrder(
@@ -334,6 +439,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           ),
           customerEmail: email,
           customerAddress: _addressCtrl.text.trim(),
+          addressId: isLoggedIn ? _selectedAddressId : null,
           paymentMethod: _paymentMethod,
           incentiveCodes: _selectedIncentiveCodes,
           items: items.map((item) => item.toOrderItemPayload()).toList(),
