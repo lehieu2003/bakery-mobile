@@ -22,7 +22,7 @@ PageTemplateData? builtInPageTemplate(String slug) {
       return const PageTemplateData(
         eyebrow: 'Giới thiệu',
         title: 'Về chúng tôi',
-        subtitle: 'Câu chuyện thương hiệu và hệ thống cửa hàng La Douceur.',
+        subtitle: 'Câu chuyện thương hiệu và cửa hàng Phương Loan Bakery.',
         icon: Icons.bakery_dining_rounded,
         body: _AboutBody(),
       );
@@ -295,7 +295,7 @@ class _AboutBody extends StatelessWidget {
         _CardSection(
           title: 'Câu chuyện',
           child: Text(
-            'La Douceur được xây dựng từ tình yêu bánh thủ công. Chúng tôi tập trung vào chất lượng nguyên liệu, quy trình kỹ lưỡng và trải nghiệm thân thiện.',
+            'Phương Loan Bakery được xây dựng từ tình yêu bánh thủ công. Chúng tôi tập trung vào chất lượng nguyên liệu, quy trình kỹ lưỡng và trải nghiệm thân thiện.',
             style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.45),
           ),
         ),
@@ -306,20 +306,14 @@ class _AboutBody extends StatelessWidget {
             children: [
               _MetaRow(
                 icon: Icons.location_on_rounded,
-                label: 'Quận 1',
-                value: '123 Nguyễn Huệ, Bến Nghé, TP.HCM',
+                label: 'Quảng Ngãi',
+                value: 'ĐT624, TT. Chợ Chùa, Nghĩa Hành, Quảng Ngãi',
               ),
               SizedBox(height: 8),
               _MetaRow(
-                icon: Icons.location_on_rounded,
-                label: 'Quận 3',
-                value: '45 Lê Văn Sỹ, P.13, Quận 3, TP.HCM',
-              ),
-              SizedBox(height: 8),
-              _MetaRow(
-                icon: Icons.location_on_rounded,
-                label: 'Thủ Đức',
-                value: '89 Võ Văn Ngân, Bình Thọ, Thủ Đức, TP.HCM',
+                icon: Icons.schedule_rounded,
+                label: 'Giờ mở cửa',
+                value: 'Thứ 2 - Chủ nhật: 8:00 - 21:00',
               ),
             ],
           ),
@@ -341,19 +335,19 @@ class _MembershipBody extends StatelessWidget {
           child: Column(
             children: const [
               _MembershipTierTile(
-                name: 'Silver',
+                name: 'Bạc',
                 points: '0 - 299 điểm',
                 discount: 'Giảm 3%',
               ),
               SizedBox(height: 10),
               _MembershipTierTile(
-                name: 'Gold',
+                name: 'Vàng',
                 points: '300 - 899 điểm',
                 discount: 'Giảm 7%',
               ),
               SizedBox(height: 10),
               _MembershipTierTile(
-                name: 'Platinum',
+                name: 'Bạch kim',
                 points: 'Từ 900 điểm',
                 discount: 'Giảm 12%',
               ),
@@ -462,19 +456,19 @@ class _ShippingBody extends StatelessWidget {
             children: [
               _MetaRow(
                 icon: Icons.local_shipping_rounded,
-                label: 'Nội thành TP.HCM',
-                value: '2 - 4 tiếng | 20.000đ - 35.000đ | Miễn phí từ 300.000đ',
+                label: 'Trong bán kính 10km từ cửa hàng',
+                value: '2 - 4 tiếng | 20.000đ - 35.000đ | Miễn phí từ 500.000đ',
               ),
               SizedBox(height: 8),
               _MetaRow(
                 icon: Icons.local_shipping_rounded,
-                label: 'Ngoại thành TP.HCM',
+                label: 'Các khu vực còn lại của Quảng Ngãi',
                 value: '4 - 8 tiếng | 40.000đ - 60.000đ | Miễn phí từ 500.000đ',
               ),
               SizedBox(height: 8),
               _MetaRow(
                 icon: Icons.local_shipping_rounded,
-                label: 'Tỉnh lân cận',
+                label: 'Tỉnh thành lân cận',
                 value: '1 - 2 ngày | 60.000đ - 100.000đ | Liên hệ tư vấn',
               ),
             ],
@@ -562,7 +556,7 @@ const _termsSections = <_SectionData>[
   _SectionData(
     title: 'Sở hữu trí tuệ',
     lines: [
-      'Nội dung thương hiệu thuộc sở hữu của La Douceur.',
+      'Nội dung thương hiệu thuộc sở hữu của Phương Loan Bakery.',
       'Không sử dụng nội dung vì mục đích thương mại khi chưa được chấp thuận.',
     ],
   ),
