@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
+import 'package:bakery_mobile/src/features/admin/shell/presentation/screens/admin_shell.dart';
 import 'package:bakery_mobile/src/features/navigation/presentation/screens/app_shell.dart';
 import 'package:bakery_mobile/src/features/navigation/presentation/screens/auth_layout.dart';
 import 'package:bakery_mobile/src/features/onboarding/presentation/screens/onboarding_screen.dart';
@@ -44,6 +45,12 @@ class _AppGateState extends ConsumerState<AppGate> {
         authState.isBootstrapping ||
         onboardingState.isBootstrapping) {
       return const SplashScreen();
+    }
+
+    // ADMIN goes straight to the admin shell — onboarding is customer-facing.
+    final user = authState.user;
+    if (authState.isAuthenticated && user?.role == 'ADMIN') {
+      return const AdminShell();
     }
 
     if (!onboardingState.hasSeenOnboarding) {
