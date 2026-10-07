@@ -98,6 +98,15 @@ class DashboardViewModel extends Notifier<DashboardState> {
     });
   }
 
+  /// Stops the loop started by [startAutoRefresh]. The provider is
+  /// keep-alive (it outlives the dashboard screen), so the screen calls this
+  /// from its dispose — otherwise polling would keep firing for the rest of
+  /// the session, including in other sections and after logout. Safe to call
+  /// when the loop is not running (and after the dispose cancel).
+  void stopAutoRefresh() {
+    _stopAutoRefresh();
+  }
+
   void _stopAutoRefresh() {
     _refreshTimer?.cancel();
     _refreshTimer = null;

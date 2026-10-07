@@ -176,4 +176,49 @@ void main() {
 
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  testWidgets('T5: polling tick fires while mounted and stops on dispose', (
+    tester,
+  ) async {
+    final service = _FakeDashboardApiService();
+    final scopeOverrides = [
+      dashboardRepositoryProvider.overrideWithValue(
+        _FakeDashboardRepository(service),
+      ),
+    ];
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: scopeOverrides,
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          home: const DashboardScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(service.windowDaysSeen, [7]);
+
+    // The widget-test fake clock fires the Timer.periodic set up by
+    // startAutoRefresh() while the screen is mounted.
+    await tester.pump(const Duration(minutes: 5));
+    expect(service.windowDaysSeen, [7, 7]);
+
+    // Swap the screen out while the ProviderScope (and its keep-alive view
+    // model) stays mounted. Without DashboardScreen.dispose() stopping the
+    // loop, the keep-alive provider would keep polling forever here — the
+    // provider's own ref.onDispose only runs when the whole scope is
+    // disposed, which never happens during a session.
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: scopeOverrides,
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          home: const SizedBox.shrink(),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(minutes: 5));
+    expect(service.windowDaysSeen, [7, 7]);
+  });
 }

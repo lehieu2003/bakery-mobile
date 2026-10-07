@@ -174,6 +174,40 @@ void main() {
     });
   });
 
+  test('stopAutoRefresh() freezes an already-running polling loop', () {
+    fakeAsync((async) {
+      final service = _FakeDashboardApiService();
+      final container = _container(service);
+      addTearDown(container.dispose);
+      final vm = container.read(dashboardViewModelProvider.notifier);
+
+      vm.startAutoRefresh();
+      async.elapse(const Duration(minutes: 5));
+      expect(service.calls, 1, reason: 'the loop is running before the stop');
+
+      vm.stopAutoRefresh();
+      async.elapse(const Duration(minutes: 10));
+      expect(
+        service.calls,
+        1,
+        reason: 'stop must cancel the periodic timer for good',
+      );
+    });
+  });
+
+  test('stopAutoRefresh() is a no-op when the loop never started', () {
+    fakeAsync((async) {
+      final service = _FakeDashboardApiService();
+      final container = _container(service);
+      addTearDown(container.dispose);
+
+      container.read(dashboardViewModelProvider.notifier).stopAutoRefresh();
+      async.elapse(const Duration(minutes: 5));
+
+      expect(service.calls, 0);
+    });
+  });
+
   test('calling startAutoRefresh() twice keeps a single polling timer', () {
     fakeAsync((async) {
       final service = _FakeDashboardApiService();
