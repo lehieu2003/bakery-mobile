@@ -118,9 +118,14 @@ class AuthViewModel extends Notifier<AuthState> {
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
       await ref.read(authRepositoryProvider).logout();
-      state = state.copyWith(clearUser: true, clearError: true);
+    } catch (_) {
+      // The API call failed, but the session is dead either way (an expired
+      // token the server rejects, or an unreachable backend) — the spec's
+      // 401 doctrine is "xoá token → AuthScreen", so logout ALWAYS ends the
+      // session client-side. Swallow the error: nothing may block the
+      // return to AuthLayout.
     } finally {
-      state = state.copyWith(isSubmitting: false);
+      state = state.copyWith(clearUser: true, isSubmitting: false);
     }
   }
 

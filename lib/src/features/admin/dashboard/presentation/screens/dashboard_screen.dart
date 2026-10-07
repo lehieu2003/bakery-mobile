@@ -120,6 +120,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // A failed reload (window switch or poll tick) with stats
+                // already loaded must not blank the screen: a non-blocking
+                // banner sits above the stale content with a retry action.
+                if (state.error != null) ...[
+                  _DashboardErrorBanner(
+                    message: state.error!,
+                    onRetry: _reload,
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 SegmentedButton<int>(
                   segments: const [
                     ButtonSegment(value: 7, label: Text('7 ngày')),
@@ -212,6 +222,54 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Non-blocking failure notice shown above the still-rendered stats when a
+/// reload fails (expired session, offline backend). Style mirrors the auth
+/// screen's error box (colorScheme.errorContainer); 'Thử lại' re-runs the
+/// load while the stale numbers stay visible underneath.
+class _DashboardErrorBanner extends StatelessWidget {
+  const _DashboardErrorBanner({required this.message, required this.onRetry});
+
+  final String message;
+  final Future<void> Function() onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.errorContainer,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
+      child: Row(
+        children: [
+          Icon(
+            Icons.warning_amber_rounded,
+            color: colorScheme.onErrorContainer,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onErrorContainer,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: colorScheme.onErrorContainer,
+            ),
+            onPressed: onRetry,
+            child: const Text('Thử lại'),
+          ),
+        ],
       ),
     );
   }

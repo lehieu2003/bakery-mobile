@@ -221,4 +221,40 @@ void main() {
     await tester.pump(const Duration(minutes: 5));
     expect(service.windowDaysSeen, [7, 7]);
   });
+
+  testWidgets(
+    'T6: failed reload keeps stale stats and shows a retry banner above them',
+    (tester) async {
+      final service = _FakeDashboardApiService();
+      await _pumpDashboardScreen(tester, service);
+      await tester.pumpAndSettle();
+      expect(find.text('12'), findsOneWidget);
+
+      // Injectable-error pattern (như submitErrors trong
+      // test/reviews_controller_test.dart): the first load succeeded, every
+      // later call (window switch) fails.
+      service.error = ApiException('boom', statusCode: 500);
+
+      await tester.tap(find.text('14 ngày'));
+      await tester.pumpAndSettle();
+
+      // Non-blocking banner with a retry action above the still-rendered
+      // stale content.
+      expect(find.text('Thử lại'), findsOneWidget);
+      expect(find.text('boom'), findsOneWidget);
+      expect(find.text('12'), findsOneWidget);
+
+      final bannerTop = tester.getTopLeft(find.text('boom')).dy;
+      final kpiTop = tester.getTopLeft(find.text('12')).dy;
+      expect(bannerTop, lessThan(kpiTop));
+
+      // The newly selected window stays selected despite the failure.
+      final segmented = tester.widget<SegmentedButton<int>>(
+        find.byType(SegmentedButton<int>),
+      );
+      expect(segmented.selected, {14});
+
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 }
