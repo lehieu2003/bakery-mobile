@@ -45,6 +45,8 @@ class Product {
     this.shortDescription,
     this.images = const [],
     this.variants = const [],
+    this.ratingAverage,
+    this.reviewCount,
   });
 
   final String id;
@@ -58,6 +60,10 @@ class Product {
   final String? shortDescription;
   final List<ProductImage> images;
   final List<ProductVariant> variants;
+
+  /// Review stats from the product detail payload; null when unavailable.
+  final double? ratingAverage;
+  final int? reviewCount;
 
   String get thumbnail {
     if (imageUrl != null && imageUrl!.isNotEmpty) return imageUrl!;
@@ -102,6 +108,10 @@ class Product {
           .whereType<Map<String, dynamic>>()
           .map(ProductVariant.fromJson)
           .toList(),
+      ratingAverage: _toDoubleOrNull(json['ratingAverage']),
+      reviewCount: json['reviewCount'] is int
+          ? json['reviewCount'] as int
+          : int.tryParse('${json['reviewCount'] ?? ''}'),
     );
   }
 }

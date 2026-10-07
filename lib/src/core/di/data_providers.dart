@@ -22,6 +22,8 @@ import 'package:bakery_mobile/src/features/orders/application/services/order_che
 import 'package:bakery_mobile/src/features/orders/data/datasources/order_api_service.dart';
 import 'package:bakery_mobile/src/features/orders/data/repositories/order_repository.dart';
 import 'package:bakery_mobile/src/features/pages/data/datasources/page_api_service.dart';
+import 'package:bakery_mobile/src/features/reviews/data/datasources/reviews_api_service.dart';
+import 'package:bakery_mobile/src/features/reviews/data/repositories/reviews_repository.dart';
 import 'package:bakery_mobile/src/features/pages/data/repositories/page_repository.dart';
 import 'package:bakery_mobile/src/features/wishlist/data/datasources/wishlist_api_service.dart';
 import 'package:bakery_mobile/src/features/wishlist/data/repositories/wishlist_repository.dart';
@@ -68,6 +70,9 @@ final orderApiServiceProvider = Provider<OrderApiService>(
 final pageApiServiceProvider = Provider<PageApiService>(
   (ref) => PageApiService(ref.watch(apiClientProvider)),
 );
+final reviewsApiServiceProvider = Provider<ReviewsApiService>(
+  (ref) => ReviewsApiService(ref.watch(apiClientProvider)),
+);
 final wishlistApiServiceProvider = Provider<WishlistApiService>(
   (ref) => WishlistApiService(ref.watch(apiClientProvider)),
 );
@@ -101,6 +106,9 @@ final orderRepositoryProvider = Provider<OrderRepository>(
 );
 final pageRepositoryProvider = Provider<PageRepository>(
   (ref) => PageRepository(ref.watch(pageApiServiceProvider)),
+);
+final reviewsRepositoryProvider = Provider<ReviewsRepository>(
+  (ref) => ReviewsRepository(ref.watch(reviewsApiServiceProvider)),
 );
 final wishlistRepositoryProvider = Provider<WishlistRepository>(
   (ref) => WishlistRepository(ref.watch(wishlistApiServiceProvider)),

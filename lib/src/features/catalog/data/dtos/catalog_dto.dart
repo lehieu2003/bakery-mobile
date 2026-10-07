@@ -135,6 +135,8 @@ class ProductDto {
     this.shortDescription,
     this.images = const [],
     this.variants = const [],
+    this.ratingAverage,
+    this.reviewCount,
   });
 
   final String id;
@@ -148,6 +150,12 @@ class ProductDto {
   final String? shortDescription;
   final List<ProductImageDto> images;
   final List<ProductVariantDto> variants;
+
+  /// Review stats attached by the public product detail route
+  /// (`ratingAverage` rounded to 1 decimal, `reviewCount` total); null when
+  /// the payload omits them.
+  final double? ratingAverage;
+  final int? reviewCount;
 
   factory ProductDto.fromJson(Map<String, dynamic> json) {
     final rawImages = json['images'] as List<dynamic>? ?? const [];
@@ -183,6 +191,10 @@ class ProductDto {
           .whereType<Map<String, dynamic>>()
           .map(ProductVariantDto.fromJson)
           .toList(),
+      ratingAverage: _toDoubleOrNull(json['ratingAverage']),
+      reviewCount: json['reviewCount'] == null
+          ? null
+          : ParseUtils.toInt(json['reviewCount'], field: 'ProductDto.reviewCount'),
     );
   }
 
@@ -198,7 +210,16 @@ class ProductDto {
     shortDescription: shortDescription,
     images: images.map((e) => e.toDomain()).toList(),
     variants: variants.map((e) => e.toDomain()).toList(),
+    ratingAverage: ratingAverage,
+    reviewCount: reviewCount,
   );
+}
+
+double? _toDoubleOrNull(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value);
+  return null;
 }
 
 class ProductListResultDto {
