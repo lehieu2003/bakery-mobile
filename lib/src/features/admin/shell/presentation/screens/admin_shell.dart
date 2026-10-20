@@ -6,14 +6,15 @@
 // `Navigator(onGenerateRoute:)`, so the new root route is always the selected
 // section's screen (chosen over `pushAndRemoveUntil`: no route animation plays
 // while the drawer is closing and there is no back stack to manage).
-// Task 6 wired the dashboard branch to the real DashboardScreen; every other
-// section still renders AdminPlaceholderScreen.
+// Real screens: dashboard (phase 1) and orders (phase 2); every other section
+// still renders AdminPlaceholderScreen.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:bakery_mobile/src/features/admin/orders/presentation/screens/orders_screen.dart';
 import 'package:bakery_mobile/src/features/admin/shell/domain/admin_section.dart';
 import 'package:bakery_mobile/src/features/admin/shell/presentation/screens/admin_placeholder_screen.dart';
 
@@ -90,12 +91,14 @@ class _AdminShellState extends ConsumerState<AdminShell> {
       body: Navigator(
         key: _navigatorKey,
         onGenerateRoute: (settings) {
-          // Dashboard (Tổng quan) is the real screen; the remaining sections
-          // keep the placeholder until their phase lands.
+          // Sections without a real screen yet keep the placeholder until
+          // their phase lands.
           return MaterialPageRoute<void>(
-            builder: (_) => _currentSection == AdminSection.dashboard
-                ? const DashboardScreen()
-                : AdminPlaceholderScreen(_currentSection.vietnameseTitle),
+            builder: (_) => switch (_currentSection) {
+              AdminSection.dashboard => const DashboardScreen(),
+              AdminSection.orders => const OrdersScreen(),
+              _ => AdminPlaceholderScreen(_currentSection.vietnameseTitle),
+            },
             settings: settings,
           );
         },

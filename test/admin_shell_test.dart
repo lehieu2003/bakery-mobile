@@ -161,12 +161,14 @@ void main() {
       );
     }
 
-    await tester.tap(find.text('Đơn hàng'));
+    // 'Đơn hàng' has a real screen since phase 2 (it would hit the API here),
+    // so navigation is exercised with a section that is still a placeholder.
+    await tester.tap(find.text('Khách hàng'));
     await tester.pumpAndSettle();
 
     expect(find.byType(AdminPlaceholderScreen), findsOneWidget);
-    expect(find.text('Mục "Đơn hàng" sắp ra mắt'), findsOneWidget);
-    expect(find.text('Đơn hàng'), findsOneWidget);
+    expect(find.text('Mục "Khách hàng" sắp ra mắt'), findsOneWidget);
+    expect(find.text('Khách hàng'), findsOneWidget);
   });
 
   testWidgets('T4: avatar popup menu logout calls AuthViewModel.logout', (
