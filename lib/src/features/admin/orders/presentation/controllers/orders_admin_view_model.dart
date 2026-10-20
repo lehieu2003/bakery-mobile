@@ -165,6 +165,17 @@ class OrdersAdminViewModel extends Notifier<OrdersAdminState> {
     }
   }
 
+  /// Swaps in [updated] (matched by id) after a change made on the detail
+  /// screen, so the list reflects it without a reload. No-op when the order
+  /// is not loaded. A status that no longer matches the active filter stays
+  /// visible until the next load.
+  void replaceOrder(AdminOrder updated) {
+    final index = state.items.indexWhere((o) => o.id == updated.id);
+    if (index < 0) return;
+    final items = [...state.items]..[index] = updated;
+    state = state.copyWith(items: items);
+  }
+
   /// Retries whatever failed: the first page when nothing is shown yet,
   /// otherwise the next page.
   Future<void> retry() => state.items.isEmpty ? load() : loadMore();

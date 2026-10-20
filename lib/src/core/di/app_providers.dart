@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/features/admin/dashboard/presentation/controllers/dashboard_view_model.dart';
+import 'package:bakery_mobile/src/features/admin/orders/presentation/controllers/order_detail_view_model.dart';
 import 'package:bakery_mobile/src/features/admin/orders/presentation/controllers/orders_admin_view_model.dart';
 import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_view_model.dart';
 import 'package:bakery_mobile/src/features/addresses/presentation/controllers/addresses_view_model.dart';
@@ -74,4 +75,8 @@ final dashboardViewModelProvider =
 final ordersAdminViewModelProvider =
     NotifierProvider<OrdersAdminViewModel, OrdersAdminState>(
       OrdersAdminViewModel.new,
+    );
+final orderDetailViewModelProvider =
+    NotifierProvider.family<OrderDetailViewModel, OrderDetailState, String>(
+      OrderDetailViewModel.new,
     );
