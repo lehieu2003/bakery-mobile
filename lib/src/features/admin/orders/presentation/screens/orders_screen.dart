@@ -101,7 +101,9 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
   }
 
   void _openOrder(AdminOrder order) {
-    Navigator.of(context).push(
+    // Root navigator: the detail has its own AppBar and must cover the
+    // AdminShell chrome (this screen lives in the shell's nested Navigator).
+    Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute<void>(
         builder: (_) => OrderDetailScreen(orderNumber: order.orderNumber),
       ),
