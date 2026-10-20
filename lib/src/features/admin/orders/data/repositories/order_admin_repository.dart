@@ -54,14 +54,15 @@ class OrderAdminRepository {
   }
 
   /// Loads one page of an order's audit trail (newest page last, matching
-  /// the server's `page`/`limit` semantics).
+  /// the server's `page`/`limit` semantics). Requires the internal order
+  /// [orderId] — the audit route does not resolve order numbers.
   Future<({List<OrderAuditLog> logs, int totalPages})> getOrderAudit(
-    String idOrOrderNumber, {
+    String orderId, {
     int page = 1,
     int limit = 20,
   }) async {
     final payload = await _service.getOrderAudit(
-      idOrOrderNumber,
+      orderId,
       page: page,
       limit: limit,
     );
