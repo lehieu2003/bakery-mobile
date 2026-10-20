@@ -1,10 +1,11 @@
 import 'package:bakery_mobile/src/features/admin/dashboard/domain/models/dashboard_stats.dart';
+import 'package:bakery_mobile/src/features/admin/shared/utils/json_num.dart';
 
 /// DTO for the admin dashboard payload returned by `GET /api/admin/dashboard`
 /// (after `ApiClient` unwraps `data`):
 /// `{ kpi, chartData: [...], orderStates: [...], recentOrders: [...], meta }`.
 /// The server may emit numeric fields as JSON numbers or numeric strings, so
-/// every number goes through [_asNum]; parsing is defensive throughout and
+/// every number goes through [asNum]; parsing is defensive throughout and
 /// missing sections fall back to zeroed/empty defaults.
 class DashboardStatsDto {
   const DashboardStatsDto({
@@ -28,9 +29,15 @@ class DashboardStatsDto {
       kpi: kpi is Map<String, dynamic>
           ? DashboardKpiDto.fromJson(kpi)
           : const DashboardKpiDto(),
-      chartData: _parseList(json['chartData'], DashboardChartPointDto.fromJson),
-      orderStates: _parseList(json['orderStates'], OrderStateCountDto.fromJson),
-      recentOrders: _parseList(
+      chartData: parseJsonList(
+        json['chartData'],
+        DashboardChartPointDto.fromJson,
+      ),
+      orderStates: parseJsonList(
+        json['orderStates'],
+        OrderStateCountDto.fromJson,
+      ),
+      recentOrders: parseJsonList(
         json['recentOrders'],
         DashboardRecentOrderDto.fromJson,
       ),
@@ -74,15 +81,15 @@ class DashboardKpiDto {
 
   factory DashboardKpiDto.fromJson(Map<String, dynamic> json) {
     return DashboardKpiDto(
-      todayOrders: _asNum(json['todayOrders']).toInt(),
-      todayRevenue: _asNum(json['todayRevenue']).toDouble(),
-      pendingOrders: _asNum(json['pendingOrders']).toInt(),
-      totalCustomers: _asNum(json['totalCustomers']).toInt(),
-      totalProducts: _asNum(json['totalProducts']).toInt(),
-      periodOrders: _asNum(json['periodOrders']).toInt(),
-      periodCompletedOrders: _asNum(json['periodCompletedOrders']).toInt(),
-      periodCancelledOrders: _asNum(json['periodCancelledOrders']).toInt(),
-      conversionRate: _asNum(json['conversionRate']).toDouble(),
+      todayOrders: asNum(json['todayOrders']).toInt(),
+      todayRevenue: asNum(json['todayRevenue']).toDouble(),
+      pendingOrders: asNum(json['pendingOrders']).toInt(),
+      totalCustomers: asNum(json['totalCustomers']).toInt(),
+      totalProducts: asNum(json['totalProducts']).toInt(),
+      periodOrders: asNum(json['periodOrders']).toInt(),
+      periodCompletedOrders: asNum(json['periodCompletedOrders']).toInt(),
+      periodCancelledOrders: asNum(json['periodCancelledOrders']).toInt(),
+      conversionRate: asNum(json['conversionRate']).toDouble(),
     );
   }
 
@@ -117,10 +124,10 @@ class DashboardChartPointDto {
   factory DashboardChartPointDto.fromJson(Map<String, dynamic> json) {
     return DashboardChartPointDto(
       day: (json['day'] ?? '').toString(),
-      orders: _asNum(json['orders']).toInt(),
-      revenue: _asNum(json['revenue']).toDouble(),
-      completedOrders: _asNum(json['completedOrders']).toInt(),
-      cancelledOrders: _asNum(json['cancelledOrders']).toInt(),
+      orders: asNum(json['orders']).toInt(),
+      revenue: asNum(json['revenue']).toDouble(),
+      completedOrders: asNum(json['completedOrders']).toInt(),
+      cancelledOrders: asNum(json['cancelledOrders']).toInt(),
     );
   }
 
@@ -142,7 +149,7 @@ class OrderStateCountDto {
   factory OrderStateCountDto.fromJson(Map<String, dynamic> json) {
     return OrderStateCountDto(
       status: (json['status'] ?? '').toString(),
-      count: _asNum(json['count']).toInt(),
+      count: asNum(json['count']).toInt(),
     );
   }
 
@@ -173,11 +180,11 @@ class DashboardRecentOrderDto {
       id: (json['id'] ?? '').toString(),
       orderNumber: (json['orderNumber'] ?? '').toString(),
       customerName: (json['customerName'] ?? '').toString(),
-      total: _asNum(json['total']).toDouble(),
+      total: asNum(json['total']).toDouble(),
       status: (json['status'] ?? '').toString(),
       createdAt:
           DateTime.tryParse('${json['createdAt'] ?? ''}') ?? DateTime.now(),
-      itemsCount: _asNum(json['itemsCount']).toInt(),
+      itemsCount: asNum(json['itemsCount']).toInt(),
     );
   }
 
@@ -203,37 +210,15 @@ class DashboardMetaDto {
 
   factory DashboardMetaDto.fromJson(Map<String, dynamic> json) {
     return DashboardMetaDto(
-      windowDays: _asNum(json['windowDays']).toInt(),
+      windowDays: asNum(json['windowDays']).toInt(),
       refreshIntervalSeconds: json['refreshIntervalSeconds'] == null
           ? 300
-          : _asNum(json['refreshIntervalSeconds']).toInt(),
+          : asNum(json['refreshIntervalSeconds']).toInt(),
     );
   }
 
-  DashboardMeta toDomain() =>
-      DashboardMeta(
-        windowDays: windowDays,
-        refreshIntervalSeconds: refreshIntervalSeconds,
-      );
-}
-
-/// Coerces a numeric field that may arrive as `num`, numeric `String` (or
-/// be missing) into a [num]; unparseable values fall back to 0.
-num _asNum(dynamic value) {
-  if (value is num) return value;
-  if (value is String) {
-    final parsed = num.tryParse(value);
-    if (parsed != null) return parsed;
-  }
-  return 0;
-}
-
-List<T> _parseList<T>(
-  dynamic raw,
-  T Function(Map<String, dynamic>) fromJson,
-) {
-  if (raw is List<dynamic>) {
-    return raw.whereType<Map<String, dynamic>>().map(fromJson).toList();
-  }
-  return const [];
+  DashboardMeta toDomain() => DashboardMeta(
+    windowDays: windowDays,
+    refreshIntervalSeconds: refreshIntervalSeconds,
+  );
 }

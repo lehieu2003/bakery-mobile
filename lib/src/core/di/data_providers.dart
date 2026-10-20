@@ -6,6 +6,8 @@ import 'package:bakery_mobile/src/core/storage/onboarding_storage.dart';
 import 'package:bakery_mobile/src/core/storage/token_storage.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/data/datasources/dashboard_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/data/repositories/dashboard_repository.dart';
+import 'package:bakery_mobile/src/features/admin/orders/data/datasources/order_admin_api_service.dart';
+import 'package:bakery_mobile/src/features/admin/orders/data/repositories/order_admin_repository.dart';
 import 'package:bakery_mobile/src/features/auth/data/datasources/auth_api_service.dart';
 import 'package:bakery_mobile/src/features/auth/data/repositories/auth_repository.dart';
 import 'package:bakery_mobile/src/features/addresses/data/datasources/address_api_service.dart';
@@ -81,6 +83,9 @@ final wishlistApiServiceProvider = Provider<WishlistApiService>(
 final dashboardApiServiceProvider = Provider<DashboardApiService>(
   (ref) => DashboardApiService(ref.watch(apiClientProvider)),
 );
+final ordersAdminApiServiceProvider = Provider<OrderAdminApiService>(
+  (ref) => OrderAdminApiService(ref.watch(apiClientProvider)),
+);
 
 final addressRepositoryProvider = Provider<AddressRepository>(
   (ref) => AddressRepository(ref.watch(addressApiServiceProvider)),
@@ -120,6 +125,9 @@ final wishlistRepositoryProvider = Provider<WishlistRepository>(
 );
 final dashboardRepositoryProvider = Provider<DashboardRepository>(
   (ref) => DashboardRepository(ref.watch(dashboardApiServiceProvider)),
+);
+final ordersAdminRepositoryProvider = Provider<OrderAdminRepository>(
+  (ref) => OrderAdminRepository(ref.watch(ordersAdminApiServiceProvider)),
 );
 
 final orderCheckoutServiceProvider = Provider<OrderCheckoutService>(

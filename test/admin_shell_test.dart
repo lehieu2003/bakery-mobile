@@ -19,7 +19,12 @@ class _FakeAdminAuthViewModel extends AuthViewModel {
 
   @override
   AuthState build() => const AuthState(
-    user: User(id: 'a-1', email: 'admin@bakery.vn', name: 'Hieu', role: 'ADMIN'),
+    user: User(
+      id: 'a-1',
+      email: 'admin@bakery.vn',
+      name: 'Hieu',
+      role: 'ADMIN',
+    ),
   );
 
   @override
@@ -116,8 +121,7 @@ void main() {
     await _pumpAppGate(
       tester,
       createAuth: _FakeCustomerAuthViewModel.new,
-      createOnboarding: () =>
-          _FakeOnboardingViewModel(hasSeenOnboarding: true),
+      createOnboarding: () => _FakeOnboardingViewModel(hasSeenOnboarding: true),
       scopeKey: const ValueKey('customer-onboarding-seen'),
     );
 
@@ -128,46 +132,54 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('T3: AdminShell drawer lists 15 sections in 5 groups and navigates', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(theme: AppTheme.light(), home: const AdminShell()),
-      ),
-    );
-
-    await tester.tap(find.byIcon(Icons.menu));
-    await tester.pumpAndSettle();
-
-    // 15 section titles. 'Tổng quan' matches 3 widgets while the drawer is
-    // open — the AppBar title (current section), the overview group header and
-    // the dashboard item all carry the same pinned label; every other section
-    // title is unique in this state.
-    for (final section in AdminSection.values) {
-      expect(
-        find.text(section.vietnameseTitle),
-        section == AdminSection.dashboard ? findsNWidgets(3) : findsOneWidget,
-        reason: 'Drawer item missing: ${section.vietnameseTitle}',
+  testWidgets(
+    'T3: AdminShell drawer lists 15 sections in 5 groups and navigates',
+    (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(theme: AppTheme.light(), home: const AdminShell()),
+        ),
       );
-    }
 
-    // 5 group headers, in web sidebar order ('Tổng quan' is covered above).
-    for (final groupTitle in ['Bán hàng', 'Cửa hàng', 'Nội dung', 'Hệ thống']) {
-      expect(
-        find.text(groupTitle),
-        findsOneWidget,
-        reason: 'Drawer group header missing: $groupTitle',
-      );
-    }
+      await tester.tap(find.byIcon(Icons.menu));
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Đơn hàng'));
-    await tester.pumpAndSettle();
+      // 15 section titles. 'Tổng quan' matches 3 widgets while the drawer is
+      // open — the AppBar title (current section), the overview group header and
+      // the dashboard item all carry the same pinned label; every other section
+      // title is unique in this state.
+      for (final section in AdminSection.values) {
+        expect(
+          find.text(section.vietnameseTitle),
+          section == AdminSection.dashboard ? findsNWidgets(3) : findsOneWidget,
+          reason: 'Drawer item missing: ${section.vietnameseTitle}',
+        );
+      }
 
-    expect(find.byType(AdminPlaceholderScreen), findsOneWidget);
-    expect(find.text('Mục "Đơn hàng" sắp ra mắt'), findsOneWidget);
-    expect(find.text('Đơn hàng'), findsOneWidget);
-  });
+      // 5 group headers, in web sidebar order ('Tổng quan' is covered above).
+      for (final groupTitle in [
+        'Bán hàng',
+        'Cửa hàng',
+        'Nội dung',
+        'Hệ thống',
+      ]) {
+        expect(
+          find.text(groupTitle),
+          findsOneWidget,
+          reason: 'Drawer group header missing: $groupTitle',
+        );
+      }
+
+      // 'Đơn hàng' has a real screen since phase 2 (it would hit the API here),
+      // so navigation is exercised with a section that is still a placeholder.
+      await tester.tap(find.text('Khách hàng'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AdminPlaceholderScreen), findsOneWidget);
+      expect(find.text('Mục "Khách hàng" sắp ra mắt'), findsOneWidget);
+      expect(find.text('Khách hàng'), findsOneWidget);
+    },
+  );
 
   testWidgets('T4: avatar popup menu logout calls AuthViewModel.logout', (
     tester,
