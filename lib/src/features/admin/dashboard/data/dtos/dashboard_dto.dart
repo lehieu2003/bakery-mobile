@@ -29,8 +29,14 @@ class DashboardStatsDto {
       kpi: kpi is Map<String, dynamic>
           ? DashboardKpiDto.fromJson(kpi)
           : const DashboardKpiDto(),
-      chartData: parseJsonList(json['chartData'], DashboardChartPointDto.fromJson),
-      orderStates: parseJsonList(json['orderStates'], OrderStateCountDto.fromJson),
+      chartData: parseJsonList(
+        json['chartData'],
+        DashboardChartPointDto.fromJson,
+      ),
+      orderStates: parseJsonList(
+        json['orderStates'],
+        OrderStateCountDto.fromJson,
+      ),
       recentOrders: parseJsonList(
         json['recentOrders'],
         DashboardRecentOrderDto.fromJson,
@@ -211,9 +217,8 @@ class DashboardMetaDto {
     );
   }
 
-  DashboardMeta toDomain() =>
-      DashboardMeta(
-        windowDays: windowDays,
-        refreshIntervalSeconds: refreshIntervalSeconds,
-      );
+  DashboardMeta toDomain() => DashboardMeta(
+    windowDays: windowDays,
+    refreshIntervalSeconds: refreshIntervalSeconds,
+  );
 }

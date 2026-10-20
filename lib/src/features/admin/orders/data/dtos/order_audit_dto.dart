@@ -55,14 +55,16 @@ class OrderInvestigationDto {
 
   static OrderInvestigation fromJson(Map<String, dynamic> json) {
     final order = json['order'];
-    final orderMap =
-        order is Map<String, dynamic> ? order : const <String, dynamic>{};
+    final orderMap = order is Map<String, dynamic>
+        ? order
+        : const <String, dynamic>{};
     final payment = json['payment'];
     return OrderInvestigation(
       orderNumber: (orderMap['orderNumber'] ?? '').toString(),
       orderStatus: (orderMap['status'] ?? '').toString(),
-      payment:
-          payment is Map<String, dynamic> ? _paymentFromJson(payment) : null,
+      payment: payment is Map<String, dynamic>
+          ? _paymentFromJson(payment)
+          : null,
       callbackEvents: parseJsonList(
         json['callbackTimeline'],
         _callbackEventFromJson,
@@ -88,9 +90,7 @@ class OrderInvestigationDto {
     );
   }
 
-  static OrderCallbackEvent _callbackEventFromJson(
-    Map<String, dynamic> json,
-  ) {
+  static OrderCallbackEvent _callbackEventFromJson(Map<String, dynamic> json) {
     return OrderCallbackEvent(
       id: (json['id'] ?? '').toString(),
       provider: (json['provider'] ?? '').toString(),

@@ -36,7 +36,9 @@ class AdminOrderDto {
         json['orderItems'] ?? json['items'],
         _orderItemFromJson,
       ),
-      payment: payment is Map<String, dynamic> ? _paymentFromJson(payment) : null,
+      payment: payment is Map<String, dynamic>
+          ? _paymentFromJson(payment)
+          : null,
       user: user is Map<String, dynamic> ? _userFromJson(user) : null,
     );
   }
