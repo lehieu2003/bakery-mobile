@@ -54,9 +54,7 @@ class OrderAdminApiService {
   /// GET /api/admin/orders/{id}/investigation — payment forensics for an
   /// order by id or order number. Returns `{ order, payment?, callbackTimeline,
   /// reconciliationAttempts, auditTrail }`.
-  Future<Map<String, dynamic>> getInvestigation(
-    String idOrOrderNumber,
-  ) async {
+  Future<Map<String, dynamic>> getInvestigation(String idOrOrderNumber) async {
     final response = await _client.get(
       '/api/admin/orders/$idOrOrderNumber/investigation',
     );
