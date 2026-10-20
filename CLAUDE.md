@@ -1,0 +1,60 @@
+# bakery-mobile — hướng dẫn cho Claude
+
+App Flutter của tiệm bánh (khách hàng + khu quản trị cho ADMIN). Backend là **bakery-web** (Next.js,
+thư mục anh em `../bakery-web`) — app gọi `app/api/**` của web qua `API_BASE_URL` trong `.env`.
+
+@CONTRIBUTING.md
+
+## Lệnh
+
+Luôn dùng **fvm** (Flutter ghim trong `.fvmrc`). `flutter` global là bản khác: test widget sẽ lỗi
+shader `ink_sparkle` và `pub get` sửa lung tung file ios/android.
+
+- `bash scripts/validate.sh` — gate trước PR (format file đổi · analyze · test)
+- `fvm flutter test [test/<file>_test.dart]` · `fvm flutter analyze` · `fvm dart format <files>`
+- `fvm flutter run` (cần `.env` với `API_BASE_URL`; Android emulator dùng `http://10.0.2.2:3001`)
+- `fvm flutter test integration_test/app_e2e_test.dart -d <device>` — e2e, cần emulator
+
+## Kiến trúc
+
+- `lib/src/core/` — `network/` (`ApiClient`, `ApiException`), `di/` (`app_providers.dart` cho view model,
+  `data_providers.dart` cho service/repository), `theme/`, `storage/`, `widgets/`, `utils/`.
+- `lib/src/features/<feature>/` — feature-first, mỗi feature chia tầng:
+  `data/{datasources,dtos,repositories}` → `domain/models` → `presentation/{controllers,screens,widgets}`
+  (+ `application/services` khi có nghiệp vụ nhiều bước).
+- Khu admin: `lib/src/features/admin/{shell,shared,dashboard,orders,…}`; `AdminShell` chọn màn theo `AdminSection`.
+- State: Riverpod 2 `Notifier` + state class immutable có `copyWith`; provider khai báo tập trung ở `core/di/`.
+
+## Quy ước code
+
+- Datasource trả JSON thô; DTO parse phòng thủ (field thiếu → mặc định); tiền từ server là **string**
+  (`"900000.00"`) → coerce bằng helper (`admin/shared/utils/json_num.dart`).
+- Chuỗi UI tiếng Việt viết trực tiếp; format tiền/ngày dùng helper sẵn có (`admin_format.dart`…).
+- Lỗi 401 ở khu admin → `authViewModelProvider.notifier.logout()` (AppGate tự về màn login).
+- Test: fake repository/service (subclass + override) + `ProviderContainer(overrides: …)`; DTO test bằng
+  payload giống server thật. Mỗi thay đổi hành vi đi kèm test.
+- Tái dùng widget/helper có sẵn trước khi viết mới; xem feature gần nhất làm mẫu.
+
+## Quy tắc riêng cho Claude
+
+- **Nhánh**: nếu đang ở `master`/`dev`, dùng skill `start-task` trước khi sửa code. Hook
+  `.claude/hooks/guard-git.sh` chặn commit trên master/dev, push thẳng, force push, `--no-verify`, `gh pr merge`.
+- **Xong task** = `bash scripts/validate.sh` xanh (skill `validate`) → skill `open-pr`. Không báo "xong" khi
+  chưa chạy gate; bỏ bước nào thì nói rõ.
+- **Commit**: chỉ stage file thuộc task. KHÔNG stage `ios|macos/Flutter/*.xcconfig`, `ios|macos/Podfile`
+  do `pub get`/`test` tự sinh, và các thay đổi có sẵn của người dùng (`.gitignore`, `analysis_options.yaml`,
+  `android/gradle.properties`, `.vscode/`…) trừ khi được yêu cầu. Message theo Conventional Commits,
+  kết thúc bằng dòng `Co-Authored-By` theo cấu hình của phiên.
+- **Format**: chỉ `fvm dart format` các file mình sửa — không format cả thư mục.
+- **API**: cần endpoint/field mới → kiểm tra route trong `../bakery-web/app/api/**` thay vì đoán; ghi phụ
+  thuộc vào PR. Không sửa code bakery-web từ repo này.
+- **Secrets**: không đọc/in `.env`; biến mới thêm vào `.env.example`.
+
+## Tài nguyên agent trong repo
+
+- `.claude/skills/` — `start-task`, `validate`, `open-pr`, `release` (chỉ khi người dùng yêu cầu).
+- `.claude/agents/code-reviewer.md` — review diff so với `origin/dev`.
+- `docs/superpowers/{specs,plans}/` — spec/plan theo ngày; `.superpowers/sdd/<plan>/progress.md` —
+  sổ theo dõi khi thực thi plan theo từng task (đọc trước khi "tiếp tục" một plan).
+- `.agents/skills/flutter-*` — hướng dẫn Flutter (kiến trúc, state, HTTP/JSON, testing).
+- `.claude/settings.local.json` — cấu hình cá nhân, không commit.
