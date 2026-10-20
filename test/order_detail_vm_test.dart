@@ -87,12 +87,20 @@ class _FakeOrderAdminApiService extends OrderAdminApiService {
 
   @override
   Future<Map<String, dynamic>> getOrderAudit(
-    String idOrOrderNumber, {
+    String orderId, {
     int page = 1,
     int limit = 20,
   }) async {
     auditCalls++;
     _maybeThrow();
+    // Like the real route (bakery-web audit/route.ts): logs are matched by
+    // the internal order id only — an order number yields an empty page.
+    if (orderId != 'ord-1') {
+      return const {
+        'logs': [],
+        'pagination': {'page': 1, 'limit': 20, 'total': 0, 'totalPages': 0},
+      };
+    }
     return _auditJson;
   }
 

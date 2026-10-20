@@ -37,15 +37,17 @@ class OrderAdminApiService {
     return response as Map<String, dynamic>? ?? const {};
   }
 
-  /// GET /api/admin/orders/{id}/audit — paginated audit trail for an order
-  /// by id or order number. Returns `{ logs: [...], pagination: {...} }`.
+  /// GET /api/admin/orders/{id}/audit — paginated audit trail for an order.
+  /// Unlike the other order routes the server matches the internal order
+  /// [orderId] only: an order number returns an empty page, not a 404.
+  /// Returns `{ logs: [...], pagination: {...} }`.
   Future<Map<String, dynamic>> getOrderAudit(
-    String idOrOrderNumber, {
+    String orderId, {
     int page = 1,
     int limit = 20,
   }) async {
     final response = await _client.get(
-      '/api/admin/orders/$idOrOrderNumber/audit',
+      '/api/admin/orders/$orderId/audit',
       query: {'page': page, 'limit': limit},
     );
     return response as Map<String, dynamic>? ?? const {};

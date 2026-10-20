@@ -81,21 +81,16 @@ class OrderDetailViewModel extends FamilyNotifier<OrderDetailState, String> {
   @override
   OrderDetailState build(String arg) => const OrderDetailState();
 
-  /// Loads the order and the first audit page in parallel.
+  /// Loads the order, then its first audit page. Sequential on purpose: the
+  /// audit route matches the internal order id only (an order number yields
+  /// an empty trail), so it needs the id from the order response.
   Future<void> load() async {
     state = state.copyWith(isLoading: true, clearError: true);
     final repo = ref.read(ordersAdminRepositoryProvider);
     try {
-      final results = await Future.wait([
-        repo.getOrder(arg),
-        repo.getOrderAudit(arg),
-      ]);
-      final audit = results[1] as ({List<OrderAuditLog> logs, int totalPages});
-      state = state.copyWith(
-        order: results[0] as AdminOrder,
-        audit: audit.logs,
-        isLoading: false,
-      );
+      final order = await repo.getOrder(arg);
+      final audit = await repo.getOrderAudit(order.id);
+      state = state.copyWith(order: order, audit: audit.logs, isLoading: false);
     } catch (error) {
       if (await _logoutOn401(error)) {
         state = state.copyWith(isLoading: false);
@@ -125,7 +120,7 @@ class OrderDetailViewModel extends FamilyNotifier<OrderDetailState, String> {
     }
     // The new audit entry is best-effort: a failed refresh keeps the old list.
     try {
-      final audit = await repo.getOrderAudit(arg);
+      final audit = await repo.getOrderAudit(state.order!.id);
       state = state.copyWith(audit: audit.logs);
     } catch (_) {}
     return true;
