@@ -217,6 +217,33 @@ void main() {
     },
   );
 
+  test('replaceOrder swaps the matching loaded order only', () async {
+    final vm = container.read(ordersAdminViewModelProvider.notifier);
+    await vm.load();
+    final original = container.read(ordersAdminViewModelProvider).items[1];
+    final updated = AdminOrder(
+      id: original.id,
+      orderNumber: original.orderNumber,
+      customerName: original.customerName,
+      customerPhone: original.customerPhone,
+      status: 'CONFIRMED',
+      subtotal: original.subtotal,
+      deliveryFee: original.deliveryFee,
+      discount: original.discount,
+      total: original.total,
+      createdAt: original.createdAt,
+      updatedAt: original.updatedAt,
+      items: original.items,
+    );
+
+    vm.replaceOrder(updated);
+    vm.replaceOrder(_order('PL-unknown'));
+
+    final items = container.read(ordersAdminViewModelProvider).items;
+    expect(items.map((o) => o.status), ['PENDING', 'CONFIRMED']);
+    expect(items, hasLength(2));
+  });
+
   test('401 logs out through AuthViewModel and sets no error', () async {
     repo.error = ApiException('Unauthorized', statusCode: 401);
     await container.read(ordersAdminViewModelProvider.notifier).load();

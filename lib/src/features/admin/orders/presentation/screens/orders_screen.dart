@@ -10,6 +10,7 @@ import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/admin/orders/domain/models/admin_order.dart';
 import 'package:bakery_mobile/src/features/admin/orders/presentation/controllers/orders_admin_view_model.dart';
+import 'package:bakery_mobile/src/features/admin/orders/presentation/screens/order_detail_screen.dart';
 import 'package:bakery_mobile/src/features/admin/orders/presentation/widgets/order_card.dart';
 import 'package:bakery_mobile/src/features/admin/orders/utils/orders_csv.dart';
 import 'package:bakery_mobile/src/features/admin/shared/domain/order_status_display.dart';
@@ -100,7 +101,11 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
   }
 
   void _openOrder(AdminOrder order) {
-    // TODO(phase-2-task-6): push OrderDetailScreen.
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => OrderDetailScreen(orderNumber: order.orderNumber),
+      ),
+    );
   }
 
   @override
