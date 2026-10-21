@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bakery_mobile/src/core/auth/session_manager.dart';
 import 'package:bakery_mobile/src/core/config/app_config.dart';
 import 'package:bakery_mobile/src/core/network/api_client.dart';
 import 'package:bakery_mobile/src/core/storage/onboarding_storage.dart';
@@ -38,12 +39,24 @@ final onboardingStorageProvider = Provider<OnboardingStorage>(
   (ref) => OnboardingStorage(),
 );
 
+/// Rotates the bearer session before it expires. Its refresh call uses a
+/// dedicated client bound to the token being rotated — going through
+/// [apiClientProvider] would recurse into [SessionManager.validToken].
+final sessionManagerProvider = Provider<SessionManager>((ref) {
+  final config = ref.watch(appConfigProvider);
+  return SessionManager(
+    storage: ref.watch(tokenStorageProvider),
+    refresh: (token) => AuthApiService(
+      ApiClient(baseUrl: config.baseUrl, tokenProvider: () async => token),
+    ).refreshSession(),
+  );
+});
+
 final apiClientProvider = Provider<ApiClient>((ref) {
   final config = ref.watch(appConfigProvider);
-  final tokenStorage = ref.watch(tokenStorageProvider);
   return ApiClient(
     baseUrl: config.baseUrl,
-    tokenProvider: tokenStorage.readToken,
+    tokenProvider: ref.watch(sessionManagerProvider).validToken,
   );
 });
 

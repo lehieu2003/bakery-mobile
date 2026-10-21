@@ -39,38 +39,20 @@ class ApiClient {
     Map<String, dynamic>? query,
     Object? body,
   }) async {
-    final token = await tokenProvider();
-
     final uri = _buildUri(path, query: query);
-    final headers = <String, String>{
-      'Content-Type': 'application/json',
-      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
-    };
-
-    late final http.Response response;
     final payload = body == null ? null : jsonEncode(body);
-    if (kDebugMode) {
-      final tokenPreview = token == null || token.isEmpty
-          ? 'none'
-          : '${token.substring(0, token.length > 12 ? 12 : token.length)}...';
-      debugPrint(
-        '[API] $method ${uri.path}${uri.hasQuery ? '?${uri.query}' : ''} token=$tokenPreview',
-      );
-    }
 
-    switch (method) {
-      case 'GET':
-        response = await http.get(uri, headers: headers);
-      case 'POST':
-        response = await http.post(uri, headers: headers, body: payload);
-      case 'PUT':
-        response = await http.put(uri, headers: headers, body: payload);
-      case 'PATCH':
-        response = await http.patch(uri, headers: headers, body: payload);
-      case 'DELETE':
-        response = await http.delete(uri, headers: headers, body: payload);
-      default:
-        throw ApiException('Unsupported HTTP method: $method');
+    final token = await tokenProvider();
+    var response = await _send(method, uri, token, payload);
+    if (response.statusCode == 401 && token != null && token.isNotEmpty) {
+      // The session may have been rotated while this request was in flight
+      // (the server revokes the old token immediately). Retry once with the
+      // current token instead of surfacing a spurious 401 → logout. Safe for
+      // writes too: a 401 is decided before the handler runs.
+      final current = await tokenProvider();
+      if (current != null && current.isNotEmpty && current != token) {
+        response = await _send(method, uri, current, payload);
+      }
     }
 
     final decoded = _decodeBody(response.body);
@@ -101,6 +83,34 @@ class ApiClient {
     }
 
     return decoded;
+  }
+
+  Future<http.Response> _send(
+    String method,
+    Uri uri,
+    String? token,
+    String? payload,
+  ) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+    };
+    if (kDebugMode) {
+      final tokenPreview = token == null || token.isEmpty
+          ? 'none'
+          : '${token.substring(0, token.length > 12 ? 12 : token.length)}...';
+      debugPrint(
+        '[API] $method ${uri.path}${uri.hasQuery ? '?${uri.query}' : ''} token=$tokenPreview',
+      );
+    }
+    return switch (method) {
+      'GET' => http.get(uri, headers: headers),
+      'POST' => http.post(uri, headers: headers, body: payload),
+      'PUT' => http.put(uri, headers: headers, body: payload),
+      'PATCH' => http.patch(uri, headers: headers, body: payload),
+      'DELETE' => http.delete(uri, headers: headers, body: payload),
+      _ => throw ApiException('Unsupported HTTP method: $method'),
+    };
   }
 
   Uri _buildUri(String path, {Map<String, dynamic>? query}) {

@@ -1,3 +1,4 @@
+import 'package:bakery_mobile/src/core/auth/session_manager.dart';
 import 'package:bakery_mobile/src/features/auth/domain/models/user.dart';
 import 'package:bakery_mobile/src/features/auth/data/datasources/auth_api_service.dart';
 import 'package:bakery_mobile/src/core/storage/token_storage.dart';
@@ -13,7 +14,7 @@ class AuthRepository {
     final user = result.user.toDomain();
     final token = result.token;
     if (token.isNotEmpty) {
-      await tokenStorage.saveToken(token);
+      await _startSession(token);
     }
     return user;
   }
@@ -37,10 +38,17 @@ class AuthRepository {
     final user = result.user.toDomain();
     final token = result.token;
     if (token.isNotEmpty) {
-      await tokenStorage.saveToken(token);
+      await _startSession(token);
     }
     return user;
   }
+
+  /// Login responses carry no expiry: assume a full server lifetime so the
+  /// session manager rotates it on schedule instead of immediately.
+  Future<void> _startSession(String token) => tokenStorage.saveToken(
+    token,
+    expiresAt: DateTime.now().add(sessionLifetime),
+  );
 
   Future<void> resetPassword({required String email}) {
     return authApiService.resetPassword(email: email);

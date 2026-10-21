@@ -1,4 +1,6 @@
+import 'package:bakery_mobile/src/core/auth/session_manager.dart';
 import 'package:bakery_mobile/src/core/network/api_client.dart';
+import 'package:bakery_mobile/src/core/network/api_exception.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bakery_mobile/src/features/auth/data/dtos/user_dto.dart';
 
@@ -27,6 +29,20 @@ class AuthApiService {
 
   Future<void> logout() async {
     await _client.post('/api/auth/logout');
+  }
+
+  /// POST /api/auth/refresh — rotates the session this client authenticates
+  /// with (single use: the presented token is revoked). Returns
+  /// `{ token, expiresAt }`; a 401 means the session is gone.
+  Future<RefreshedSession> refreshSession() async {
+    final response = await _client.post('/api/auth/refresh');
+    final data = response is Map<String, dynamic> ? response : const {};
+    final token = data['token'];
+    final expiresAt = DateTime.tryParse('${data['expiresAt'] ?? ''}');
+    if (token is! String || token.isEmpty || expiresAt == null) {
+      throw ApiException('Invalid refresh response');
+    }
+    return RefreshedSession(token: token, expiresAt: expiresAt);
   }
 
   Future<UserDto> me() async {
