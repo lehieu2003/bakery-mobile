@@ -12,6 +12,7 @@ import 'package:bakery_mobile/src/features/onboarding/presentation/screens/onboa
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Fake pattern như test/auth_view_model_test.dart: subclass + override.
 class _FakeAdminAuthViewModel extends AuthViewModel {
@@ -90,6 +91,11 @@ Future<void> _pumpAppGate(
 }
 
 void main() {
+  // AdminShell renders the real DashboardScreen, whose load reads the token
+  // (SharedPreferences) before the request fails offline. Unmocked, that
+  // read never completes and pumpAndSettle times out.
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
   testWidgets('T1: ADMIN goes straight to AdminShell, never to onboarding', (
     tester,
   ) async {

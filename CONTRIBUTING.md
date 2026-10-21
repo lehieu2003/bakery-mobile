@@ -77,20 +77,35 @@ Luôn dùng **fvm** (SDK ghim trong `.fvmrc`) — `flutter` global là phiên b�
 Ngoài ra, theo loại thay đổi:
 - Phụ thuộc endpoint/field mới của **bakery-web** → ghi rõ trong PR; app chỉ release sau khi web đã có.
 - Thay đổi luồng chính (đăng nhập, giỏ hàng, checkout) → chạy integration test trên emulator:
-  `fvm flutter test integration_test/app_e2e_test.dart -d <device>`.
+  `fvm flutter test integration_test/app_e2e_test.dart -d <device> --flavor dev --dart-define-from-file=config/dev.json`.
 - Thay đổi UI → chạy app kiểm tra thủ công, đính kèm ảnh chụp.
 - Không stage file do công cụ tự sinh/sửa (`ios|macos/Flutter/*.xcconfig`, `Podfile`, `.env`).
+
+## Môi trường (dev / prod)
+
+| | dev | prod |
+|---|---|---|
+| Config Dart | `config/dev.json` | `config/prod.json` |
+| `API_BASE_URL` | `http://10.0.2.2:3001` (bakery-web local, emulator Android) | `https://phuong-loan-bakery.vercel.app` |
+| Android app id / tên | `….dev` / "Bakery Dev" — cài song song với prod | `com.example.bakery_mobile` / "Phương Loan Bakery" |
+| Dải "DEV" ở góc | có | không |
+| `.env` | override cục bộ (vd IP LAN cho máy thật) | **bị bỏ qua** |
+
+- Chạy: `fvm flutter run --flavor dev --dart-define-from-file=config/dev.json` (iOS: bỏ `--flavor`).
+- Build phát hành: `fvm flutter build appbundle --flavor prod --dart-define-from-file=config/prod.json`.
+- Build thiếu `API_BASE_URL` sẽ dừng ngay khi khởi động; không truyền `FLAVOR` thì luôn là dev (không bao giờ vô tình thành prod).
+- Thêm môi trường (vd staging): thêm `config/<env>.json` + một `productFlavors` trong `android/app/build.gradle.kts`.
 
 ## Release & hotfix
 
 - **Release**: `release/X.Y.Z` từ `dev` → bump `version: X.Y.Z+N` trong `pubspec.yaml` (tăng cả build
   number `N`; commit `chore(release): vX.Y.Z`) → validate → PR vào `master` → **merge commit** → tag
-  `vX.Y.Z` trên `master` → build store từ tag.
+  `vX.Y.Z` trên `master` → build store từ tag bằng lệnh build prod ở mục Môi trường.
 - **Hotfix**: `hotfix/<mô-tả>` từ `master` → PR vào `master` → sau khi merge, mở PR `master → dev`
   để dev không mất bản sửa.
 
 ## Cài đặt local
 
-Sau khi clone: `bash scripts/setup-hooks.sh` (bật git hooks), `cp .env.example .env` rồi điền `API_BASE_URL`,
-`fvm install` để cài đúng Flutter SDK. Phiên Claude Code tự bật hooks khi khởi động.
+Sau khi clone: `bash scripts/setup-hooks.sh` (bật git hooks), `cp .env.example .env` (để trống = dùng
+`config/dev.json`; điền IP LAN khi chạy máy thật), `fvm install` để cài đúng Flutter SDK. Phiên Claude Code tự bật hooks khi khởi động.
 Maintainer cần push thẳng lên nhánh bảo vệ (hiếm, ví dụ khởi tạo): `ALLOW_PROTECTED_PUSH=1 git push …`.
