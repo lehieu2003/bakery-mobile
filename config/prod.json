@@ -1,0 +1,4 @@
+{
+  "FLAVOR": "prod",
+  "API_BASE_URL": "https://phuong-loan-bakery.vercel.app"
+}
