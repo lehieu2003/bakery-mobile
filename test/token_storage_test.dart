@@ -83,4 +83,31 @@ void main() {
     expect(await storage.readToken(), 'tok-new');
     expect(await _secure.read(key: _tokenKey), 'tok-new');
   });
+
+  test('expiresAt is stored with the token and cleared with it', () async {
+    seed();
+    final storage = TokenStorage();
+    final expiresAt = DateTime.utc(2026, 11, 20, 8);
+
+    await storage.saveToken('tok-1', expiresAt: expiresAt);
+    expect(await storage.readExpiresAt(), expiresAt);
+    // A new instance (app restart) reads it back from the secure store.
+    expect(await TokenStorage().readExpiresAt(), expiresAt);
+
+    await storage.saveToken('tok-2');
+    expect(await storage.readExpiresAt(), isNull);
+
+    await storage.saveToken('tok-3', expiresAt: expiresAt);
+    await storage.clearToken();
+    expect(await storage.readExpiresAt(), isNull);
+    expect(await TokenStorage().readExpiresAt(), isNull);
+  });
+
+  test('a migrated legacy token has an unknown expiry', () async {
+    seed(prefs: {_tokenKey: 'tok-legacy'});
+
+    final storage = TokenStorage();
+    expect(await storage.readToken(), 'tok-legacy');
+    expect(await storage.readExpiresAt(), isNull);
+  });
 }
