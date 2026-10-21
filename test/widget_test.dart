@@ -3,10 +3,15 @@ import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
 import 'package:bakery_mobile/src/features/navigation/presentation/screens/app_gate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  // AppGate's bootstrap reads the session token through TokenStorage, which
+  // uses the secure-storage plugin; unmocked, that read never completes.
+  setUp(() => FlutterSecureStorage.setMockInitialValues({}));
+
   TestWidgetsFlutterBinding.ensureInitialized();
 
   Future<void> pumpAppGate(WidgetTester tester) async {
