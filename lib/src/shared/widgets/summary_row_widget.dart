@@ -61,11 +61,13 @@ class SummaryRowWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
         children: [
-          // The label takes the remaining width so the value (an amount or a
-          // short code, kept at its natural width) sits flush right.
-          Expanded(child: Text(label, style: labelStyle)),
+          // Labels are short fixed strings; the value takes the rest, sits
+          // flush right and wraps when long (e.g. a product code).
+          Text(label, style: labelStyle),
           const SizedBox(width: 10),
-          Text(value, textAlign: TextAlign.end, style: valueStyle),
+          Expanded(
+            child: Text(value, textAlign: TextAlign.end, style: valueStyle),
+          ),
         ],
       ),
     );
