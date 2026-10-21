@@ -3,6 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_durations.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+
+/// Category labels under the round icons are cut to this many words.
+const int _maxLabelWords = 2;
+
+/// Circle behind an unselected category icon.
+const Color _railIconBackground = Color(0xFFFFF8F0);
 
 class HomeCategoryRail extends StatelessWidget {
   const HomeCategoryRail({
@@ -69,8 +77,8 @@ class HomeCategoryRail extends StatelessWidget {
     }
 
     final words = name.trim().split(RegExp(r'\s+'));
-    if (words.length <= 2) return name.trim();
-    return words.take(2).join(' ');
+    if (words.length <= _maxLabelWords) return name.trim();
+    return words.take(_maxLabelWords).join(' ');
   }
 }
 
@@ -93,26 +101,26 @@ class _CategoryCapsule extends StatelessWidget {
       padding: const EdgeInsets.only(right: 14),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(AppRadius.xxxl),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
+          duration: AppDurations.fast,
           curve: Curves.easeOut,
           width: 72,
           padding: const EdgeInsets.fromLTRB(6, 6, 6, 8),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFFFFEFE6) : Colors.transparent,
-            borderRadius: BorderRadius.circular(22),
+            color: isSelected ? AppTheme.peachTint : Colors.transparent,
+            borderRadius: BorderRadius.circular(AppRadius.xxxl),
           ),
           child: Column(
             children: [
               AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
+                duration: AppDurations.fast,
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
                   color: isSelected
                       ? AppTheme.blushPink.withValues(alpha: 0.55)
-                      : const Color(0xFFFFF8F0),
+                      : _railIconBackground,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
@@ -141,9 +149,7 @@ class _CategoryCapsule extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: isSelected
-                      ? AppTheme.warmBrown
-                      : const Color(0xFF76665C),
+                  color: isSelected ? AppTheme.warmBrown : AppTheme.textMuted,
                   fontSize: 11,
                   height: 1.08,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,

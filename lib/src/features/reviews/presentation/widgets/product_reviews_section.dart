@@ -5,6 +5,9 @@ import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/features/auth/presentation/screens/auth_screen.dart';
 import 'package:bakery_mobile/src/features/reviews/domain/models/product_review.dart';
 
+/// Mirrors MAX_COMMENT_LENGTH in bakery-web app/api/products/[id]/reviews.
+const int _maxCommentLength = 2000;
+
 /// Reviews section for the product detail screen: average-star header,
 /// the review list, and a "Viết đánh giá" action (login prompt for guests,
 /// a bottom-sheet form for signed-in users).
@@ -40,9 +43,9 @@ class ProductReviewsSection extends ConsumerWidget {
       children: [
         Text(
           'Đánh giá sản phẩm',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 8),
         Row(
@@ -91,9 +94,7 @@ class ProductReviewsSection extends ConsumerWidget {
             child: Center(child: Text('Chưa có đánh giá nào.')),
           )
         else
-          ...vm.reviews.map(
-            (review) => _ReviewTile(review: review),
-          ),
+          ...vm.reviews.map((review) => _ReviewTile(review: review)),
       ],
     );
   }
@@ -105,9 +106,9 @@ class ProductReviewsSection extends ConsumerWidget {
   ) async {
     // Guests are sent to the auth screen instead of getting an error toast.
     if (!isAuthenticated) {
-      await Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const AuthScreen()),
-      );
+      await Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const AuthScreen()));
       return;
     }
 
@@ -141,9 +142,9 @@ class _ReviewTile extends StatelessWidget {
               Expanded(
                 child: Text(
                   review.authorLabel,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -163,9 +164,9 @@ class _ReviewTile extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               review.comment!,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                height: 1.4,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(height: 1.4),
             ),
           ],
         ],
@@ -250,9 +251,9 @@ class _ReviewFormSheetState extends ConsumerState<_ReviewFormSheet> {
         children: [
           Text(
             'Đánh giá của bạn',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
           Row(
@@ -273,7 +274,7 @@ class _ReviewFormSheetState extends ConsumerState<_ReviewFormSheet> {
           TextField(
             controller: _commentController,
             maxLines: 4,
-            maxLength: 2000,
+            maxLength: _maxCommentLength,
             textInputAction: TextInputAction.newline,
             decoration: const InputDecoration(
               hintText: 'Chia sẻ cảm nhận của bạn về sản phẩm...',

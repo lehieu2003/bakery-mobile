@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+
 /// Size presets for [DiscountBadgeWidget].
 enum DiscountBadgeVariant {
   /// List tiles and thumbnails (search, wishlist, chatbot suggestions).
@@ -56,7 +58,7 @@ class DiscountBadgeWidget extends StatelessWidget {
       padding: padding,
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppRadius.pill),
         boxShadow: shadow == null ? null : [shadow],
       ),
       child: Text(

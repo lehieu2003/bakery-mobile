@@ -9,6 +9,11 @@ import 'package:bakery_mobile/src/features/catalog/presentation/screens/search_s
 import 'package:bakery_mobile/src/features/chatbot/presentation/screens/chatbot_screen.dart';
 import 'package:bakery_mobile/src/features/profile/presentation/screens/profile_screen.dart';
 import 'package:bakery_mobile/src/shared/widgets/initial_avatar_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_durations.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+
+/// Top corners of the bottom navigation bar.
+const double _navBarRadius = 30;
 
 class MainLayout extends ConsumerStatefulWidget {
   const MainLayout({super.key});
@@ -92,7 +97,7 @@ class _BottomNavigator extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 5),
       child: ClipRRect(
-        borderRadius: BorderRadius.all(Radius.circular(30)),
+        borderRadius: BorderRadius.all(Radius.circular(_navBarRadius)),
         child: BottomAppBar(
           color: AppTheme.primaryPink,
           shape: CircularNotchedRectangle(),
@@ -174,13 +179,13 @@ class _NavButton extends StatelessWidget {
     final selected = currentIndex == index;
 
     return InkWell(
-      borderRadius: BorderRadius.circular(999),
+      borderRadius: BorderRadius.circular(AppRadius.pill),
       onTap: () => onTap(index),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: AppDurations.fast,
         curve: Curves.easeOut,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(999),
+          borderRadius: BorderRadius.circular(AppRadius.pill),
           color: selected ? Colors.white.withValues(alpha: 0.18) : null,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),

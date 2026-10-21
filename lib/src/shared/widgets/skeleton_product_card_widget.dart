@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/shared/widgets/skeleton_box_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 
 class SkeletonProductCardWidget extends StatelessWidget {
   const SkeletonProductCardWidget({super.key});
@@ -10,7 +11,7 @@ class SkeletonProductCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppRadius.xxl),
         boxShadow: [
           BoxShadow(
             color: AppTheme.warmBrown.withValues(alpha: 0.08),
@@ -25,7 +26,9 @@ class SkeletonProductCardWidget extends StatelessWidget {
         elevation: 0,
         color: AppTheme.surfaceCream,
         shadowColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.xxl),
+        ),
         child: Stack(
           children: [
             Column(

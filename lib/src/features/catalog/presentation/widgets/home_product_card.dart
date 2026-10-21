@@ -12,6 +12,11 @@ import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/discount_badge_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/price_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/favorite_icon_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_durations.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+
+/// Outlined heart over product photos.
+const Color _favoriteOutline = Color(0xFF555555);
 
 class HomeProductCard extends ConsumerStatefulWidget {
   const HomeProductCard({super.key, required this.product});
@@ -57,12 +62,12 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
     final images = _productImages(widget.product);
     if (images.length <= 1) return;
 
-    _imageTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+    _imageTimer = Timer.periodic(AppDurations.carouselAutoplay, (_) {
       if (!_imageController.hasClients) return;
       final next = (_activeIndex + 1) % images.length;
       _imageController.animateToPage(
         next,
-        duration: const Duration(milliseconds: 260),
+        duration: AppDurations.medium,
         curve: Curves.easeInOut,
       );
     });
@@ -81,7 +86,7 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppRadius.xxl),
         boxShadow: [
           BoxShadow(
             color: AppTheme.warmBrown.withValues(alpha: 0.09),
@@ -96,7 +101,9 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
         elevation: 0,
         color: AppTheme.surfaceCream,
         shadowColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.xxl),
+        ),
         child: InkWell(
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(
@@ -139,7 +146,7 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                               return AppNetworkImageWidget(
                                 url: imageUrl,
                                 width: double.infinity,
-                                backgroundColor: const Color(0xFFD8D8D8),
+                                backgroundColor: AppTheme.imagePlaceholder,
                                 emptyIcon: null,
                                 errorIcon: null,
                               );
@@ -166,7 +173,9 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.black.withValues(alpha: 0.45),
-                                borderRadius: BorderRadius.circular(999),
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.pill,
+                                ),
                               ),
                               child: Text(
                                 '${_activeIndex + 1}/${images.length}',
@@ -183,12 +192,14 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                           top: 8,
                           child: Material(
                             color: Colors.white.withValues(alpha: 0.92),
-                            borderRadius: BorderRadius.circular(999),
+                            borderRadius: BorderRadius.circular(AppRadius.pill),
                             child: InkWell(
                               onTap: isPendingFavorite
                                   ? null
                                   : () => wishlistNotifier.toggle(product),
-                              borderRadius: BorderRadius.circular(999),
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.pill,
+                              ),
                               child: SizedBox(
                                 width: 32,
                                 height: 32,
@@ -197,7 +208,7 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                                     isFavorite: isFavorite,
                                     isPending: isPendingFavorite,
                                     size: 18,
-                                    outlineColor: const Color(0xFF555555),
+                                    outlineColor: _favoriteOutline,
                                   ),
                                 ),
                               ),
@@ -250,7 +261,7 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                 child: Material(
                   color: AppTheme.primaryPink,
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(14),
+                    topLeft: Radius.circular(AppRadius.lg),
                   ),
                   child: InkWell(
                     onTap: widget.product.stock <= 0
@@ -262,7 +273,7 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                             );
                           },
                     borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(14),
+                      topLeft: Radius.circular(AppRadius.lg),
                     ),
                     child: const SizedBox(
                       width: 38,

@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+import 'package:bakery_mobile/src/core/theme/app_durations.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+
+/// Rounded tray under the splash pastry mark.
+const double _trayRadius = 26;
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -13,7 +18,7 @@ class SplashScreen extends StatelessWidget {
         child: Center(
           child: TweenAnimationBuilder<double>(
             tween: Tween(begin: 0.88, end: 1),
-            duration: const Duration(milliseconds: 650),
+            duration: AppDurations.slow,
             curve: Curves.easeOutCubic,
             builder: (context, value, child) {
               return Opacity(
@@ -92,7 +97,7 @@ class _BreadIcon extends StatelessWidget {
           height: 72,
           decoration: BoxDecoration(
             color: AppTheme.pastryPeach,
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(AppRadius.sheet),
             border: Border.all(color: AppTheme.warmBrown, width: 2),
           ),
         ),
@@ -103,7 +108,7 @@ class _BreadIcon extends StatelessWidget {
             height: 42,
             decoration: BoxDecoration(
               color: AppTheme.blushPink,
-              borderRadius: BorderRadius.circular(26),
+              borderRadius: BorderRadius.circular(_trayRadius),
               border: Border.all(color: AppTheme.warmBrown, width: 2),
             ),
           ),

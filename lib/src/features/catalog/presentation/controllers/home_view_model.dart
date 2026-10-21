@@ -6,6 +6,9 @@ import 'package:bakery_mobile/src/features/catalog/domain/models/banner_item.dar
 import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 
+/// Products in the home "Gợi Ý Dành Cho Bạn" grid.
+const int _personalizedLimit = 8;
+
 class HomeState {
   const HomeState({
     this.isLoading = false,
@@ -79,7 +82,7 @@ class HomeViewModel extends Notifier<HomeState> {
         repo.getBanners(),
         repo.getCategories(),
         repo.getBestSellers(),
-        repo.getPersonalizedProducts(limit: 8),
+        repo.getPersonalizedProducts(limit: _personalizedLimit),
       ]);
 
       final bestSellers = results[2] as List<Product>;

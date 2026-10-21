@@ -15,6 +15,7 @@ import 'package:bakery_mobile/src/features/admin/orders/presentation/widgets/ord
 import 'package:bakery_mobile/src/features/admin/orders/utils/orders_csv.dart';
 import 'package:bakery_mobile/src/shared/utils/order_status_display.dart';
 import 'package:bakery_mobile/src/features/admin/shared/presentation/widgets/admin_paged_list.dart';
+import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 
 /// Status filter chips: 'Tất cả' plus the 6 lifecycle statuses.
 final List<AdminFilterChip> _statusFilters = [
@@ -40,8 +41,6 @@ class OrdersScreen extends ConsumerStatefulWidget {
 }
 
 class _OrdersScreenState extends ConsumerState<OrdersScreen> {
-  static const _searchDebounce = Duration(milliseconds: 400);
-
   /// Raw text of the search field. Kept here (not read back from the VM's
   /// trimmed, debounced `search`) so rebuilds never overwrite what the admin
   /// is still typing.
@@ -68,7 +67,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
   void _onSearchChanged(String value) {
     setState(() => _searchText = value);
     _debounce?.cancel();
-    _debounce = Timer(_searchDebounce, () => _vm.setSearch(value));
+    _debounce = Timer(AppDurations.searchDebounce, () => _vm.setSearch(value));
   }
 
   Future<void> _exportCsv(BuildContext buttonContext) async {

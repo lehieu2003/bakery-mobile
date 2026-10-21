@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 
 class SkeletonBoxWidget extends StatefulWidget {
   const SkeletonBoxWidget({
@@ -27,7 +28,7 @@ class _SkeletonBoxState extends State<SkeletonBoxWidget>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: AppDurations.shimmerCycle,
     )..repeat();
   }
 

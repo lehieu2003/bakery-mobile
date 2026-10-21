@@ -44,12 +44,12 @@ class HomeSubcategoryChips extends StatelessWidget {
                     padding: const EdgeInsets.only(right: 8),
                     child: FilterChip(
                       backgroundColor: AppTheme.surfaceCream,
-                      selectedColor: const Color(0xFFFFE8DC),
+                      selectedColor: AppTheme.peachTint,
                       checkmarkColor: AppTheme.warmBrown,
                       side: BorderSide(
                         color: selectedCategoryId == subcategory.id
                             ? AppTheme.pastryPeach.withValues(alpha: 0.65)
-                            : const Color(0xFFE8DCD0),
+                            : AppTheme.outlineBeige,
                       ),
                       label: Text(
                         subcategory.children.isNotEmpty

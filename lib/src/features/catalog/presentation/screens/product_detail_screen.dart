@@ -18,6 +18,11 @@ import 'package:bakery_mobile/src/shared/widgets/price_widget.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 import 'package:bakery_mobile/src/shared/widgets/summary_row_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/favorite_icon_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_durations.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+
+/// Products shown in the "related" strip under the details.
+const int _relatedProductsShown = 8;
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
   const ProductDetailScreen({super.key, required this.productIdOrSlug});
@@ -45,7 +50,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   void initState() {
     super.initState();
     _load();
-    _imageTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+    _imageTimer = Timer.periodic(AppDurations.carouselAutoplay, (_) {
       final product = _product;
       if (product == null) return;
       final images = _productImages(product);
@@ -53,7 +58,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       final next = (_activeImageIndex + 1) % images.length;
       _imageController.animateToPage(
         next,
-        duration: const Duration(milliseconds: 280),
+        duration: AppDurations.medium,
         curve: Curves.easeInOut,
       );
     });
@@ -109,7 +114,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       setState(() {
         _relatedProducts = products
             .where((item) => item.id != product.id)
-            .take(8)
+            .take(_relatedProductsShown)
             .toList();
       });
     } catch (_) {
@@ -193,7 +198,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       ),
                       child: AppNetworkImageWidget(
                         url: images[index],
-                        backgroundColor: const Color(0xFFE9D7C3),
+                        backgroundColor: AppTheme.placeholderBeige,
                         iconSize: 40,
                       ),
                     ),
@@ -217,7 +222,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       children: List.generate(images.length, (index) {
                         final active = _activeImageIndex == index;
                         return AnimatedContainer(
-                          duration: const Duration(milliseconds: 180),
+                          duration: AppDurations.fast,
                           width: active ? 18 : 8,
                           height: 8,
                           margin: const EdgeInsets.symmetric(horizontal: 3),
@@ -225,7 +230,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                             color: active
                                 ? Colors.white
                                 : Colors.white.withValues(alpha: 0.45),
-                            borderRadius: BorderRadius.circular(999),
+                            borderRadius: BorderRadius.circular(AppRadius.pill),
                           ),
                         );
                       }),
@@ -269,7 +274,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           color: product.stock > 0
                               ? Colors.green.withValues(alpha: 0.12)
                               : Colors.red.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(999),
+                          borderRadius: BorderRadius.circular(AppRadius.pill),
                         ),
                         child: Text(
                           product.stock > 0
@@ -332,7 +337,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
                     ),
                     child: Column(
                       children: [

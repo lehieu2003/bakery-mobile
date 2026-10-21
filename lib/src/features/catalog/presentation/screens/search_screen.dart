@@ -10,6 +10,7 @@ import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/search_view_model.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/search_product_tile.dart';
 import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 
 class SearchScreen extends ConsumerWidget {
   const SearchScreen({super.key, this.initialQuery = ''});
@@ -60,7 +61,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
 
   void _onQueryChanged() {
     _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 350), () {
+    _debounce = Timer(AppDurations.searchDebounce, () {
       if (!mounted) return;
       ref.read(searchViewModelProvider.notifier).search(_controller.text);
     });
