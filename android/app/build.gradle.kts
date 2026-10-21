@@ -31,6 +31,23 @@ android {
         versionName = flutter.versionName
     }
 
+    // Environments (CONTRIBUTING.md): pair each with its Dart config, e.g.
+    //   fvm flutter run --flavor dev --dart-define-from-file=config/dev.json
+    // dev installs side by side with prod (own id + label).
+    flavorDimensions += "env"
+    productFlavors {
+        create("dev") {
+            dimension = "env"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            resValue("string", "app_name", "Bakery Dev")
+        }
+        create("prod") {
+            dimension = "env"
+            resValue("string", "app_name", "Phương Loan Bakery")
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
