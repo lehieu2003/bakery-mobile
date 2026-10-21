@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+
 class PageTemplateData {
   const PageTemplateData({
     required this.eyebrow,
@@ -94,14 +96,16 @@ class BuiltInPageBody extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(AppRadius.xxl),
             gradient: LinearGradient(
               colors: [
                 scheme.primary.withValues(alpha: 0.16),
                 scheme.primaryContainer.withValues(alpha: 0.42),
               ],
             ),
-            border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.55)),
+            border: Border.all(
+              color: scheme.outlineVariant.withValues(alpha: 0.55),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,9 +131,9 @@ class BuiltInPageBody extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 template.title,
-                style: Theme.of(
-                  context,
-                ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
               ),
               const SizedBox(height: 6),
               Text(
@@ -158,9 +162,11 @@ class _CardSection extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.xl),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
+          color: Theme.of(
+            context,
+          ).colorScheme.outlineVariant.withValues(alpha: 0.5),
         ),
       ),
       child: Column(
@@ -181,7 +187,11 @@ class _CardSection extends StatelessWidget {
 }
 
 class _MetaRow extends StatelessWidget {
-  const _MetaRow({required this.icon, required this.label, required this.value});
+  const _MetaRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
 
   final IconData icon;
   final String label;
@@ -205,7 +215,9 @@ class _MetaRow extends StatelessWidget {
                 ),
                 TextSpan(
                   text: value,
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
@@ -248,7 +260,7 @@ class _SectionTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         color: scheme.surfaceContainerHighest.withValues(alpha: 0.3),
       ),
       child: Column(
@@ -272,7 +284,10 @@ class _SectionTile extends StatelessWidget {
                 Expanded(
                   child: Text(
                     line,
-                    style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
+                    style: TextStyle(
+                      color: scheme.onSurfaceVariant,
+                      height: 1.4,
+                    ),
                   ),
                 ),
               ],
@@ -296,7 +311,10 @@ class _AboutBody extends StatelessWidget {
           title: 'Câu chuyện',
           child: Text(
             'Phương Loan Bakery được xây dựng từ tình yêu bánh thủ công. Chúng tôi tập trung vào chất lượng nguyên liệu, quy trình kỹ lưỡng và trải nghiệm thân thiện.',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.45),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              height: 1.45,
+            ),
           ),
         ),
         const SizedBox(height: 12),
@@ -379,7 +397,7 @@ class _MembershipTierTile extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         color: scheme.surfaceContainerHighest.withValues(alpha: 0.28),
       ),
       child: Row(
@@ -397,12 +415,15 @@ class _MembershipTierTile extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(999),
+              borderRadius: BorderRadius.circular(AppRadius.pill),
               color: scheme.primary.withValues(alpha: 0.12),
             ),
             child: Text(
               discount,
-              style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w700),
+              style: TextStyle(
+                color: scheme.primary,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ],

@@ -5,6 +5,7 @@ import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
 import 'package:bakery_mobile/src/features/chatbot/domain/models/chat.dart';
 import 'package:bakery_mobile/src/features/chatbot/presentation/widgets/suggested_product_tile.dart';
+import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 
 class ChatbotScreen extends ConsumerStatefulWidget {
   const ChatbotScreen({super.key});
@@ -54,7 +55,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
         if (!_scrollController.hasClients) return;
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 200),
+          duration: AppDurations.fast,
           curve: Curves.easeOut,
         );
       });
@@ -107,7 +108,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
               ),
             ),
           AnimatedPadding(
-            duration: const Duration(milliseconds: 220),
+            duration: AppDurations.fast,
             curve: Curves.easeOut,
             padding: EdgeInsets.fromLTRB(8, 8, 8, composerBottomInset),
             child: Row(

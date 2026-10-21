@@ -13,6 +13,7 @@ import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 import 'package:bakery_mobile/src/shared/widgets/section_card_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/info_row_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/summary_row_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 
 class OrderDetailScreen extends ConsumerStatefulWidget {
   const OrderDetailScreen({super.key, required this.orderNumber});
@@ -229,7 +230,7 @@ class _OrderItemRow extends StatelessWidget {
           url: imageUrl,
           width: 52,
           height: 52,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           backgroundColor: Theme.of(
             context,
           ).colorScheme.surfaceContainerHighest,

@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+import 'package:bakery_mobile/src/core/theme/app_durations.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+
+/// Rounded square behind each onboarding illustration.
+const double _illustrationRadius = 42;
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({required this.onComplete, super.key});
@@ -103,7 +108,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void _next() {
     _controller.animateToPage(
       _index + 1,
-      duration: const Duration(milliseconds: 280),
+      duration: AppDurations.medium,
       curve: Curves.easeOutCubic,
     );
   }
@@ -156,7 +161,7 @@ class _OnboardingPage extends StatelessWidget {
           slide.description,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: const Color(0xFF7C6759),
+            color: AppTheme.textMuted,
             height: 1.45,
             fontWeight: FontWeight.w500,
           ),
@@ -194,7 +199,7 @@ class _BakeryIllustration extends StatelessWidget {
               height: 42,
               decoration: BoxDecoration(
                 color: AppTheme.warmBrown.withValues(alpha: 0.16),
-                borderRadius: BorderRadius.circular(999),
+                borderRadius: BorderRadius.circular(AppRadius.pill),
               ),
             ),
           ),
@@ -203,7 +208,7 @@ class _BakeryIllustration extends StatelessWidget {
             height: 148,
             decoration: BoxDecoration(
               color: AppTheme.surfaceCream,
-              borderRadius: BorderRadius.circular(42),
+              borderRadius: BorderRadius.circular(_illustrationRadius),
               border: Border.all(
                 color: AppTheme.warmBrown.withValues(alpha: 0.18),
               ),
@@ -267,7 +272,7 @@ class _OnboardingDots extends StatelessWidget {
       children: List.generate(count, (index) {
         final active = index == activeIndex;
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: AppDurations.fast,
           margin: const EdgeInsets.symmetric(horizontal: 4),
           width: active ? 24 : 8,
           height: 8,
@@ -275,7 +280,7 @@ class _OnboardingDots extends StatelessWidget {
             color: active
                 ? AppTheme.primaryPink
                 : AppTheme.warmBrown.withValues(alpha: 0.22),
-            borderRadius: BorderRadius.circular(999),
+            borderRadius: BorderRadius.circular(AppRadius.pill),
           ),
         );
       }),

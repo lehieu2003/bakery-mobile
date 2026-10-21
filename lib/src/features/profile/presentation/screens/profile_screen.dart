@@ -16,6 +16,10 @@ import 'package:bakery_mobile/src/features/pages/presentation/screens/pages_scre
 import 'package:bakery_mobile/src/shared/widgets/order_status_pill_widget.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 import 'package:bakery_mobile/src/shared/widgets/initial_avatar_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+
+/// Trailing characters of the order number shown in its round badge.
+const int _orderBadgeChars = 3;
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -147,7 +151,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceContainerLowest,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
                 child: Column(
                   children: [
@@ -454,7 +458,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                   color: Theme.of(
                     context,
                   ).colorScheme.primaryContainer.withValues(alpha: 0.42),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -509,7 +513,7 @@ class _ProfileStatChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.md),
       ),
       child: Row(
         children: [
@@ -692,9 +696,9 @@ class _OrderCard extends StatelessWidget {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      order.orderNumber.length >= 3
+                      order.orderNumber.length >= _orderBadgeChars
                           ? order.orderNumber.substring(
-                              order.orderNumber.length - 3,
+                              order.orderNumber.length - _orderBadgeChars,
                             )
                           : order.orderNumber,
                       style: const TextStyle(

@@ -5,6 +5,7 @@ import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
 import 'package:bakery_mobile/src/features/addresses/domain/models/address.dart';
 import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 
 /// Same VN phone rule the checkout form and the server enforce.
 final _vnPhoneRegex = RegExp(r'^(0|\+84)(3|5|7|8|9)\d{8}$');
@@ -209,7 +210,7 @@ class _AddressCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(999),
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
                     ),
                     child: Text(
                       'Mặc định',

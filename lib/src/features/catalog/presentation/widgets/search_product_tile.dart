@@ -8,6 +8,7 @@ import 'package:bakery_mobile/src/features/catalog/presentation/screens/product_
 import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/discount_badge_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/price_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 
 class SearchProductTile extends ConsumerWidget {
   const SearchProductTile({super.key, required this.product});
@@ -33,7 +34,7 @@ class SearchProductTile extends ConsumerWidget {
                 url: imageUrl,
                 width: 52,
                 height: 52,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
                 backgroundColor: Colors.transparent,
                 emptyIcon: null,
                 errorIcon: null,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 
 /// Layout/typography presets for [PriceWidget].
 enum PriceVariant {
@@ -117,7 +118,7 @@ class PriceWidget extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: scheme.primaryContainer.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(999),
+                        borderRadius: BorderRadius.circular(AppRadius.pill),
                       ),
                       child: priceText,
                     )

@@ -7,6 +7,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:bakery_mobile/src/features/admin/orders/domain/models/admin_order.dart';
 import 'package:bakery_mobile/src/shared/utils/order_status_display.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 
 const _regularFont = 'assets/fonts/BeVietnamPro-Regular.ttf';
 const _boldFont = 'assets/fonts/BeVietnamPro-Bold.ttf';
@@ -89,7 +90,7 @@ pw.Widget _header(AdminOrder order, String brand) {
             padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: pw.BoxDecoration(
               color: PdfColor.fromInt(orderStatusColor(status).toARGB32()),
-              borderRadius: pw.BorderRadius.circular(10),
+              borderRadius: pw.BorderRadius.circular(AppRadius.sm),
             ),
             child: pw.Text(
               orderStatusLabel(status),

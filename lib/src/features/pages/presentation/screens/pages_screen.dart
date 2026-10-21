@@ -6,6 +6,7 @@ import 'package:bakery_mobile/src/features/pages/domain/models/app_page.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/screens/page_detail_screen.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/states/static_page_fallbacks.dart';
 import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 
 class PagesScreen extends ConsumerStatefulWidget {
   const PagesScreen({super.key});
@@ -59,7 +60,7 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(AppRadius.xxl),
                   gradient: LinearGradient(
                     colors: [
                       scheme.primary.withValues(alpha: 0.14),
@@ -96,7 +97,7 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(AppRadius.xl),
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -108,7 +109,7 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(AppRadius.xl),
                       border: Border.all(
                         color: scheme.outlineVariant.withValues(alpha: 0.55),
                       ),

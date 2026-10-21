@@ -7,6 +7,7 @@ import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/screens/checkout_screen.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 
 class CartScreen extends ConsumerWidget {
   const CartScreen({super.key});
@@ -56,7 +57,7 @@ class CartScreen extends ConsumerWidget {
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(AppRadius.xl),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.06),
@@ -176,7 +177,7 @@ class _CartTile extends ConsumerWidget {
               url: imageUrl,
               width: 84,
               height: 84,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppRadius.md),
               emptyIcon: Icons.cake_outlined,
             ),
             const SizedBox(width: 12),
@@ -253,7 +254,7 @@ class _QtyButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
+      borderRadius: BorderRadius.circular(AppRadius.pill),
       child: Container(
         width: 30,
         height: 30,

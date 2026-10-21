@@ -15,6 +15,12 @@ import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 import 'package:bakery_mobile/src/shared/widgets/summary_row_widget.dart';
 
+/// Mirrors the per-order limit in bakery-web app/api/incentives/preview.
+const int _maxIncentiveCodes = 5;
+
+/// Suggested incentive chips shown before the user types a code.
+const int _incentivesShown = 4;
+
 class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
 
@@ -604,8 +610,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     }
 
     final nextCodes = {..._selectedIncentiveCodes, code}.toList();
-    if (nextCodes.length > 5) {
-      setState(() => _incentiveError = 'You can apply up to 5 codes.');
+    if (nextCodes.length > _maxIncentiveCodes) {
+      setState(
+        () =>
+            _incentiveError = 'You can apply up to $_maxIncentiveCodes codes.',
+      );
       return;
     }
 
@@ -777,7 +786,9 @@ class _IncentivesCard extends StatelessWidget {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: availableIncentives.take(4).map((incentive) {
+                children: availableIncentives.take(_incentivesShown).map((
+                  incentive,
+                ) {
                   return ActionChip(
                     label: Text(_incentiveLabel(incentive)),
                     onPressed: isApplying

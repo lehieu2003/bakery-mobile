@@ -9,6 +9,8 @@ import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/discount_badge_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/price_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/favorite_icon_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 
 class WishlistScreen extends ConsumerStatefulWidget {
   const WishlistScreen({super.key});
@@ -89,8 +91,8 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
                         url: imageUrl,
                         width: 48,
                         height: 48,
-                        borderRadius: BorderRadius.circular(8),
-                        backgroundColor: const Color(0xFFE0E0E0),
+                        borderRadius: BorderRadius.circular(AppRadius.xs),
+                        backgroundColor: AppTheme.imagePlaceholder,
                         errorIcon: Icons.image_not_supported_outlined,
                       ),
                       if (discount != null)
