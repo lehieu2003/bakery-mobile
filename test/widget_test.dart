@@ -1,5 +1,13 @@
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
-import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_banner_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_blog_card_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_blog_detail_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_category_rail_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_notification_tile_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_order_card_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_product_grid_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_product_rail_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_tile_widget.dart';
 import 'package:bakery_mobile/src/features/navigation/presentation/screens/app_gate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -99,15 +107,15 @@ void main() {
           body: SingleChildScrollView(
             child: Column(
               children: [
-                SkeletonTile(),
-                SkeletonBanner(),
-                SkeletonCategoryRail(),
-                SkeletonProductGrid(itemCount: 2),
-                SkeletonProductRail(itemCount: 2),
-                SkeletonBlogCard(),
-                SkeletonBlogDetail(),
-                SkeletonNotificationTile(),
-                SkeletonOrderCard(),
+                SkeletonTileWidget(),
+                SkeletonBannerWidget(),
+                SkeletonCategoryRailWidget(),
+                SkeletonProductGridWidget(itemCount: 2),
+                SkeletonProductRailWidget(itemCount: 2),
+                SkeletonBlogCardWidget(),
+                SkeletonBlogDetailWidget(),
+                SkeletonNotificationTileWidget(),
+                SkeletonOrderCardWidget(),
               ],
             ),
           ),
@@ -115,13 +123,13 @@ void main() {
       ),
     );
 
-    expect(find.byType(SkeletonTile), findsWidgets);
-    expect(find.byType(SkeletonBanner), findsOneWidget);
-    expect(find.byType(SkeletonProductGrid), findsOneWidget);
-    expect(find.byType(SkeletonProductRail), findsOneWidget);
-    expect(find.byType(SkeletonBlogCard), findsOneWidget);
-    expect(find.byType(SkeletonBlogDetail), findsOneWidget);
-    expect(find.byType(SkeletonNotificationTile), findsOneWidget);
-    expect(find.byType(SkeletonOrderCard), findsOneWidget);
+    expect(find.byType(SkeletonTileWidget), findsWidgets);
+    expect(find.byType(SkeletonBannerWidget), findsOneWidget);
+    expect(find.byType(SkeletonProductGridWidget), findsOneWidget);
+    expect(find.byType(SkeletonProductRailWidget), findsOneWidget);
+    expect(find.byType(SkeletonBlogCardWidget), findsOneWidget);
+    expect(find.byType(SkeletonBlogDetailWidget), findsOneWidget);
+    expect(find.byType(SkeletonNotificationTileWidget), findsOneWidget);
+    expect(find.byType(SkeletonOrderCardWidget), findsOneWidget);
   });
 }

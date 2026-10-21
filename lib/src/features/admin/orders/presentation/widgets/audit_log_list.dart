@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/admin/orders/domain/models/order_audit.dart';
-import 'package:bakery_mobile/src/features/admin/shared/domain/order_status_display.dart';
-import 'package:bakery_mobile/src/features/admin/shared/utils/admin_format.dart';
+import 'package:bakery_mobile/src/shared/utils/order_status_display.dart';
+import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 
 const Map<String, String> _mutationLabels = {
   'STATUS_UPDATE': 'Cập nhật trạng thái',

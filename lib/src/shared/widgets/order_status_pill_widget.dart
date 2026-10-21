@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:bakery_mobile/src/features/admin/shared/domain/order_status_display.dart';
+import 'package:bakery_mobile/src/shared/utils/order_status_display.dart';
 
 /// Rounded pill showing the Vietnamese label of an order status, tinted with
 /// the status background/text color pair.
-class StatusPill extends StatelessWidget {
-  const StatusPill({super.key, required this.status});
+class OrderStatusPillWidget extends StatelessWidget {
+  const OrderStatusPillWidget({super.key, required this.status});
 
   final String status;
 

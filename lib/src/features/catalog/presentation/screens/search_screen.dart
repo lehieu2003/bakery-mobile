@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
-import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
-import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
+import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_tile_widget.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/search_view_model.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/search_product_tile.dart';
+import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
 
 class SearchScreen extends ConsumerWidget {
   const SearchScreen({super.key, this.initialQuery = ''});
@@ -89,7 +90,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: EdgeInsets.fromLTRB(16, 16, 16, bottomInset),
         children: [
-          AppTextInput(
+          AppTextInputWidget(
             controller: _controller,
             textInputAction: TextInputAction.search,
             hintText: 'What are you looking for?',
@@ -129,12 +130,12 @@ class _SearchViewState extends ConsumerState<_SearchView> {
             ),
           ),
           if (vm.isLoading && vm.sortedProducts.isEmpty) ...[
-            const SkeletonTile(),
-            const SkeletonTile(),
-            const SkeletonTile(),
-            const SkeletonTile(),
-            const SkeletonTile(),
-            const SkeletonTile(),
+            const SkeletonTileWidget(),
+            const SkeletonTileWidget(),
+            const SkeletonTileWidget(),
+            const SkeletonTileWidget(),
+            const SkeletonTileWidget(),
+            const SkeletonTileWidget(),
           ],
           if (!vm.isLoading && vm.error != null)
             Padding(
@@ -161,7 +162,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
           if (vm.isLoadingMore)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 14),
-              child: Center(child: CircularProgressIndicator()),
+              child: LoadingWidget(),
             ),
           if (!vm.isLoading && !vm.isLoadingMore && vm.hasMore)
             Padding(
@@ -231,7 +232,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
                   Row(
                     children: [
                       Expanded(
-                        child: AppTextInput(
+                        child: AppTextInputWidget(
                           controller: minCtrl,
                           keyboardType: TextInputType.number,
                           labelText: 'Min price',
@@ -239,7 +240,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: AppTextInput(
+                        child: AppTextInputWidget(
                           controller: maxCtrl,
                           keyboardType: TextInputType.number,
                           labelText: 'Max price',

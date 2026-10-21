@@ -64,7 +64,10 @@ const Map<String, dynamic> _dashboardPayload = {
 class _FakeDashboardApiService extends DashboardApiService {
   _FakeDashboardApiService()
     : super(
-        ApiClient(baseUrl: 'http://localhost:1', tokenProvider: () async => null),
+        ApiClient(
+          baseUrl: 'http://localhost:1',
+          tokenProvider: () async => null,
+        ),
       );
 
   /// The windowDays argument of every getDashboard call, in order.
@@ -99,7 +102,10 @@ Future<void> _pumpDashboardScreen(
           _FakeDashboardRepository(service),
         ),
       ],
-      child: MaterialApp(theme: AppTheme.light(), home: const DashboardScreen()),
+      child: MaterialApp(
+        theme: AppTheme.light(),
+        home: const DashboardScreen(),
+      ),
     ),
   );
 }
@@ -144,7 +150,9 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('T3: recent order renders its StatusPill label', (tester) async {
+  testWidgets('T3: recent order renders its OrderStatusPillWidget label', (
+    tester,
+  ) async {
     final service = _FakeDashboardApiService();
     await _pumpDashboardScreen(tester, service);
     await tester.pumpAndSettle();

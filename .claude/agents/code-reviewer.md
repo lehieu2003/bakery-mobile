@@ -18,15 +18,18 @@ khi cần — không review code ngoài diff.
 2. **State & lifecycle**: `Notifier` giữ state immutable + `copyWith`; async xong rồi mới set state
    (response cũ không đè response mới); Timer/stream/controller được huỷ trong `dispose`/`ref.onDispose`;
    dùng `context` sau `await` có kiểm tra `mounted`.
-3. **Kiến trúc**: đúng tầng `features/<x>/{data,domain,presentation,application}`; provider khai báo ở
+3. **UI dùng chung**: không tự viết lại thứ đã có trong `lib/src/shared/widgets` (ảnh mạng, loading, lỗi + thử lại,
+   rỗng, giá, badge giảm giá, card/dòng thông tin, pill trạng thái, avatar, tim yêu thích); widget mới trong
+   `shared/widgets` theo quy ước một public widget/file, hậu tố `Widget`, biến thể bằng enum `…Variant`.
+4. **Kiến trúc**: đúng tầng `features/<x>/{data,domain,presentation,application}`; provider khai báo ở
    `core/di/app_providers.dart` / `data_providers.dart`; widget không gọi API trực tiếp; tái dùng
    `core/widgets`, widget/format dùng chung trước khi viết mới.
-4. **API**: khớp contract của bakery-web (envelope, tên field, mã lỗi); `ApiException` 401 xử lý
+5. **API**: khớp contract của bakery-web (envelope, tên field, mã lỗi); `ApiException` 401 xử lý
    đúng (admin → logout); không log token/PII.
-5. **UI**: chuỗi tiếng Việt; không overflow trên màn nhỏ; trạng thái loading/empty/error đủ.
-6. **Tests**: VM test với fake repository + `ProviderContainer(overrides: …)`; DTO test với payload thật
+6. **UI**: chuỗi tiếng Việt; không overflow trên màn nhỏ; trạng thái loading/empty/error đủ.
+7. **Tests**: VM test với fake repository + `ProviderContainer(overrides: …)`; DTO test với payload thật
    (kể cả tiền dạng string); widget test cho màn mới khi có logic UI.
-7. **Package/permission mới**: lý do rõ ràng, cấu hình iOS/Android đi kèm.
+8. **Package/permission mới**: lý do rõ ràng, cấu hình iOS/Android đi kèm.
 
 ## Kết quả
 

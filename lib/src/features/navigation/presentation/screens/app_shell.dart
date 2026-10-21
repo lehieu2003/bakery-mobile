@@ -8,6 +8,7 @@ import 'package:bakery_mobile/src/features/catalog/presentation/screens/home_scr
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/search_screen.dart';
 import 'package:bakery_mobile/src/features/chatbot/presentation/screens/chatbot_screen.dart';
 import 'package:bakery_mobile/src/features/profile/presentation/screens/profile_screen.dart';
+import 'package:bakery_mobile/src/shared/widgets/initial_avatar_widget.dart';
 
 class MainLayout extends ConsumerStatefulWidget {
   const MainLayout({super.key});
@@ -227,15 +228,11 @@ class _AppDrawer extends StatelessWidget {
             decoration: const BoxDecoration(color: AppTheme.primaryPink),
             accountName: Text(displayName),
             accountEmail: Text(displayEmail),
-            currentAccountPicture: CircleAvatar(
+            currentAccountPicture: InitialAvatarWidget(
+              name: displayName,
+              radius: 36,
               backgroundColor: Colors.white,
-              child: Text(
-                displayName.substring(0, 1).toUpperCase(),
-                style: const TextStyle(
-                  color: AppTheme.primaryPink,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              foregroundColor: AppTheme.primaryPink,
             ),
           ),
           _DrawerNavItem(

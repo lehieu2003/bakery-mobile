@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/admin/orders/domain/models/admin_order.dart';
-import 'package:bakery_mobile/src/features/admin/shared/presentation/widgets/status_pill.dart';
-import 'package:bakery_mobile/src/features/admin/shared/utils/admin_format.dart';
+import 'package:bakery_mobile/src/shared/widgets/order_status_pill_widget.dart';
+import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 
 /// One row of the admin orders list: order number + status, customer,
 /// total, payment method/status and creation time.
@@ -45,7 +45,7 @@ class OrderCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  StatusPill(status: order.status),
+                  OrderStatusPillWidget(status: order.status),
                 ],
               ),
               const SizedBox(height: 6),

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
-import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_notification_tile_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
@@ -72,11 +73,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             if (vm.isLoading && vm.notifications.isEmpty)
               const Column(
                 children: [
-                  SkeletonNotificationTile(),
-                  SkeletonNotificationTile(),
-                  SkeletonNotificationTile(),
-                  SkeletonNotificationTile(),
-                  SkeletonNotificationTile(),
+                  SkeletonNotificationTileWidget(),
+                  SkeletonNotificationTileWidget(),
+                  SkeletonNotificationTileWidget(),
+                  SkeletonNotificationTileWidget(),
+                  SkeletonNotificationTileWidget(),
                 ],
               ),
             if (vm.error != null)
@@ -114,7 +115,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             if (vm.isLoadingMore)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 14),
-                child: Center(child: CircularProgressIndicator()),
+                child: LoadingWidget(),
               ),
             if (!vm.isLoading && !vm.isLoadingMore && vm.hasMore)
               Padding(

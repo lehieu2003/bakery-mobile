@@ -8,8 +8,11 @@ import 'package:bakery_mobile/src/core/config/app_config.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
-import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_blog_detail_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_box_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_tile_widget.dart';
 import 'package:bakery_mobile/src/features/blog/domain/models/blog.dart';
+import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 
 class BlogDetailScreen extends ConsumerStatefulWidget {
   const BlogDetailScreen({super.key, required this.slug});
@@ -110,7 +113,7 @@ class _BlogDetailScreenState extends ConsumerState<BlogDetailScreen> {
             ],
           ),
           if (_isLoading)
-            const SliverToBoxAdapter(child: SkeletonBlogDetail())
+            const SliverToBoxAdapter(child: SkeletonBlogDetailWidget())
           else if (_error != null || post == null)
             SliverFillRemaining(
               child: Center(child: Text(_error ?? 'Post not found')),
@@ -264,10 +267,9 @@ class _BlogPostContent extends StatelessWidget {
               borderRadius: BorderRadius.circular(18),
               child: AspectRatio(
                 aspectRatio: 16 / 9,
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                child: AppNetworkImageWidget(
+                  url: imageUrl,
+                  placeholder: const SizedBox.shrink(),
                 ),
               ),
             ),
@@ -311,10 +313,10 @@ class _BlogPostContent extends StatelessWidget {
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SkeletonBox(width: 170, height: 18),
+                SkeletonBoxWidget(width: 170, height: 18),
                 SizedBox(height: 12),
-                SkeletonTile(),
-                SkeletonTile(),
+                SkeletonTileWidget(),
+                SkeletonTileWidget(),
               ],
             )
           else if (relatedPosts.isNotEmpty) ...[
@@ -399,19 +401,13 @@ class _RelatedBlogPostTile extends StatelessWidget {
                 child: SizedBox(
                   width: 76,
                   height: 58,
-                  child: imageUrl.isEmpty
-                      ? const ColoredBox(
-                          color: Color(0xFFE9DCCB),
-                          child: Icon(Icons.article_outlined, size: 22),
-                        )
-                      : Image.network(
-                          imageUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const ColoredBox(
-                            color: Color(0xFFE9DCCB),
-                            child: Icon(Icons.article_outlined, size: 22),
-                          ),
-                        ),
+                  child: AppNetworkImageWidget(
+                    url: imageUrl,
+                    backgroundColor: const Color(0xFFE9DCCB),
+                    emptyIcon: Icons.article_outlined,
+                    errorIcon: Icons.article_outlined,
+                    iconSize: 22,
+                  ),
                 ),
               ),
               const SizedBox(width: 12),

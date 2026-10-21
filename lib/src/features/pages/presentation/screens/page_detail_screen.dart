@@ -6,6 +6,7 @@ import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/pages/domain/models/app_page.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/states/static_page_fallbacks.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/widgets/page_templates.dart';
+import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
 
 class PageDetailScreen extends ConsumerStatefulWidget {
   const PageDetailScreen({super.key, required this.slug});
@@ -60,7 +61,7 @@ class _PageDetailScreenState extends ConsumerState<PageDetailScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(_template?.title ?? _page?.title ?? 'Page')),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingWidget()
           : _template != null
           ? BuiltInPageBody(template: _template!)
           : _page == null

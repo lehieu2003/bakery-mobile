@@ -5,6 +5,8 @@ import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/screens/checkout_screen.dart';
+import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
+import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 
 class CartScreen extends ConsumerWidget {
   const CartScreen({super.key});
@@ -78,7 +80,7 @@ class CartScreen extends ConsumerWidget {
                                 ),
                                 const Spacer(),
                                 Text(
-                                  '${cart.subtotal.toStringAsFixed(0)} VND',
+                                  formatVnd(cart.subtotal),
                                   style: Theme.of(context).textTheme.titleMedium
                                       ?.copyWith(fontWeight: FontWeight.w700),
                                 ),
@@ -97,7 +99,7 @@ class CartScreen extends ConsumerWidget {
                                     ),
                                   ),
                                   Text(
-                                    '-${membershipDiscount.toStringAsFixed(0)} VND',
+                                    '-${formatVnd(membershipDiscount)}',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -115,7 +117,7 @@ class CartScreen extends ConsumerWidget {
                                   ),
                                   const Spacer(),
                                   Text(
-                                    '${estimatedTotal.toStringAsFixed(0)} VND',
+                                    formatVnd(estimatedTotal),
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleMedium
@@ -170,31 +172,12 @@ class _CartTile extends ConsumerWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
+            AppNetworkImageWidget(
+              url: imageUrl,
+              width: 84,
+              height: 84,
               borderRadius: BorderRadius.circular(12),
-              child: imageUrl.isEmpty
-                  ? Container(
-                      width: 84,
-                      height: 84,
-                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                      alignment: Alignment.center,
-                      child: const Icon(Icons.cake_outlined),
-                    )
-                  : Image.network(
-                      imageUrl,
-                      width: 84,
-                      height: 84,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        width: 84,
-                        height: 84,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerHigh,
-                        alignment: Alignment.center,
-                        child: const Icon(Icons.broken_image_outlined),
-                      ),
-                    ),
+              emptyIcon: Icons.cake_outlined,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -219,7 +202,7 @@ class _CartTile extends ConsumerWidget {
                   ],
                   const SizedBox(height: 8),
                   Text(
-                    '${item.price.toStringAsFixed(0)} VND',
+                    formatVnd(item.price),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),

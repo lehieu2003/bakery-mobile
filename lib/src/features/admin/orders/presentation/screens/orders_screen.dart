@@ -13,7 +13,7 @@ import 'package:bakery_mobile/src/features/admin/orders/presentation/controllers
 import 'package:bakery_mobile/src/features/admin/orders/presentation/screens/order_detail_screen.dart';
 import 'package:bakery_mobile/src/features/admin/orders/presentation/widgets/order_card.dart';
 import 'package:bakery_mobile/src/features/admin/orders/utils/orders_csv.dart';
-import 'package:bakery_mobile/src/features/admin/shared/domain/order_status_display.dart';
+import 'package:bakery_mobile/src/shared/utils/order_status_display.dart';
 import 'package:bakery_mobile/src/features/admin/shared/presentation/widgets/admin_paged_list.dart';
 
 /// Status filter chips: 'Tất cả' plus the 6 lifecycle statuses.

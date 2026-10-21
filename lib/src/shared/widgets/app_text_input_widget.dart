@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class AppTextInput extends StatelessWidget {
-  const AppTextInput({
+class AppTextInputWidget extends StatelessWidget {
+  const AppTextInputWidget({
     super.key,
     this.controller,
     this.hintText,

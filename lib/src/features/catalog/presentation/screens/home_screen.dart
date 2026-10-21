@@ -5,12 +5,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
-import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_banner_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_category_rail_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_product_grid_widget.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/screens/cart_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/home_view_model.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/search_screen.dart';
-import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_banner_widgets.dart';
+import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_banner_dots.dart';
+import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_hero_banner.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_category_rail.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_header.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_product_card.dart';
@@ -108,7 +111,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
             ),
             const SizedBox(height: 12),
             if (showInitialSkeleton) ...[
-              const SkeletonBanner(),
+              const SkeletonBannerWidget(),
               const SizedBox(height: 10),
             ] else if (vm.banners.isNotEmpty) ...[
               Padding(
@@ -143,7 +146,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
             ),
             const SizedBox(height: 6),
             if (showInitialSkeleton)
-              const SkeletonCategoryRail()
+              const SkeletonCategoryRailWidget()
             else
               HomeCategoryRail(
                 categories: vm.categories,
@@ -204,7 +207,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                 icon: Icons.auto_awesome_rounded,
               ),
             ),
-            if (showInitialSkeleton) const SkeletonProductGrid(),
+            if (showInitialSkeleton) const SkeletonProductGridWidget(),
             if (vm.errorMessage != null)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
