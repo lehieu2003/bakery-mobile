@@ -371,4 +371,25 @@ void main() {
     final value = tester.getRect(find.text('90.000 ₫'));
     expect(value.right, moreOrLessEquals(row.right, epsilon: 0.5));
   });
+
+  testWidgets('SummaryRowWidget wraps a long value instead of overflowing', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _host(
+        const SizedBox(
+          width: 240,
+          child: SummaryRowWidget(
+            label: 'Mã sản phẩm',
+            value: 'cmm8zdhm5000cuy3o5q4128t2-very-long-identifier',
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    final row = tester.getRect(find.byType(SummaryRowWidget));
+    final value = tester.getRect(find.textContaining('cmm8zdhm'));
+    expect(value.right, lessThanOrEqualTo(row.right + 0.5));
+  });
 }
