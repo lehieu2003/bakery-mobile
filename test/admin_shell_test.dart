@@ -11,6 +11,7 @@ import 'package:bakery_mobile/src/features/onboarding/presentation/controllers/o
 import 'package:bakery_mobile/src/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -92,9 +93,13 @@ Future<void> _pumpAppGate(
 
 void main() {
   // AdminShell renders the real DashboardScreen, whose load reads the token
-  // (SharedPreferences) before the request fails offline. Unmocked, that
-  // read never completes and pumpAndSettle times out.
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  // (TokenStorage: SharedPreferences + secure storage) before the request
+  // fails offline. Unmocked, that read never completes and pumpAndSettle
+  // times out.
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
+  });
 
   testWidgets('T1: ADMIN goes straight to AdminShell, never to onboarding', (
     tester,
