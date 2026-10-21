@@ -7,8 +7,11 @@ import 'package:bakery_mobile/src/features/admin/dashboard/domain/models/dashboa
 import 'package:bakery_mobile/src/features/admin/dashboard/presentation/controllers/dashboard_view_model.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/presentation/widgets/dashboard_charts.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/presentation/widgets/kpi_card.dart';
-import 'package:bakery_mobile/src/features/admin/shared/presentation/widgets/status_pill.dart';
-import 'package:bakery_mobile/src/features/admin/shared/utils/admin_format.dart';
+import 'package:bakery_mobile/src/shared/widgets/order_status_pill_widget.dart';
+import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
+import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/empty_state_widget.dart';
 
 /// Admin dashboard: window switcher, 2×2 KPI grid, fl_chart trend charts and
 /// the newest orders — driven by [dashboardViewModelProvider] (Task 5).
@@ -67,38 +70,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     if (stats == null) {
       if (state.error != null && !state.isLoading) {
         return Scaffold(
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.error_outline_rounded,
-                    size: 40,
-                    color: AppTheme.warmBrown,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    state.error!,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 16),
-                  FilledButton.icon(
-                    onPressed: _reload,
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('Thử lại'),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          body: ErrorRetryWidget(message: state.error!, onRetry: _reload),
         );
       }
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: LoadingWidget());
     }
 
     final kpi = stats.kpi;
@@ -177,13 +152,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         child: statusRows.isEmpty
                             ? Text(
                                 '—',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
+                                style: Theme.of(context).textTheme.bodyMedium
                                     ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurfaceVariant,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                     ),
                               )
                             : Column(
@@ -193,7 +166,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                       padding: const EdgeInsets.only(bottom: 6),
                                       child: Row(
                                         children: [
-                                          StatusPill(status: orderState.status),
+                                          OrderStatusPillWidget(
+                                            status: orderState.status,
+                                          ),
                                           const Spacer(),
                                           Text(
                                             '${orderState.count}',
@@ -301,16 +276,9 @@ class _RecentOrdersCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             if (orders.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Center(
-                  child: Text(
-                    'Chưa có đơn nào',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
+              const EmptyStateWidget(
+                message: 'Chưa có đơn nào',
+                padding: EdgeInsets.symmetric(vertical: 16),
               )
             else
               for (final order in orders) _RecentOrderTile(order: order),
@@ -355,7 +323,7 @@ class _RecentOrderTile extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      StatusPill(status: order.status),
+                      OrderStatusPillWidget(status: order.status),
                     ],
                   ),
                   const SizedBox(height: 4),

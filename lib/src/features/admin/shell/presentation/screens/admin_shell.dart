@@ -17,6 +17,7 @@ import 'package:bakery_mobile/src/features/admin/dashboard/presentation/screens/
 import 'package:bakery_mobile/src/features/admin/orders/presentation/screens/orders_screen.dart';
 import 'package:bakery_mobile/src/features/admin/shell/domain/admin_section.dart';
 import 'package:bakery_mobile/src/features/admin/shell/presentation/screens/admin_placeholder_screen.dart';
+import 'package:bakery_mobile/src/shared/widgets/initial_avatar_widget.dart';
 
 class AdminShell extends ConsumerStatefulWidget {
   const AdminShell({super.key});
@@ -70,14 +71,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
             ],
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: CircleAvatar(
-                backgroundColor: AppTheme.primaryPink,
-                foregroundColor: Colors.white,
-                child: Text(
-                  _initialOf(auth.user?.name),
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-              ),
+              child: InitialAvatarWidget(name: auth.user?.name, fallback: 'A'),
             ),
           ),
         ],
@@ -105,12 +99,6 @@ class _AdminShellState extends ConsumerState<AdminShell> {
       ),
     );
   }
-}
-
-String _initialOf(String? name) {
-  final trimmed = name?.trim() ?? '';
-  if (trimmed.isEmpty) return 'A';
-  return trimmed.substring(0, 1).toUpperCase();
 }
 
 class _AdminDrawer extends StatelessWidget {
@@ -193,17 +181,10 @@ class _AdminDrawer extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: Row(
                   children: [
-                    CircleAvatar(
+                    InitialAvatarWidget(
+                      name: displayName,
                       radius: 16,
-                      backgroundColor: AppTheme.primaryPink,
-                      foregroundColor: Colors.white,
-                      child: Text(
-                        _initialOf(displayName),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                      fallback: 'A',
                     ),
                     const SizedBox(width: 10),
                     Expanded(

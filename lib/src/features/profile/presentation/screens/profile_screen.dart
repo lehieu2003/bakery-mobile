@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
-import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
-import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
+import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_order_card_widget.dart';
 import 'package:bakery_mobile/src/features/addresses/presentation/screens/addresses_screen.dart';
 import 'package:bakery_mobile/src/features/auth/domain/models/user.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/screens/blog_screen.dart';
@@ -13,6 +13,9 @@ import 'package:bakery_mobile/src/features/notifications/presentation/screens/no
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
 import 'package:bakery_mobile/src/features/orders/presentation/screens/order_detail_screen.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/screens/pages_screen.dart';
+import 'package:bakery_mobile/src/shared/widgets/order_status_pill_widget.dart';
+import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
+import 'package:bakery_mobile/src/shared/widgets/initial_avatar_widget.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -127,9 +130,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 : ref.read(ordersViewModelProvider.notifier).loadMyOrders,
           ),
           if (orders.isLoadingOrders && orders.orders.isEmpty) ...[
-            const SkeletonOrderCard(),
+            const SkeletonOrderCardWidget(),
             const SizedBox(height: 10),
-            const SkeletonOrderCard(),
+            const SkeletonOrderCardWidget(),
             const SizedBox(height: 10),
           ],
           if (orders.errorMessage != null)
@@ -214,14 +217,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 14),
-              AppTextInput(
+              AppTextInputWidget(
                 controller: nameCtrl,
                 labelText: 'Name',
                 textInputAction: TextInputAction.next,
                 prefixIcon: const Icon(Icons.person_outline),
               ),
               const SizedBox(height: 12),
-              AppTextInput(
+              AppTextInputWidget(
                 controller: phoneCtrl,
                 labelText: 'Phone',
                 keyboardType: TextInputType.phone,
@@ -366,7 +369,6 @@ class _ProfileHeaderCard extends StatelessWidget {
     final tierLabel = (currentTierLabel?.trim().isNotEmpty ?? false)
         ? currentTierLabel!.trim()
         : displayLevel;
-    final initial = displayName.substring(0, 1).toUpperCase();
 
     return Card(
       child: Padding(
@@ -375,18 +377,15 @@ class _ProfileHeaderCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                CircleAvatar(
+                InitialAvatarWidget(
+                  name: displayName,
                   radius: 24,
                   backgroundColor: Theme.of(
                     context,
                   ).colorScheme.primaryContainer,
-                  child: Text(
-                    initial,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  foregroundColor: Theme.of(
+                    context,
+                  ).colorScheme.onPrimaryContainer,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -721,7 +720,7 @@ class _OrderCard extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            _OrderStatusBadge(status: order.status.toString()),
+                            OrderStatusPillWidget(status: order.status),
                           ],
                         ),
                         const SizedBox(height: 4),
@@ -744,7 +743,7 @@ class _OrderCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '${order.total.toStringAsFixed(0)} VND',
+                        formatVnd(order.total),
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
@@ -784,43 +783,6 @@ class _OrderCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _OrderStatusBadge extends StatelessWidget {
-  const _OrderStatusBadge({required this.status});
-
-  final String status;
-
-  @override
-  Widget build(BuildContext context) {
-    final normalized = status.toUpperCase();
-    final colorScheme = Theme.of(context).colorScheme;
-    Color bg = colorScheme.secondaryContainer;
-    Color fg = colorScheme.onSecondaryContainer;
-
-    if (normalized.contains('CANCEL')) {
-      bg = colorScheme.errorContainer;
-      fg = colorScheme.onErrorContainer;
-    } else if (normalized.contains('PAID') || normalized.contains('SUCCESS')) {
-      bg = Colors.green.withValues(alpha: 0.14);
-      fg = Colors.green.shade800;
-    } else if (normalized.contains('PENDING')) {
-      bg = Colors.orange.withValues(alpha: 0.16);
-      fg = Colors.orange.shade900;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        normalized,
-        style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 11),
       ),
     );
   }

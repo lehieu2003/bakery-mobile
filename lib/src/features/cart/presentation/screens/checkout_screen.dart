@@ -7,11 +7,13 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
-import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
+import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
 import 'package:bakery_mobile/src/features/addresses/domain/models/address.dart';
 import 'package:bakery_mobile/src/features/addresses/presentation/controllers/addresses_view_model.dart';
 import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
+import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
+import 'package:bakery_mobile/src/shared/widgets/summary_row_widget.dart';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
@@ -202,7 +204,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    AppTextInput(
+                    AppTextInputWidget(
                       controller: _nameCtrl,
                       textInputAction: TextInputAction.next,
                       labelText: 'Customer name',
@@ -214,7 +216,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       },
                     ),
                     const SizedBox(height: 12),
-                    AppTextInput(
+                    AppTextInputWidget(
                       controller: _phoneCtrl,
                       keyboardType: TextInputType.phone,
                       textInputAction: TextInputAction.next,
@@ -253,7 +255,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       ),
                       const SizedBox(height: 8),
                     ],
-                    AppTextInput(
+                    AppTextInputWidget(
                       controller: _addressCtrl,
                       minLines: 2,
                       maxLines: 3,
@@ -338,20 +340,22 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            Text('${item.lineTotal.toStringAsFixed(0)} VND'),
+                            Text(formatVnd(item.lineTotal)),
                           ],
                         ),
                       ),
                     ),
                     const Divider(height: 20),
                     if (membershipDiscount > 0)
-                      _SummaryRow(
+                      SummaryRowWidget(
+                        variant: SummaryRowVariant.emphasis,
                         label: 'Membership saving',
                         value: '-${_formatMoney(membershipDiscount)}',
                         valueColor: AppTheme.warmBrown,
                       ),
                     if (couponDiscount > 0)
-                      _SummaryRow(
+                      SummaryRowWidget(
+                        variant: SummaryRowVariant.emphasis,
                         label: 'Coupon saving',
                         value: '-${_formatMoney(couponDiscount)}',
                         valueColor: AppTheme.warmBrown,
@@ -659,7 +663,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   }
 
   String _formatMoney(double value) {
-    return '${value.toStringAsFixed(0)} VND';
+    return formatVnd(value);
   }
 }
 
@@ -723,7 +727,7 @@ class _IncentivesCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: AppTextInput(
+                  child: AppTextInputWidget(
                     controller: controller,
                     textInputAction: TextInputAction.done,
                     labelText: 'Incentive code',
@@ -809,35 +813,7 @@ class _IncentivesCard extends StatelessWidget {
   String _incentiveLabel(AvailableIncentive incentive) {
     final value = incentive.type == 'PERCENTAGE'
         ? '${incentive.value.toStringAsFixed(0)}%'
-        : '${incentive.value.toStringAsFixed(0)} VND';
+        : formatVnd(incentive.value);
     return '${incentive.code} • $value';
-  }
-}
-
-class _SummaryRow extends StatelessWidget {
-  const _SummaryRow({
-    required this.label,
-    required this.value,
-    this.valueColor,
-  });
-
-  final String label;
-  final String value;
-  final Color? valueColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        children: [
-          Expanded(child: Text(label)),
-          Text(
-            value,
-            style: TextStyle(color: valueColor, fontWeight: FontWeight.w700),
-          ),
-        ],
-      ),
-    );
   }
 }

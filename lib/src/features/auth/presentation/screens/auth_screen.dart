@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
-import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
+import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
 import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_view_model.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
@@ -122,7 +122,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        AppTextInput(
+        AppTextInputWidget(
           controller: _emailCtrl,
           keyboardType: TextInputType.emailAddress,
           labelText: 'Email',
@@ -130,13 +130,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         ),
         const SizedBox(height: 12),
         if (_isRegister && _otpSent) ...[
-          AppTextInput(
+          AppTextInputWidget(
             controller: _nameCtrl,
             labelText: 'Name (optional)',
             prefixIcon: const Icon(Icons.person_outline),
           ),
           const SizedBox(height: 12),
-          AppTextInput(
+          AppTextInputWidget(
             controller: _otpCtrl,
             labelText: 'OTP',
             prefixIcon: const Icon(Icons.pin_outlined),
@@ -144,13 +144,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           const SizedBox(height: 12),
         ],
         if (_isReset && _otpSent) ...[
-          AppTextInput(
+          AppTextInputWidget(
             controller: _otpCtrl,
             labelText: 'OTP',
             prefixIcon: const Icon(Icons.pin_outlined),
           ),
           const SizedBox(height: 12),
-          AppTextInput(
+          AppTextInputWidget(
             controller: _newPasswordCtrl,
             obscureText: _hideNewPassword,
             labelText: 'New password',
@@ -168,7 +168,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           const SizedBox(height: 12),
         ],
         if (!_isReset && (!_isRegister || _otpSent)) ...[
-          AppTextInput(
+          AppTextInputWidget(
             controller: _passwordCtrl,
             obscureText: _hidePassword,
             labelText: 'Password',

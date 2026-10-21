@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
-import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
+import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
 import 'package:bakery_mobile/src/features/addresses/domain/models/address.dart';
+import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
 
 /// Same VN phone rule the checkout form and the server enforce.
 final _vnPhoneRegex = RegExp(r'^(0|\+84)(3|5|7|8|9)\d{8}$');
@@ -44,7 +45,7 @@ class _AddressesScreenState extends ConsumerState<AddressesScreen> {
             if (vm.isLoading && vm.items.isEmpty)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 32),
-                child: Center(child: CircularProgressIndicator()),
+                child: LoadingWidget(),
               ),
             if (vm.error != null)
               Padding(
@@ -100,7 +101,9 @@ class _AddressesScreenState extends ConsumerState<AddressesScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          ok ? 'Đã đặt làm địa chỉ mặc định.' : 'Không thể đặt địa chỉ mặc định.',
+          ok
+              ? 'Đã đặt làm địa chỉ mặc định.'
+              : 'Không thể đặt địa chỉ mặc định.',
         ),
       ),
     );
@@ -222,7 +225,10 @@ class _AddressCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(address.phone),
             const SizedBox(height: 2),
-            Text(address.addressLine, style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              address.addressLine,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
             const SizedBox(height: 10),
             Row(
               children: [
@@ -281,7 +287,9 @@ class _AddressFormSheetState extends ConsumerState<_AddressFormSheet> {
   late final _streetCtrl = TextEditingController(
     text: widget.existing?.street ?? '',
   );
-  late final _wardCtrl = TextEditingController(text: widget.existing?.ward ?? '');
+  late final _wardCtrl = TextEditingController(
+    text: widget.existing?.ward ?? '',
+  );
   late final _districtCtrl = TextEditingController(
     text: widget.existing?.district ?? '',
   );
@@ -385,15 +393,13 @@ class _AddressFormSheetState extends ConsumerState<_AddressFormSheet> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                widget.existing == null
-                    ? 'Thêm địa chỉ mới'
-                    : 'Sửa địa chỉ',
+                widget.existing == null ? 'Thêm địa chỉ mới' : 'Sửa địa chỉ',
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 14),
-              AppTextInput(
+              AppTextInputWidget(
                 controller: _fullNameCtrl,
                 labelText: 'Họ và tên',
                 textInputAction: TextInputAction.next,
@@ -401,7 +407,7 @@ class _AddressFormSheetState extends ConsumerState<_AddressFormSheet> {
                 validator: (value) => _validateRequired(value, 'họ và tên'),
               ),
               const SizedBox(height: 12),
-              AppTextInput(
+              AppTextInputWidget(
                 controller: _phoneCtrl,
                 labelText: 'Số điện thoại',
                 keyboardType: TextInputType.phone,
@@ -410,15 +416,16 @@ class _AddressFormSheetState extends ConsumerState<_AddressFormSheet> {
                 validator: _validatePhone,
               ),
               const SizedBox(height: 12),
-              AppTextInput(
+              AppTextInputWidget(
                 controller: _streetCtrl,
                 labelText: 'Số nhà, tên đường',
                 textInputAction: TextInputAction.next,
                 prefixIcon: const Icon(Icons.home_outlined),
-                validator: (value) => _validateRequired(value, 'số nhà, tên đường'),
+                validator: (value) =>
+                    _validateRequired(value, 'số nhà, tên đường'),
               ),
               const SizedBox(height: 12),
-              AppTextInput(
+              AppTextInputWidget(
                 controller: _wardCtrl,
                 labelText: 'Phường / Xã',
                 textInputAction: TextInputAction.next,
@@ -426,7 +433,7 @@ class _AddressFormSheetState extends ConsumerState<_AddressFormSheet> {
                 validator: (value) => _validateRequired(value, 'phường / xã'),
               ),
               const SizedBox(height: 12),
-              AppTextInput(
+              AppTextInputWidget(
                 controller: _districtCtrl,
                 labelText: 'Quận / Huyện',
                 textInputAction: TextInputAction.next,
@@ -434,7 +441,7 @@ class _AddressFormSheetState extends ConsumerState<_AddressFormSheet> {
                 validator: (value) => _validateRequired(value, 'quận / huyện'),
               ),
               const SizedBox(height: 12),
-              AppTextInput(
+              AppTextInputWidget(
                 controller: _provinceCtrl,
                 labelText: 'Tỉnh / Thành phố',
                 textInputAction: TextInputAction.done,

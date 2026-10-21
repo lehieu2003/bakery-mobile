@@ -3,8 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
-import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_tile_widget.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/product_detail_screen.dart';
+import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/discount_badge_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/price_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/favorite_icon_widget.dart';
 
 class WishlistScreen extends ConsumerStatefulWidget {
   const WishlistScreen({super.key});
@@ -38,10 +42,10 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Column(
                   children: [
-                    SkeletonTile(),
-                    SkeletonTile(),
-                    SkeletonTile(),
-                    SkeletonTile(),
+                    SkeletonTileWidget(),
+                    SkeletonTileWidget(),
+                    SkeletonTileWidget(),
+                    SkeletonTileWidget(),
                   ],
                 ),
               ),
@@ -81,52 +85,19 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      ClipRRect(
+                      AppNetworkImageWidget(
+                        url: imageUrl,
+                        width: 48,
+                        height: 48,
                         borderRadius: BorderRadius.circular(8),
-                        child: imageUrl.isNotEmpty
-                            ? Image.network(
-                                imageUrl,
-                                width: 48,
-                                height: 48,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Container(
-                                  width: 48,
-                                  height: 48,
-                                  color: const Color(0xFFE0E0E0),
-                                  child: const Icon(
-                                    Icons.image_not_supported_outlined,
-                                  ),
-                                ),
-                              )
-                            : Container(
-                                width: 48,
-                                height: 48,
-                                color: const Color(0xFFE0E0E0),
-                                child: const Icon(Icons.image_outlined),
-                              ),
+                        backgroundColor: const Color(0xFFE0E0E0),
+                        errorIcon: Icons.image_not_supported_outlined,
                       ),
                       if (discount != null)
                         Positioned(
                           right: 0,
                           top: -3,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE46F5B),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Text(
-                              '-$discount%',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 9,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
+                          child: DiscountBadgeWidget(percent: discount),
                         ),
                     ],
                   ),
@@ -136,34 +107,20 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                subtitle: Wrap(
-                  spacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Text('${product.price.toStringAsFixed(0)} VND'),
-                    if (product.hasDiscount)
-                      Text(
-                        '${product.comparePrice!.toStringAsFixed(0)} VND',
-                        style: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.44),
-                          decoration: TextDecoration.lineThrough,
-                        ),
-                      ),
-                  ],
+                subtitle: PriceWidget(
+                  price: product.price,
+                  comparePrice: product.hasDiscount
+                      ? product.comparePrice
+                      : null,
                 ),
                 trailing: IconButton(
                   onPressed: vm.isPending(product.id)
                       ? null
                       : () => notifier.toggle(product),
-                  icon: vm.isPending(product.id)
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.favorite, color: Colors.redAccent),
+                  icon: FavoriteIconWidget(
+                    isFavorite: true,
+                    isPending: vm.isPending(product.id),
+                  ),
                 ),
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(

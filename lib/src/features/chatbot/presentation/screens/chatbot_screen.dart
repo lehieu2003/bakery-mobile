@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
-import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
+import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
 import 'package:bakery_mobile/src/features/chatbot/domain/models/chat.dart';
 import 'package:bakery_mobile/src/features/chatbot/presentation/widgets/suggested_product_tile.dart';
 
@@ -113,7 +113,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: AppTextInput(
+                  child: AppTextInputWidget(
                     controller: _controller,
                     minLines: 1,
                     maxLines: 4,

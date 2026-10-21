@@ -8,19 +8,27 @@ import 'package:share_plus/share_plus.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
-import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/admin/orders/domain/models/admin_order.dart';
 import 'package:bakery_mobile/src/features/admin/orders/domain/models/order_audit.dart';
 import 'package:bakery_mobile/src/features/admin/orders/domain/models/order_status_transitions.dart';
 import 'package:bakery_mobile/src/features/admin/orders/presentation/controllers/order_detail_view_model.dart';
 import 'package:bakery_mobile/src/features/admin/orders/presentation/widgets/audit_log_list.dart';
 import 'package:bakery_mobile/src/features/admin/orders/presentation/widgets/invoice_pdf.dart';
-import 'package:bakery_mobile/src/features/admin/shared/domain/order_status_display.dart';
-import 'package:bakery_mobile/src/features/admin/shared/presentation/widgets/status_pill.dart';
-import 'package:bakery_mobile/src/features/admin/shared/utils/admin_format.dart';
+import 'package:bakery_mobile/src/shared/utils/order_status_display.dart';
+import 'package:bakery_mobile/src/shared/widgets/order_status_pill_widget.dart';
+import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
+import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/section_card_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/info_row_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/summary_row_widget.dart';
 
 /// Max callback events / reconciliation attempts shown (web parity).
 const int _investigationLimit = 10;
+
+/// Spacing between the stacked section cards.
+const EdgeInsets _sectionMargin = EdgeInsets.only(bottom: 12);
 
 /// Admin order detail: customer, payment, items, totals, status transitions
 /// (cancel requires a reason), audit trail, payment investigation and the
@@ -141,24 +149,9 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     final order = state.order;
     if (order == null) {
       if (state.error != null) {
-        return Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  state.error!,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                ),
-              ),
-              TextButton(onPressed: _vm.load, child: const Text('Thử lại')),
-            ],
-          ),
-        );
+        return ErrorRetryWidget(message: state.error!, onRetry: _vm.load);
       }
-      return const Center(child: CircularProgressIndicator());
+      return const LoadingWidget();
     }
 
     return RefreshIndicator(
@@ -178,12 +171,14 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
           _PaymentCard(order: order),
           _ItemsCard(order: order),
           _TotalsCard(order: order),
-          _SectionCard(
+          SectionCardWidget(
+            margin: _sectionMargin,
+
             title: 'Nhật ký',
             child: state.audit == null
                 ? const Padding(
                     padding: EdgeInsets.all(8),
-                    child: Center(child: CircularProgressIndicator()),
+                    child: LoadingWidget(),
                   )
                 : AuditLogList(logs: state.audit!),
           ),
@@ -230,70 +225,8 @@ class _OrderHeader extends StatelessWidget {
             ],
           ),
         ),
-        StatusPill(status: order.status),
+        OrderStatusPillWidget(status: order.status),
       ],
-    );
-  }
-}
-
-class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.title, required this.child});
-
-  final String title;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: AppTheme.inkBrown,
-              ),
-            ),
-            const SizedBox(height: 8),
-            child,
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Label/value line used by the info cards.
-class _InfoRow extends StatelessWidget {
-  const _InfoRow(this.label, this.value);
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 110,
-            child: Text(
-              label,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: AppTheme.warmBrown,
-              ),
-            ),
-          ),
-          Expanded(child: Text(value, style: theme.textTheme.bodyMedium)),
-        ],
-      ),
     );
   }
 }
@@ -350,7 +283,11 @@ class _StatusSection extends StatelessWidget {
         ],
       );
     }
-    return _SectionCard(title: 'Cập nhật trạng thái', child: content);
+    return SectionCardWidget(
+      margin: _sectionMargin,
+      title: 'Cập nhật trạng thái',
+      child: content,
+    );
   }
 }
 
@@ -364,7 +301,9 @@ class _CustomerCard extends StatelessWidget {
     final email = order.customerEmail ?? order.user?.email;
     final address = order.customerAddress;
     final memberLevel = order.user?.memberLevel;
-    return _SectionCard(
+    return SectionCardWidget(
+      margin: _sectionMargin,
+
       title: 'Khách hàng',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -387,12 +326,16 @@ class _CustomerCard extends StatelessWidget {
                 ),
             ],
           ),
-          _InfoRow('Số điện thoại', order.customerPhone),
-          if (email != null && email.isNotEmpty) _InfoRow('Email', email),
+          InfoRowWidget(label: 'Số điện thoại', value: order.customerPhone),
+          if (email != null && email.isNotEmpty)
+            InfoRowWidget(label: 'Email', value: email),
           if (address != null && address.isNotEmpty)
-            _InfoRow('Địa chỉ', address),
+            InfoRowWidget(label: 'Địa chỉ', value: address),
           if (order.pickupDate != null)
-            _InfoRow('Ngày nhận', formatDateVi(order.pickupDate!.toLocal())),
+            InfoRowWidget(
+              label: 'Ngày nhận',
+              value: formatDateVi(order.pickupDate!.toLocal()),
+            ),
         ],
       ),
     );
@@ -407,20 +350,28 @@ class _PaymentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final payment = order.payment;
-    return _SectionCard(
+    return SectionCardWidget(
+      margin: _sectionMargin,
+
       title: 'Thanh toán',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _InfoRow('Phương thức', order.paymentMethod ?? 'Chưa chọn'),
+          InfoRowWidget(
+            label: 'Phương thức',
+            value: order.paymentMethod ?? 'Chưa chọn',
+          ),
           if (payment == null)
-            const _InfoRow('Giao dịch', 'Chưa có')
+            const InfoRowWidget(label: 'Giao dịch', value: 'Chưa có')
           else ...[
-            _InfoRow('Cổng', payment.provider),
-            _InfoRow('Trạng thái', payment.status),
-            _InfoRow('Số tiền', formatVnd(payment.amount)),
+            InfoRowWidget(label: 'Cổng', value: payment.provider),
+            InfoRowWidget(label: 'Trạng thái', value: payment.status),
+            InfoRowWidget(label: 'Số tiền', value: formatVnd(payment.amount)),
             if (payment.transactionId != null)
-              _InfoRow('Mã giao dịch', payment.transactionId!),
+              InfoRowWidget(
+                label: 'Mã giao dịch',
+                value: payment.transactionId!,
+              ),
           ],
         ],
       ),
@@ -436,7 +387,9 @@ class _ItemsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return _SectionCard(
+    return SectionCardWidget(
+      margin: _sectionMargin,
+
       title: 'Sản phẩm (${order.items.length})',
       child: Column(
         children: [
@@ -446,7 +399,16 @@ class _ItemsCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _Thumbnail(url: resolveImageUrl(item.imageUrl)),
+                  AppNetworkImageWidget(
+                    url: item.imageUrl,
+                    width: 48,
+                    height: 48,
+                    borderRadius: BorderRadius.circular(8),
+                    backgroundColor: AppTheme.canvasCream,
+                    emptyIcon: Icons.cake_outlined,
+                    errorIcon: Icons.cake_outlined,
+                    iconColor: AppTheme.warmBrown,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
@@ -486,35 +448,6 @@ class _ItemsCard extends StatelessWidget {
   }
 }
 
-class _Thumbnail extends StatelessWidget {
-  const _Thumbnail({required this.url});
-
-  final String url;
-
-  @override
-  Widget build(BuildContext context) {
-    const size = 48.0;
-    final placeholder = Container(
-      width: size,
-      height: size,
-      color: AppTheme.canvasCream,
-      child: const Icon(Icons.cake_outlined, color: AppTheme.warmBrown),
-    );
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: url.isEmpty
-          ? placeholder
-          : Image.network(
-              url,
-              width: size,
-              height: size,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => placeholder,
-            ),
-    );
-  }
-}
-
 class _TotalsCard extends StatelessWidget {
   const _TotalsCard({required this.order});
 
@@ -522,36 +455,29 @@ class _TotalsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    Widget row(String label, String value, {bool strong = false}) {
-      final style = strong
-          ? theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w800,
-              color: AppTheme.inkBrown,
-            )
-          : theme.textTheme.bodyMedium;
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 3),
-        child: Row(
-          children: [
-            Expanded(child: Text(label, style: style)),
-            Text(value, style: style),
-          ],
-        ),
-      );
-    }
+    return SectionCardWidget(
+      margin: _sectionMargin,
 
-    return _SectionCard(
       title: 'Thanh toán đơn hàng',
       child: Column(
         children: [
-          row('Tạm tính', formatVnd(order.subtotal)),
+          SummaryRowWidget(label: 'Tạm tính', value: formatVnd(order.subtotal)),
           if (order.deliveryFee > 0)
-            row('Phí giao hàng', formatVnd(order.deliveryFee)),
+            SummaryRowWidget(
+              label: 'Phí giao hàng',
+              value: formatVnd(order.deliveryFee),
+            ),
           if (order.discount > 0)
-            row('Giảm giá', '-${formatVnd(order.discount)}'),
+            SummaryRowWidget(
+              label: 'Giảm giá',
+              value: '-${formatVnd(order.discount)}',
+            ),
           const Divider(),
-          row('Tổng cộng', formatVnd(order.total), strong: true),
+          SummaryRowWidget(
+            label: 'Tổng cộng',
+            value: formatVnd(order.total),
+            variant: SummaryRowVariant.total,
+          ),
         ],
       ),
     );
@@ -588,17 +514,13 @@ class _InvestigationCard extends StatelessWidget {
 
   Widget _content(BuildContext context) {
     if (state.isLoadingInvestigation) {
-      return const Center(child: CircularProgressIndicator());
+      return const LoadingWidget();
     }
     if (state.investigationError != null) {
-      return Column(
-        children: [
-          Text(
-            state.investigationError!,
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
-          ),
-          TextButton(onPressed: onRetry, child: const Text('Thử lại')),
-        ],
+      return ErrorRetryWidget(
+        message: state.investigationError!,
+        onRetry: onRetry,
+        compact: true,
       );
     }
     final data = state.investigation;
@@ -618,10 +540,13 @@ class _InvestigationCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _InfoRow('Trạng thái đơn', orderStatusLabel(data.orderStatus)),
-        _InfoRow(
-          'Thanh toán',
-          payment == null
+        InfoRowWidget(
+          label: 'Trạng thái đơn',
+          value: orderStatusLabel(data.orderStatus),
+        ),
+        InfoRowWidget(
+          label: 'Thanh toán',
+          value: payment == null
               ? 'Chưa có'
               : '${payment.provider} · ${payment.status} · '
                     '${formatVnd(payment.amount)}',

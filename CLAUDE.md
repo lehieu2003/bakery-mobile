@@ -21,10 +21,16 @@ shader `ink_sparkle` và `pub get` sửa lung tung file ios/android.
 ## Kiến trúc
 
 - `lib/src/core/` — `network/` (`ApiClient`, `ApiException`), `di/` (`app_providers.dart` cho view model,
-  `data_providers.dart` cho service/repository), `theme/`, `storage/`, `widgets/`, `utils/`.
+  `data_providers.dart` cho service/repository), `theme/`, `storage/`, `auth/` (`SessionManager`), `utils/`.
 - `lib/src/features/<feature>/` — feature-first, mỗi feature chia tầng:
   `data/{datasources,dtos,repositories}` → `domain/models` → `presentation/{controllers,screens,widgets}`
   (+ `application/services` khi có nghiệp vụ nhiều bước).
+- `lib/src/shared/` — dùng chung toàn app, **không gắn nghiệp vụ của một feature**:
+  - `widgets/` — UI tái sử dụng: ảnh mạng (`AppNetworkImageWidget`), loading/lỗi/rỗng (`LoadingWidget`,
+    `ErrorRetryWidget`, `EmptyStateWidget`), giá + badge giảm giá (`PriceWidget`, `DiscountBadgeWidget`),
+    card/dòng thông tin (`SectionCardWidget`, `InfoRowWidget`, `SummaryRowWidget`), `OrderStatusPillWidget`,
+    `InitialAvatarWidget`, `FavoriteIconWidget`, `AppTextInputWidget`, các `Skeleton*Widget`.
+  - `utils/` — `format_utils.dart` (`formatVnd`, `formatDateVi`, `formatDateTimeVi`), `order_status_display.dart`.
 - Khu admin: `lib/src/features/admin/{shell,shared,dashboard,orders,…}`; `AdminShell` chọn màn theo `AdminSection`.
 - State: Riverpod 2 `Notifier` + state class immutable có `copyWith`; provider khai báo tập trung ở `core/di/`.
 
@@ -32,10 +38,16 @@ shader `ink_sparkle` và `pub get` sửa lung tung file ios/android.
 
 - Datasource trả JSON thô; DTO parse phòng thủ (field thiếu → mặc định); tiền từ server là **string**
   (`"900000.00"`) → coerce bằng helper (`admin/shared/utils/json_num.dart`).
-- Chuỗi UI tiếng Việt viết trực tiếp; format tiền/ngày dùng helper sẵn có (`admin_format.dart`…).
+- Chuỗi UI tiếng Việt viết trực tiếp.
 - Lỗi 401 ở khu admin → `authViewModelProvider.notifier.logout()` (AppGate tự về màn login).
 - Test: fake repository/service (subclass + override) + `ProviderContainer(overrides: …)`; DTO test bằng
   payload giống server thật. Mỗi thay đổi hành vi đi kèm test.
+- **Trước khi viết UI mới, xem `lib/src/shared/widgets/`** — dùng widget có sẵn (chọn đúng `variant`) thay vì
+  tự viết `Image.network`/spinner/khối lỗi/giá/badge. Thấy cùng một đoạn UI ở ≥ 2 feature → đưa vào `shared/widgets`.
+- Quy ước `shared/widgets`: **mỗi file một public widget**; tên file `<tên>_widget.dart`, tên class `<Tên>Widget`;
+  biến thể khai báo bằng `enum <Tên>Variant` trong cùng file (vd `PriceVariant.card`), không tạo class riêng cho từng
+  biến thể. Widget gắn nghiệp vụ một feature (vd `AdminPagedList`) ở lại trong feature đó.
+- Tiền luôn hiển thị qua `formatVnd` (`120.000 ₫`); ngày qua `formatDateVi`/`formatDateTimeVi` (nhớ `.toLocal()`).
 - Tái dùng widget/helper có sẵn trước khi viết mới; xem feature gần nhất làm mẫu.
 
 ## Quy tắc riêng cho Claude

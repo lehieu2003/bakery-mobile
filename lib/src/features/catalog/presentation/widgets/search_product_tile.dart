@@ -5,6 +5,9 @@ import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/product_detail_screen.dart';
+import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/discount_badge_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/price_widget.dart';
 
 class SearchProductTile extends ConsumerWidget {
   const SearchProductTile({super.key, required this.product});
@@ -26,65 +29,28 @@ class SearchProductTile extends ConsumerWidget {
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              ClipRRect(
+              AppNetworkImageWidget(
+                url: imageUrl,
+                width: 52,
+                height: 52,
                 borderRadius: BorderRadius.circular(10),
-                child: imageUrl.isNotEmpty
-                    ? Image.network(
-                        imageUrl,
-                        width: 52,
-                        height: 52,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
-                            const SizedBox(width: 52, height: 52),
-                      )
-                    : const SizedBox(width: 52, height: 52),
+                backgroundColor: Colors.transparent,
+                emptyIcon: null,
+                errorIcon: null,
               ),
               if (discount != null)
                 Positioned(
                   right: 0,
                   top: -3,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 5,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE46F5B),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      '-$discount%',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
+                  child: DiscountBadgeWidget(percent: discount),
                 ),
             ],
           ),
         ),
         title: Text(product.name),
-        subtitle: Wrap(
-          spacing: 8,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            Text(
-              '${product.price.toStringAsFixed(0)} VND',
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-            if (product.hasDiscount)
-              Text(
-                '${product.comparePrice!.toStringAsFixed(0)} VND',
-                style: TextStyle(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.44),
-                  decoration: TextDecoration.lineThrough,
-                ),
-              ),
-          ],
+        subtitle: PriceWidget(
+          price: product.price,
+          comparePrice: product.hasDiscount ? product.comparePrice : null,
         ),
         trailing: IconButton(
           icon: const Icon(Icons.add_shopping_cart),

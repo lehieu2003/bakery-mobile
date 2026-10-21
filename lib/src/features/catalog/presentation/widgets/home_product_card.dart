@@ -8,6 +8,10 @@ import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/product_detail_screen.dart';
+import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/discount_badge_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/price_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/favorite_icon_widget.dart';
 
 class HomeProductCard extends ConsumerStatefulWidget {
   const HomeProductCard({super.key, required this.product});
@@ -132,17 +136,12 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                                 setState(() => _activeIndex = index),
                             itemBuilder: (context, index) {
                               final imageUrl = images[index];
-                              if (imageUrl.isEmpty) {
-                                return const ColoredBox(
-                                  color: Color(0xFFD8D8D8),
-                                );
-                              }
-                              return Image.network(
-                                imageUrl,
+                              return AppNetworkImageWidget(
+                                url: imageUrl,
                                 width: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) =>
-                                    const ColoredBox(color: Color(0xFFD8D8D8)),
+                                backgroundColor: const Color(0xFFD8D8D8),
+                                emptyIcon: null,
+                                errorIcon: null,
                               );
                             },
                           ),
@@ -151,30 +150,9 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                           Positioned(
                             right: 8,
                             top: 8,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFE46F5B),
-                                borderRadius: BorderRadius.circular(999),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.10),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Text(
-                                '-$discount%',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
+                            child: DiscountBadgeWidget(
+                              percent: discount,
+                              variant: DiscountBadgeVariant.medium,
                             ),
                           ),
                         if (images.length > 1)
@@ -214,22 +192,14 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                               child: SizedBox(
                                 width: 32,
                                 height: 32,
-                                child: isPendingFavorite
-                                    ? const Padding(
-                                        padding: EdgeInsets.all(7),
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                        ),
-                                      )
-                                    : Icon(
-                                        isFavorite
-                                            ? Icons.favorite
-                                            : Icons.favorite_border,
-                                        size: 18,
-                                        color: isFavorite
-                                            ? Colors.redAccent
-                                            : const Color(0xFF555555),
-                                      ),
+                                child: Center(
+                                  child: FavoriteIconWidget(
+                                    isFavorite: isFavorite,
+                                    isPending: isPendingFavorite,
+                                    size: 18,
+                                    outlineColor: const Color(0xFF555555),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -259,35 +229,14 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Flexible(
-                              child: Text(
-                                '${product.price.toStringAsFixed(0)} VND',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppTheme.warmBrown,
-                                ),
+                              child: PriceWidget(
+                                price: product.price,
+                                comparePrice: product.hasDiscount
+                                    ? product.comparePrice
+                                    : null,
+                                variant: PriceVariant.card,
                               ),
                             ),
-                            if (product.hasDiscount) ...[
-                              const SizedBox(width: 6),
-                              Flexible(
-                                child: Text(
-                                  product.comparePrice!.toStringAsFixed(0),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppTheme.inkBrown.withValues(
-                                      alpha: 0.46,
-                                    ),
-                                    decoration: TextDecoration.lineThrough,
-                                  ),
-                                ),
-                              ),
-                            ],
                           ],
                         ),
                       ],
