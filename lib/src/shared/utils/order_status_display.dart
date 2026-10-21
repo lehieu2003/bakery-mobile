@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Vietnamese labels for order status codes; unknown codes fall back to the
-/// raw code via [orderStatusLabel].
+/// Vietnamese labels for order status codes (matched case-insensitively);
+/// unknown codes fall back to the raw code via [orderStatusLabel].
 const Map<String, String> _orderStatusLabelMap = {
   'PENDING': 'Chờ xác nhận',
   'CONFIRMED': 'Đã xác nhận',
@@ -37,12 +37,12 @@ const Color _fallbackTextColor = Color(0xFF4B5563);
 /// Human-readable Vietnamese label for an order [status] code; unknown codes
 /// are returned unchanged.
 String orderStatusLabel(String status) =>
-    _orderStatusLabelMap[status] ?? status;
+    _orderStatusLabelMap[status.trim().toUpperCase()] ?? status;
 
 /// Pill background color for an order [status] code.
 Color orderStatusColor(String status) =>
-    _orderStatusColorMap[status] ?? _fallbackColor;
+    _orderStatusColorMap[status.trim().toUpperCase()] ?? _fallbackColor;
 
 /// Pill text color for an order [status] code.
 Color orderStatusTextColor(String status) =>
-    _orderStatusTextColorMap[status] ?? _fallbackTextColor;
+    _orderStatusTextColorMap[status.trim().toUpperCase()] ?? _fallbackTextColor;

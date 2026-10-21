@@ -10,7 +10,9 @@
 // requests one page.
 import 'package:flutter/material.dart';
 
-import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/empty_state_widget.dart';
 
 /// Một lựa chọn lọc cho hàng chip: [value] null là chip 'Tất cả'.
 class AdminFilterChip {
@@ -113,34 +115,13 @@ class AdminPagedList<T> extends StatelessWidget {
 
   Widget _buildBody(BuildContext context) {
     if (isLoading && items.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const LoadingWidget();
     }
     if (error != null && items.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                error!,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextButton(onPressed: onRetry, child: const Text('Thử lại')),
-          ],
-        ),
-      );
+      return ErrorRetryWidget(message: error!, onRetry: onRetry);
     }
     if (items.isEmpty) {
-      return Center(
-        child: Text(
-          emptyText,
-          style: const TextStyle(color: AppTheme.warmBrown),
-        ),
-      );
+      return EmptyStateWidget(message: emptyText);
     }
     return _AdminPagedListBody<T>(
       items: items,
@@ -312,30 +293,16 @@ class _AdminPagedListBodyState<T> extends State<_AdminPagedListBody<T>> {
 
   Widget _buildFooter(BuildContext context) {
     if (widget.isLoadingMore) {
-      return const Padding(
+      return const LoadingWidget(
+        size: 24,
         padding: EdgeInsets.symmetric(vertical: 16),
-        child: Center(
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: CircularProgressIndicator(strokeWidth: 2.5),
-          ),
-        ),
       );
     }
     if (widget.error != null) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          children: [
-            Text(
-              widget.error!,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-            TextButton(onPressed: widget.onRetry, child: const Text('Thử lại')),
-          ],
-        ),
+      return ErrorRetryWidget(
+        message: widget.error!,
+        onRetry: widget.onRetry,
+        compact: true,
       );
     }
     return const SizedBox.shrink();

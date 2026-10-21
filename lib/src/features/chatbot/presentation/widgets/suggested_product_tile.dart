@@ -5,6 +5,9 @@ import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/product_detail_screen.dart';
+import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/discount_badge_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/price_widget.dart';
 
 class SuggestedProductTile extends ConsumerWidget {
   const SuggestedProductTile({super.key, required this.product});
@@ -53,46 +56,19 @@ class SuggestedProductTile extends ConsumerWidget {
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    ClipRRect(
+                    AppNetworkImageWidget(
+                      url: imageUrl,
+                      width: 56,
+                      height: 56,
                       borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        width: 56,
-                        height: 56,
-                        color: scheme.surfaceContainerHighest,
-                        child: imageUrl.isEmpty
-                            ? const Icon(Icons.image_outlined, size: 20)
-                            : Image.network(
-                                imageUrl,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => const Icon(
-                                  Icons.broken_image_outlined,
-                                  size: 20,
-                                ),
-                              ),
-                      ),
+                      backgroundColor: scheme.surfaceContainerHighest,
+                      iconSize: 20,
                     ),
                     if (discount != null)
                       Positioned(
                         right: 0,
                         top: -3,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE46F5B),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            '-$discount%',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
+                        child: DiscountBadgeWidget(percent: discount),
                       ),
                   ],
                 ),
@@ -112,45 +88,14 @@ class SuggestedProductTile extends ConsumerWidget {
                     Row(
                       children: [
                         Flexible(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: scheme.primaryContainer.withValues(
-                                alpha: 0.8,
-                              ),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Text(
-                              '${product.price.toStringAsFixed(0)} VND',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: scheme.primary,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12,
-                              ),
-                            ),
+                          child: PriceWidget(
+                            price: product.price,
+                            comparePrice: product.hasDiscount
+                                ? product.comparePrice
+                                : null,
+                            variant: PriceVariant.chip,
                           ),
                         ),
-                        if (product.hasDiscount) ...[
-                          const SizedBox(width: 6),
-                          Flexible(
-                            child: Text(
-                              product.comparePrice!.toStringAsFixed(0),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: scheme.onSurface.withValues(alpha: 0.42),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                decoration: TextDecoration.lineThrough,
-                              ),
-                            ),
-                          ),
-                        ],
                         const SizedBox(width: 6),
                         if (outOfStock)
                           Text(

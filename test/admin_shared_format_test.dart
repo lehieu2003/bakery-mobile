@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:bakery_mobile/src/features/admin/shared/domain/order_status_display.dart';
-import 'package:bakery_mobile/src/features/admin/shared/presentation/widgets/status_pill.dart';
-import 'package:bakery_mobile/src/features/admin/shared/utils/admin_format.dart';
+import 'package:bakery_mobile/src/shared/utils/order_status_display.dart';
+import 'package:bakery_mobile/src/shared/widgets/order_status_pill_widget.dart';
+import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 
 void main() {
   group('formatVnd', () {
@@ -26,8 +26,10 @@ void main() {
 
     test('formatDateTimeVi renders dd/MM/yyyy HH:mm', () {
       // formatDateTimeVi(DateTime(2026, 10, 7, 14, 30)) == '07/10/2026 14:30'
-      expect(formatDateTimeVi(DateTime(2026, 10, 7, 14, 30)),
-          '07/10/2026 14:30');
+      expect(
+        formatDateTimeVi(DateTime(2026, 10, 7, 14, 30)),
+        '07/10/2026 14:30',
+      );
     });
   });
 
@@ -59,12 +61,14 @@ void main() {
     });
   });
 
-  testWidgets('StatusPill renders the localized status label', (tester) async {
-    // pump MaterialApp(home: Scaffold(body: StatusPill(status: 'PENDING')))
+  testWidgets('OrderStatusPillWidget renders the localized status label', (
+    tester,
+  ) async {
+    // pump MaterialApp(home: Scaffold(body: OrderStatusPillWidget(status: 'PENDING')))
     //   → find.text('Chờ xác nhận')
     await tester.pumpWidget(
       const MaterialApp(
-        home: Scaffold(body: StatusPill(status: 'PENDING')),
+        home: Scaffold(body: OrderStatusPillWidget(status: 'PENDING')),
       ),
     );
 

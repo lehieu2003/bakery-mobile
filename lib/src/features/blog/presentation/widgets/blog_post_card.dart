@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/blog/domain/models/blog.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/screens/blog_detail_screen.dart';
+import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 
 class BlogPostCard extends StatelessWidget {
   const BlogPostCard({super.key, required this.post});
@@ -25,21 +26,7 @@ class BlogPostCard extends StatelessWidget {
           children: [
             AspectRatio(
               aspectRatio: 16 / 9,
-              child: imageUrl.isEmpty
-                  ? Container(
-                      color: scheme.surfaceContainerHigh,
-                      alignment: Alignment.center,
-                      child: const Icon(Icons.image_outlined, size: 30),
-                    )
-                  : Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: scheme.surfaceContainerHigh,
-                        alignment: Alignment.center,
-                        child: const Icon(Icons.broken_image_outlined, size: 30),
-                      ),
-                    ),
+              child: AppNetworkImageWidget(url: imageUrl, iconSize: 30),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),

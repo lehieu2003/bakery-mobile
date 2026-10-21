@@ -5,8 +5,8 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import 'package:bakery_mobile/src/features/admin/orders/domain/models/admin_order.dart';
-import 'package:bakery_mobile/src/features/admin/shared/domain/order_status_display.dart';
-import 'package:bakery_mobile/src/features/admin/shared/utils/admin_format.dart';
+import 'package:bakery_mobile/src/shared/utils/order_status_display.dart';
+import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 
 const _regularFont = 'assets/fonts/BeVietnamPro-Regular.ttf';
 const _boldFont = 'assets/fonts/BeVietnamPro-Bold.ttf';

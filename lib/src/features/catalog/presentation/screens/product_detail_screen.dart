@@ -7,10 +7,17 @@ import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
-import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_product_detail_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_product_rail_widget.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_product_card.dart';
 import 'package:bakery_mobile/src/features/reviews/presentation/widgets/product_reviews_section.dart';
+import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/discount_badge_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/price_widget.dart';
+import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
+import 'package:bakery_mobile/src/shared/widgets/summary_row_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/favorite_icon_widget.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
   const ProductDetailScreen({super.key, required this.productIdOrSlug});
@@ -76,9 +83,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             : null;
         _activeImageIndex = 0;
       });
-      unawaited(
-        ref.read(reviewsViewModelProvider(product.id).notifier).load(),
-      );
+      unawaited(ref.read(reviewsViewModelProvider(product.id).notifier).load());
       unawaited(_loadRelatedProducts(product));
     } catch (error) {
       if (!mounted) return;
@@ -122,7 +127,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     final wishlistNotifier = ref.read(wishlistViewModelProvider.notifier);
 
     if (_isLoading) {
-      return const SkeletonProductDetail();
+      return const SkeletonProductDetailWidget();
     }
 
     if (_error != null) {
@@ -165,16 +170,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 onPressed: isPendingFavorite
                     ? null
                     : () => wishlistNotifier.toggle(product),
-                icon: isPendingFavorite
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Icon(
-                        isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: isFavorite ? Colors.redAccent : null,
-                      ),
+                icon: FavoriteIconWidget(
+                  isFavorite: isFavorite,
+                  isPending: isPendingFavorite,
+                ),
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
@@ -192,17 +191,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         images: images,
                         initialIndex: index,
                       ),
-                      child: Image.network(
-                        images[index],
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          color: const Color(0xFFE9D7C3),
-                          alignment: Alignment.center,
-                          child: const Icon(
-                            Icons.broken_image_outlined,
-                            size: 40,
-                          ),
-                        ),
+                      child: AppNetworkImageWidget(
+                        url: images[index],
+                        backgroundColor: const Color(0xFFE9D7C3),
+                        iconSize: 40,
                       ),
                     ),
                   ),
@@ -211,29 +203,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     left: 16,
                     child: detailDiscount == null
                         ? const SizedBox.shrink()
-                        : Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 7,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE46F5B),
-                              borderRadius: BorderRadius.circular(999),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.14),
-                                  blurRadius: 14,
-                                  offset: const Offset(0, 5),
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              '-$detailDiscount%',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
+                        : DiscountBadgeWidget(
+                            percent: detailDiscount,
+                            variant: DiscountBadgeVariant.large,
                           ),
                   ),
                   Positioned(
@@ -279,32 +251,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   Row(
                     children: [
                       Flexible(
-                        child: Wrap(
-                          spacing: 10,
-                          runSpacing: 2,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            Text(
-                              '${currentPrice.toStringAsFixed(0)} VND',
-                              style: Theme.of(context).textTheme.titleLarge
-                                  ?.copyWith(
-                                    color: AppTheme.warmBrown,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                            ),
-                            if (detailDiscount != null)
-                              Text(
-                                '${originalPrice!.toStringAsFixed(0)} VND',
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(
-                                      color: AppTheme.inkBrown.withValues(
-                                        alpha: 0.46,
-                                      ),
-                                      fontWeight: FontWeight.w600,
-                                      decoration: TextDecoration.lineThrough,
-                                    ),
-                              ),
-                          ],
+                        child: PriceWidget(
+                          price: currentPrice,
+                          comparePrice: detailDiscount != null
+                              ? originalPrice
+                              : null,
+                          variant: PriceVariant.detail,
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -365,7 +317,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           .map(
                             (variant) => ChoiceChip(
                               label: Text(
-                                '${variant.name} - ${variant.price.toStringAsFixed(0)} VND',
+                                '${variant.name} - ${formatVnd(variant.price)}',
                               ),
                               selected: _selectedVariant?.id == variant.id,
                               onSelected: (_) =>
@@ -385,20 +337,30 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     child: Column(
                       children: [
                         if (detailDiscount != null) ...[
-                          _InfoRow(
+                          SummaryRowWidget(
+                            variant: SummaryRowVariant.emphasis,
                             label: 'Giá trước ưu đãi',
-                            value: '${originalPrice!.toStringAsFixed(0)} VND',
+                            value: formatVnd(originalPrice!),
                           ),
                           const SizedBox(height: 8),
-                          _InfoRow(label: 'Ưu đãi', value: '-$detailDiscount%'),
+                          SummaryRowWidget(
+                            variant: SummaryRowVariant.emphasis,
+                            label: 'Ưu đãi',
+                            value: '-$detailDiscount%',
+                          ),
                           const SizedBox(height: 8),
                         ],
-                        _InfoRow(
+                        SummaryRowWidget(
+                          variant: SummaryRowVariant.emphasis,
                           label: 'Giá đang chọn',
-                          value: '${currentPrice.toStringAsFixed(0)} VND',
+                          value: formatVnd(currentPrice),
                         ),
                         const SizedBox(height: 8),
-                        _InfoRow(label: 'Mã sản phẩm', value: product.id),
+                        SummaryRowWidget(
+                          variant: SummaryRowVariant.emphasis,
+                          label: 'Mã sản phẩm',
+                          value: product.id,
+                        ),
                       ],
                     ),
                   ),
@@ -421,7 +383,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    const SkeletonProductRail(),
+                    const SkeletonProductRailWidget(),
                   ] else if (_relatedProducts.isNotEmpty) ...[
                     const SizedBox(height: 18),
                     Text(
@@ -481,7 +443,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     Text(
-                      '${currentPrice.toStringAsFixed(0)} VND',
+                      formatVnd(currentPrice),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
@@ -568,14 +530,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         child: InteractiveViewer(
                           minScale: 1,
                           maxScale: 4,
-                          child: Image.network(
-                            images[index],
+                          child: AppNetworkImageWidget(
+                            url: images[index],
                             fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => const Icon(
-                              Icons.broken_image_outlined,
-                              size: 42,
-                              color: Colors.white,
-                            ),
+                            backgroundColor: Colors.transparent,
+                            iconSize: 42,
+                            iconColor: Colors.white,
                           ),
                         ),
                       ),
@@ -613,33 +573,5 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     );
 
     controller.dispose();
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(label, style: Theme.of(context).textTheme.bodyMedium),
-        ),
-        const SizedBox(width: 10),
-        Flexible(
-          child: Text(
-            value,
-            textAlign: TextAlign.end,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
-          ),
-        ),
-      ],
-    );
   }
 }

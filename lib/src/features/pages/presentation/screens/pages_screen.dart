@@ -5,6 +5,7 @@ import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/features/pages/domain/models/app_page.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/screens/page_detail_screen.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/states/static_page_fallbacks.dart';
+import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
 
 class PagesScreen extends ConsumerStatefulWidget {
   const PagesScreen({super.key});
@@ -41,7 +42,9 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
           slug: page.slug,
         ),
       ),
-      ...dynamicPages.where((page) => !staticPageFallbacks.containsKey(page.slug)),
+      ...dynamicPages.where(
+        (page) => !staticPageFallbacks.containsKey(page.slug),
+      ),
     ];
 
     return Scaffold(
@@ -78,7 +81,7 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
             if (vm.isLoading)
               const Padding(
                 padding: EdgeInsets.all(24),
-                child: Center(child: CircularProgressIndicator()),
+                child: LoadingWidget(),
               ),
             if (vm.error != null)
               Padding(
@@ -114,8 +117,13 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
                       children: [
                         CircleAvatar(
                           radius: 20,
-                          backgroundColor: scheme.primary.withValues(alpha: 0.12),
-                          child: Icon(_pageIcon(page.slug), color: scheme.primary),
+                          backgroundColor: scheme.primary.withValues(
+                            alpha: 0.12,
+                          ),
+                          child: Icon(
+                            _pageIcon(page.slug),
+                            color: scheme.primary,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(

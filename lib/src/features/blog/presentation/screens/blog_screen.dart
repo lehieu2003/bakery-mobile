@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
-import 'package:bakery_mobile/src/core/widgets/app_text_input.dart';
-import 'package:bakery_mobile/src/core/widgets/skeleton_widgets.dart';
+import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/skeleton_blog_card_widget.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/widgets/blog_post_card.dart';
+import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
 
 class BlogScreen extends ConsumerWidget {
   const BlogScreen({super.key});
@@ -61,7 +62,7 @@ class _BlogViewState extends ConsumerState<_BlogView> {
           controller: _scrollController,
           padding: const EdgeInsets.all(16),
           children: [
-            AppTextInput(
+            AppTextInputWidget(
               textInputAction: TextInputAction.search,
               hintText: 'Search blog posts...',
               prefixIcon: const Icon(Icons.search),
@@ -129,11 +130,11 @@ class _BlogViewState extends ConsumerState<_BlogView> {
             ),
             const SizedBox(height: 16),
             if (vm.isLoading && vm.posts.isEmpty) ...[
-              const SkeletonBlogCard(),
+              const SkeletonBlogCardWidget(),
               const SizedBox(height: 12),
-              const SkeletonBlogCard(),
+              const SkeletonBlogCardWidget(),
               const SizedBox(height: 12),
-              const SkeletonBlogCard(),
+              const SkeletonBlogCardWidget(),
             ],
             if (vm.error != null)
               Padding(
@@ -157,7 +158,7 @@ class _BlogViewState extends ConsumerState<_BlogView> {
             if (vm.isLoadingMore)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 14),
-                child: Center(child: CircularProgressIndicator()),
+                child: LoadingWidget(),
               ),
             if (!vm.isLoading && !vm.isLoadingMore && vm.hasMore)
               Padding(

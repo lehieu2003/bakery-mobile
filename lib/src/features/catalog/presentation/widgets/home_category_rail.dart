@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
-import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
+import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 
 class HomeCategoryRail extends StatelessWidget {
   const HomeCategoryRail({
@@ -125,21 +125,14 @@ class _CategoryCapsule extends StatelessWidget {
                   ],
                 ),
                 clipBehavior: Clip.antiAlias,
-                child: resolveImageUrl(imageUrl).isNotEmpty
-                    ? Image.network(
-                        resolveImageUrl(imageUrl),
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const Icon(
-                          Icons.bakery_dining_outlined,
-                          color: AppTheme.warmBrown,
-                          size: 24,
-                        ),
-                      )
-                    : const Icon(
-                        Icons.bakery_dining_outlined,
-                        color: AppTheme.warmBrown,
-                        size: 24,
-                      ),
+                child: AppNetworkImageWidget(
+                  url: imageUrl,
+                  backgroundColor: Colors.transparent,
+                  emptyIcon: Icons.bakery_dining_outlined,
+                  errorIcon: Icons.bakery_dining_outlined,
+                  iconSize: 24,
+                  iconColor: AppTheme.warmBrown,
+                ),
               ),
               const SizedBox(height: 7),
               Text(
