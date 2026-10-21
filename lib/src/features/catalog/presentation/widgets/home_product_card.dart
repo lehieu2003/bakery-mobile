@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
@@ -14,6 +15,7 @@ import 'package:bakery_mobile/src/shared/widgets/price_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/favorite_icon_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Outlined heart over product photos.
 const Color _favoriteOutline = Color(0xFF555555);
@@ -168,8 +170,8 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                             top: discount == null ? 8 : 40,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
+                                horizontal: AppSpacing.sm,
+                                vertical: AppSpacing.xxs,
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.black.withValues(alpha: 0.45),
@@ -220,7 +222,12 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                   ),
                   Container(
                     color: AppTheme.surfaceCream,
-                    padding: const EdgeInsets.fromLTRB(12, 10, 44, 12),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      AppSpacing.md,
+                      AppSpacing.x5l,
+                      AppSpacing.md,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -235,7 +242,7 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                             color: AppTheme.inkBrown,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const Gap(AppSpacing.xs),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [

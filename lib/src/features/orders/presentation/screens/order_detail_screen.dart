@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/core/network/api_exception.dart';
@@ -14,6 +15,7 @@ import 'package:bakery_mobile/src/shared/widgets/section_card_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/info_row_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/summary_row_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class OrderDetailScreen extends ConsumerStatefulWidget {
   const OrderDetailScreen({super.key, required this.orderNumber});
@@ -118,17 +120,17 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     return RefreshIndicator(
       onRefresh: _loadOrder,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
           _OrderHeaderCard(order: _order!),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
           _OrderItemsCard(items: _order!.orderItems),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
           _OrderSummaryCard(order: _order!),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
           _OrderPaymentCard(order: _order!),
           if (_hasPickupInfo) ...[
-            const SizedBox(height: 12),
+            const Gap(AppSpacing.md),
             _OrderPickupCard(order: _order!),
           ],
         ],
@@ -150,7 +152,7 @@ class _OrderHeaderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -169,7 +171,7 @@ class _OrderHeaderCard extends StatelessWidget {
                 OrderStatusPillWidget(status: order.status),
               ],
             ),
-            const SizedBox(height: 6),
+            const Gap(AppSpacing.sm),
             Text(
               'Ngày đặt: ${_formatDate(order.createdAt)}',
               style: Theme.of(context).textTheme.bodySmall,
@@ -190,7 +192,7 @@ class _OrderItemsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -200,10 +202,10 @@ class _OrderItemsCard extends StatelessWidget {
                 context,
               ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 10),
+            const Gap(AppSpacing.md),
             ...items.map(
               (item) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
                 child: _OrderItemRow(item: item),
               ),
             ),
@@ -239,7 +241,7 @@ class _OrderItemRow extends StatelessWidget {
           iconSize: 26,
           iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
-        const SizedBox(width: 12),
+        const Gap(AppSpacing.md),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,7 +252,7 @@ class _OrderItemRow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 2),
+              const Gap(AppSpacing.xxs),
               Text(
                 '${item.quantity} x ${_formatMoney(item.price)}',
                 style: Theme.of(context).textTheme.bodySmall,
@@ -258,7 +260,7 @@ class _OrderItemRow extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 10),
+        const Gap(AppSpacing.md),
         Text(
           _formatMoney(item.lineTotal),
           style: Theme.of(

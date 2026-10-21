@@ -11,6 +11,7 @@ import 'package:bakery_mobile/src/shared/widgets/price_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/favorite_icon_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class WishlistScreen extends ConsumerStatefulWidget {
   const WishlistScreen({super.key});
@@ -41,7 +42,10 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
           children: [
             if (vm.isLoading && vm.items.isEmpty)
               const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.sm,
+                ),
                 child: Column(
                   children: [
                     SkeletonTileWidget(),
@@ -53,7 +57,7 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
               ),
             if (vm.error != null)
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.lg),
                 child: Text(
                   vm.error!,
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -61,7 +65,7 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
               ),
             if (!vm.isLoading && vm.items.isEmpty)
               const Padding(
-                padding: EdgeInsets.all(24),
+                padding: EdgeInsets.all(AppSpacing.xxl),
                 child: Center(child: Text('No favorite products yet.')),
               ),
             ...vm.items.map((item) {
@@ -78,8 +82,8 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
 
               return ListTile(
                 contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 4,
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.xs,
                 ),
                 leading: SizedBox(
                   width: 54,

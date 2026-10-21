@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Card grouping one section of a detail screen: optional bold [title]
-/// above [child], with the app's standard 14px padding.
+/// above [child], with the app's standard [AppSpacing.lg] padding.
 class SectionCardWidget extends StatelessWidget {
   const SectionCardWidget({
     super.key,
@@ -24,7 +26,7 @@ class SectionCardWidget extends StatelessWidget {
     return Card(
       margin: margin,
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -36,7 +38,7 @@ class SectionCardWidget extends StatelessWidget {
                   color: AppTheme.inkBrown,
                 ),
               ),
-              const SizedBox(height: 8),
+              const Gap(AppSpacing.sm),
             ],
             child,
           ],

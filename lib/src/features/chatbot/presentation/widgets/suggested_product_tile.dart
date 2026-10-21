@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
@@ -9,6 +10,7 @@ import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/discount_badge_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/price_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class SuggestedProductTile extends ConsumerWidget {
   const SuggestedProductTile({super.key, required this.product});
@@ -24,7 +26,7 @@ class SuggestedProductTile extends ConsumerWidget {
     final discount = product.discountPercent;
 
     return Container(
-      margin: const EdgeInsets.only(top: 8),
+      margin: const EdgeInsets.only(top: AppSpacing.sm),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -48,7 +50,7 @@ class SuggestedProductTile extends ConsumerWidget {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(AppSpacing.md),
           child: Row(
             children: [
               SizedBox(
@@ -74,7 +76,7 @@ class SuggestedProductTile extends ConsumerWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
+              const Gap(AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +87,7 @@ class SuggestedProductTile extends ConsumerWidget {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
-                    const SizedBox(height: 6),
+                    const Gap(AppSpacing.sm),
                     Row(
                       children: [
                         Flexible(
@@ -97,7 +99,7 @@ class SuggestedProductTile extends ConsumerWidget {
                             variant: PriceVariant.chip,
                           ),
                         ),
-                        const SizedBox(width: 6),
+                        const Gap(AppSpacing.sm),
                         if (outOfStock)
                           Text(
                             'Hết hàng',
@@ -112,12 +114,12 @@ class SuggestedProductTile extends ConsumerWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              const Gap(AppSpacing.sm),
               FilledButton.tonalIcon(
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 10,
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.md,
                   ),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   minimumSize: const Size(0, 36),

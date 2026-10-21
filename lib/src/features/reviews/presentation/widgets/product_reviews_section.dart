@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/features/auth/presentation/screens/auth_screen.dart';
 import 'package:bakery_mobile/src/features/reviews/domain/models/product_review.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Mirrors MAX_COMMENT_LENGTH in bakery-web app/api/products/[id]/reviews.
 const int _maxCommentLength = 2000;
@@ -47,11 +49,11 @@ class ProductReviewsSection extends ConsumerWidget {
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
         ),
-        const SizedBox(height: 8),
+        const Gap(AppSpacing.sm),
         Row(
           children: [
             _StarDisplay(rating: average == null ? 0 : average.round()),
-            const SizedBox(width: 8),
+            const Gap(AppSpacing.sm),
             Flexible(
               child: Text(
                 hasReviews && average != null
@@ -74,15 +76,15 @@ class ProductReviewsSection extends ConsumerWidget {
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        const Gap(AppSpacing.xs),
         if (vm.isLoading && vm.reviews.isEmpty)
           const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
+            padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
             child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
           )
         else if (vm.error != null)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
             child: Text(
               vm.error!,
               style: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -90,7 +92,7 @@ class ProductReviewsSection extends ConsumerWidget {
           )
         else if (vm.reviews.isEmpty)
           const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
+            padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
             child: Center(child: Text('Chưa có đánh giá nào.')),
           )
         else
@@ -133,7 +135,7 @@ class _ReviewTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -158,10 +160,10 @@ class _ReviewTile extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 2),
+          const Gap(AppSpacing.xxs),
           _StarDisplay(rating: review.rating, size: 16),
           if (review.comment != null && review.comment!.isNotEmpty) ...[
-            const SizedBox(height: 4),
+            const Gap(AppSpacing.xs),
             Text(
               review.comment!,
               style: Theme.of(
@@ -240,10 +242,10 @@ class _ReviewFormSheetState extends ConsumerState<_ReviewFormSheet> {
 
     return Padding(
       padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom: bottomInset + 16,
+        left: AppSpacing.lg,
+        right: AppSpacing.lg,
+        top: AppSpacing.lg,
+        bottom: bottomInset + AppSpacing.lg,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -255,7 +257,7 @@ class _ReviewFormSheetState extends ConsumerState<_ReviewFormSheet> {
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(5, (index) {
@@ -270,7 +272,7 @@ class _ReviewFormSheetState extends ConsumerState<_ReviewFormSheet> {
               );
             }),
           ),
-          const SizedBox(height: 8),
+          const Gap(AppSpacing.sm),
           TextField(
             controller: _commentController,
             maxLines: 4,
@@ -282,13 +284,13 @@ class _ReviewFormSheetState extends ConsumerState<_ReviewFormSheet> {
             ),
           ),
           if (vm.submitError != null) ...[
-            const SizedBox(height: 8),
+            const Gap(AppSpacing.sm),
             Text(
               vm.submitError!,
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ],
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
           SizedBox(
             width: double.infinity,
             child: FilledButton(

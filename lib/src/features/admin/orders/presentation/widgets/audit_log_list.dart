@@ -4,6 +4,7 @@ import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/admin/orders/domain/models/order_audit.dart';
 import 'package:bakery_mobile/src/shared/utils/order_status_display.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 const Map<String, String> _mutationLabels = {
   'STATUS_UPDATE': 'Cập nhật trạng thái',
@@ -25,7 +26,7 @@ class AuditLogList extends StatelessWidget {
   Widget build(BuildContext context) {
     if (logs.isEmpty) {
       return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 8),
+        padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
         child: Text(
           'Chưa có nhật ký',
           style: TextStyle(color: AppTheme.warmBrown),
@@ -69,12 +70,12 @@ class _AuditLogTile extends StatelessWidget {
     final note = _note;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Padding(
-            padding: EdgeInsets.only(top: 4, right: 10),
+            padding: EdgeInsets.only(top: AppSpacing.xs, right: AppSpacing.md),
             child: Icon(Icons.circle, size: 8, color: AppTheme.primaryPink),
           ),
           Expanded(

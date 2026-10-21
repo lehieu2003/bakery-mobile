@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
@@ -17,6 +18,7 @@ import 'package:bakery_mobile/src/shared/widgets/order_status_pill_widget.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 import 'package:bakery_mobile/src/shared/widgets/initial_avatar_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Trailing characters of the order number shown in its round badge.
 const int _orderBadgeChars = 3;
@@ -71,7 +73,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
           _ProfileHeaderCard(
             name: user.name,
@@ -87,7 +89,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             isSaving: auth.isSubmitting,
             onEdit: () => _openEditProfile(user),
           ),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
           _QuickActionsCard(
             unreadNotifications: notifications.unreadCount,
             onOpenNotifications: () {
@@ -111,7 +113,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ).push(MaterialPageRoute(builder: (_) => const PagesScreen()));
             },
           ),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
           // "Sổ địa chỉ" — only reachable while signed in, same guard as the
           // order history section below (the body early-returns for guests).
           Card(
@@ -127,7 +129,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               hideDivider: true,
             ),
           ),
-          const SizedBox(height: 16),
+          const Gap(AppSpacing.lg),
           _OrdersHeader(
             onRefresh: orders.isLoading
                 ? null
@@ -135,9 +137,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           if (orders.isLoadingOrders && orders.orders.isEmpty) ...[
             const SkeletonOrderCardWidget(),
-            const SizedBox(height: 10),
+            const Gap(AppSpacing.md),
             const SkeletonOrderCardWidget(),
-            const SizedBox(height: 10),
+            const Gap(AppSpacing.md),
           ],
           if (orders.errorMessage != null)
             Text(
@@ -146,9 +148,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
           if (!orders.isLoading && orders.orders.isEmpty)
             Padding(
-              padding: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.only(top: AppSpacing.md),
               child: Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.lg),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceContainerLowest,
                   borderRadius: BorderRadius.circular(AppRadius.md),
@@ -156,12 +158,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 child: Column(
                   children: [
                     const Text('No orders yet'),
-                    const SizedBox(height: 4),
+                    const Gap(AppSpacing.xs),
                     Text(
                       'Start shopping to see your order history.',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
-                    const SizedBox(height: 8),
+                    const Gap(AppSpacing.sm),
                     OutlinedButton(
                       onPressed: () => ref
                           .read(ordersViewModelProvider.notifier)
@@ -174,7 +176,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
           ...orders.orders.map(
             (order) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.only(bottom: AppSpacing.md),
               child: _OrderCard(
                 order: order,
                 pointsEarned: membership.benefits?.pointsFor(order.total),
@@ -206,10 +208,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       builder: (sheetContext) {
         return Padding(
           padding: EdgeInsets.fromLTRB(
-            16,
-            16,
-            16,
-            MediaQuery.viewInsetsOf(sheetContext).bottom + 16,
+            AppSpacing.lg,
+            AppSpacing.lg,
+            AppSpacing.lg,
+            MediaQuery.viewInsetsOf(sheetContext).bottom + AppSpacing.lg,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -221,21 +223,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   sheetContext,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: 14),
+              const Gap(AppSpacing.lg),
               AppTextInputWidget(
                 controller: nameCtrl,
                 labelText: 'Name',
                 textInputAction: TextInputAction.next,
                 prefixIcon: const Icon(Icons.person_outline),
               ),
-              const SizedBox(height: 12),
+              const Gap(AppSpacing.md),
               AppTextInputWidget(
                 controller: phoneCtrl,
                 labelText: 'Phone',
                 keyboardType: TextInputType.phone,
                 prefixIcon: const Icon(Icons.phone_outlined),
               ),
-              const SizedBox(height: 16),
+              const Gap(AppSpacing.lg),
               FilledButton(
                 onPressed: () async {
                   final ok = await ref
@@ -308,7 +310,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       builder: (context) {
         return ListView(
           shrinkWrap: true,
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            0,
+            AppSpacing.lg,
+            AppSpacing.xl,
+          ),
           children: [
             Text(
               'Items needing attention',
@@ -316,7 +323,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 10),
+            const Gap(AppSpacing.md),
             ...items.map(
               (item) => ListTile(
                 contentPadding: EdgeInsets.zero,
@@ -377,7 +384,7 @@ class _ProfileHeaderCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           children: [
             Row(
@@ -392,7 +399,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                     context,
                   ).colorScheme.onPrimaryContainer,
                 ),
-                const SizedBox(width: 12),
+                const Gap(AppSpacing.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -402,13 +409,13 @@ class _ProfileHeaderCard extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
-                      const SizedBox(height: 2),
+                      const Gap(AppSpacing.xxs),
                       Text(
                         email,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       if (phone?.trim().isNotEmpty ?? false) ...[
-                        const SizedBox(height: 2),
+                        const Gap(AppSpacing.xxs),
                         Text(
                           phone!.trim(),
                           style: Theme.of(context).textTheme.bodySmall,
@@ -430,7 +437,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const Gap(AppSpacing.md),
             Row(
               children: [
                 Expanded(
@@ -440,7 +447,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                     value: tierLabel,
                   ),
                 ),
-                const SizedBox(width: 10),
+                const Gap(AppSpacing.md),
                 Expanded(
                   child: _ProfileStatChip(
                     icon: Icons.stars_outlined,
@@ -451,10 +458,10 @@ class _ProfileHeaderCard extends StatelessWidget {
               ],
             ),
             if (discountPercent != null || eligibilityMessage != null) ...[
-              const SizedBox(height: 12),
+              const Gap(AppSpacing.md),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(AppSpacing.md),
                 decoration: BoxDecoration(
                   color: Theme.of(
                     context,
@@ -471,14 +478,14 @@ class _ProfileHeaderCard extends StatelessWidget {
                       ),
                     if (eligibilityMessage != null &&
                         eligibilityMessage!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      const Gap(AppSpacing.xs),
                       Text(
                         eligibilityMessage!,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
                     if (nextTierLabel != null && pointsNeeded != null) ...[
-                      const SizedBox(height: 4),
+                      const Gap(AppSpacing.xs),
                       Text(
                         '$pointsNeeded points to $nextTierLabel',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -511,7 +518,10 @@ class _ProfileStatChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.md,
+      ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(AppRadius.md),
@@ -519,7 +529,7 @@ class _ProfileStatChip extends StatelessWidget {
       child: Row(
         children: [
           Icon(icon, size: 18),
-          const SizedBox(width: 8),
+          const Gap(AppSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -685,7 +695,12 @@ class _OrderCard extends StatelessWidget {
       child: InkWell(
         onTap: onOpenDetail,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 12, 10, 10),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.md,
+            AppSpacing.md,
+            AppSpacing.md,
+          ),
           child: Column(
             children: [
               Row(
@@ -712,7 +727,7 @@ class _OrderCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const Gap(AppSpacing.md),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -732,14 +747,14 @@ class _OrderCard extends StatelessWidget {
                             OrderStatusPillWidget(status: order.status),
                           ],
                         ),
-                        const SizedBox(height: 4),
+                        const Gap(AppSpacing.xs),
                         Text(
                           '$firstItemName$extraItems',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
-                        const SizedBox(height: 2),
+                        const Gap(AppSpacing.xxs),
                         Text(
                           dateText,
                           style: Theme.of(context).textTheme.bodySmall,
@@ -747,7 +762,7 @@ class _OrderCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const Gap(AppSpacing.md),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -758,7 +773,7 @@ class _OrderCard extends StatelessWidget {
                         ),
                       ),
                       if (pointsEarned != null) ...[
-                        const SizedBox(height: 2),
+                        const Gap(AppSpacing.xxs),
                         Text(
                           '+${pointsEarned!} pts',
                           style: TextStyle(
@@ -773,7 +788,7 @@ class _OrderCard extends StatelessWidget {
                 ],
               ),
               if (canReorder) ...[
-                const SizedBox(height: 10),
+                const Gap(AppSpacing.md),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(

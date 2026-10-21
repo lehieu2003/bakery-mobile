@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/blog/domain/models/blog.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/screens/blog_detail_screen.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class BlogPostCard extends StatelessWidget {
   const BlogPostCard({super.key, required this.post});
@@ -29,7 +31,12 @@ class BlogPostCard extends StatelessWidget {
               child: AppNetworkImageWidget(url: imageUrl, iconSize: 30),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.md,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -43,7 +50,7 @@ class BlogPostCard extends StatelessWidget {
                     ),
                   ),
                   if ((post.excerpt ?? '').trim().isNotEmpty) ...[
-                    const SizedBox(height: 10),
+                    const Gap(AppSpacing.md),
                     Text(
                       post.excerpt!.trim(),
                       maxLines: 3,
@@ -55,12 +62,12 @@ class BlogPostCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                  const SizedBox(height: 12),
+                  const Gap(AppSpacing.md),
                   Divider(
                     color: scheme.outlineVariant.withValues(alpha: 0.6),
                     height: 1,
                   ),
-                  const SizedBox(height: 10),
+                  const Gap(AppSpacing.md),
                   Row(
                     children: [
                       Icon(
@@ -68,7 +75,7 @@ class BlogPostCard extends StatelessWidget {
                         size: 18,
                         color: scheme.onSurfaceVariant,
                       ),
-                      const SizedBox(width: 4),
+                      const Gap(AppSpacing.xs),
                       Text(
                         _formatDate(post.publishedAt),
                         style: TextStyle(
@@ -76,13 +83,13 @@ class BlogPostCard extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const Gap(AppSpacing.md),
                       Icon(
                         Icons.remove_red_eye_outlined,
                         size: 18,
                         color: scheme.onSurfaceVariant,
                       ),
-                      const SizedBox(width: 4),
+                      const Gap(AppSpacing.xs),
                       Text(
                         '${post.viewCount}',
                         style: TextStyle(
@@ -98,7 +105,7 @@ class BlogPostCard extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      const Gap(AppSpacing.xs),
                       Icon(
                         Icons.arrow_forward_rounded,
                         size: 18,
