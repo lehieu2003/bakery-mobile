@@ -7,19 +7,23 @@ import 'package:bakery_mobile/src/features/auth/data/datasources/auth_api_servic
 import 'package:bakery_mobile/src/features/auth/data/repositories/auth_repository.dart';
 import 'package:bakery_mobile/src/features/auth/domain/models/user.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Fake pattern như test/reviews_controller_test.dart: subclass + override,
-/// SharedPreferences.setMockInitialValues({}) trong setUp() (TokenStorage dùng
-/// SharedPreferences). The overrides never touch the network — `login` and
+/// SharedPreferences + FlutterSecureStorage mock trong setUp() (TokenStorage
+/// dùng cả hai). The overrides never touch the network — `login` and
 /// `registerVerify` return the canned user directly.
 class _FakeAuthRepository extends AuthRepository {
   _FakeAuthRepository(this._user)
     : super(
         tokenStorage: TokenStorage(),
         authApiService: AuthApiService(
-          ApiClient(baseUrl: 'http://localhost:1', tokenProvider: () async => null),
+          ApiClient(
+            baseUrl: 'http://localhost:1',
+            tokenProvider: () async => null,
+          ),
         ),
       );
 
@@ -48,7 +52,10 @@ class _FailingLogoutAuthRepository extends AuthRepository {
     : super(
         tokenStorage: TokenStorage(),
         authApiService: AuthApiService(
-          ApiClient(baseUrl: 'http://localhost:1', tokenProvider: () async => null),
+          ApiClient(
+            baseUrl: 'http://localhost:1',
+            tokenProvider: () async => null,
+          ),
         ),
       );
 
@@ -66,6 +73,7 @@ class _FailingLogoutAuthRepository extends AuthRepository {
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
   });
 
   test('login accepts an ADMIN account and stores it in state', () async {
@@ -87,24 +95,31 @@ void main() {
     expect(container.read(authViewModelProvider).errorMessage, isNull);
   });
 
-  test('verifyRegister accepts an ADMIN account and stores it in state', () async {
-    final container = ProviderContainer(
-      overrides: [
-        authRepositoryProvider.overrideWithValue(
-          _FakeAuthRepository(_user('ADMIN')),
-        ),
-      ],
-    );
-    addTearDown(container.dispose);
+  test(
+    'verifyRegister accepts an ADMIN account and stores it in state',
+    () async {
+      final container = ProviderContainer(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(
+            _FakeAuthRepository(_user('ADMIN')),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
 
-    final submitted = await container
-        .read(authViewModelProvider.notifier)
-        .verifyRegister(email: 'admin@bakery.vn', otp: '123456', password: 'secret');
+      final submitted = await container
+          .read(authViewModelProvider.notifier)
+          .verifyRegister(
+            email: 'admin@bakery.vn',
+            otp: '123456',
+            password: 'secret',
+          );
 
-    expect(submitted, isTrue);
-    expect(container.read(authViewModelProvider).user!.role, 'ADMIN');
-    expect(container.read(authViewModelProvider).errorMessage, isNull);
-  });
+      expect(submitted, isTrue);
+      expect(container.read(authViewModelProvider).user!.role, 'ADMIN');
+      expect(container.read(authViewModelProvider).errorMessage, isNull);
+    },
+  );
 
   test('login still accepts a CUSTOMER account (regression guard)', () async {
     final container = ProviderContainer(
@@ -124,25 +139,28 @@ void main() {
     expect(container.read(authViewModelProvider).user!.role, 'CUSTOMER');
   });
 
-  test('logout ends the session client-side even when the API call fails', () async {
-    final container = ProviderContainer(
-      overrides: [
-        authRepositoryProvider.overrideWithValue(
-          _FailingLogoutAuthRepository(_user('ADMIN')),
-        ),
-      ],
-    );
-    addTearDown(container.dispose);
+  test(
+    'logout ends the session client-side even when the API call fails',
+    () async {
+      final container = ProviderContainer(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(
+            _FailingLogoutAuthRepository(_user('ADMIN')),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
 
-    final viewModel = container.read(authViewModelProvider.notifier);
-    await viewModel.login(email: 'admin@bakery.vn', password: 'secret');
-    expect(container.read(authViewModelProvider).isAuthenticated, isTrue);
+      final viewModel = container.read(authViewModelProvider.notifier);
+      await viewModel.login(email: 'admin@bakery.vn', password: 'secret');
+      expect(container.read(authViewModelProvider).isAuthenticated, isTrue);
 
-    await viewModel.logout();
+      await viewModel.logout();
 
-    final state = container.read(authViewModelProvider);
-    expect(state.user, isNull);
-    expect(state.isAuthenticated, isFalse);
-    expect(state.isSubmitting, isFalse);
-  });
+      final state = container.read(authViewModelProvider);
+      expect(state.user, isNull);
+      expect(state.isAuthenticated, isFalse);
+      expect(state.isSubmitting, isFalse);
+    },
+  );
 }

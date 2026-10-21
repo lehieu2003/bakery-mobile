@@ -24,7 +24,8 @@ android {
         applicationId = "com.example.bakery_mobile"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // flutter_secure_storage 10 requires API 23 (Flutter 3.32 defaults to 21).
+        minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
