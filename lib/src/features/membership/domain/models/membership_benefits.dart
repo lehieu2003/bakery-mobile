@@ -18,8 +18,17 @@ class MembershipBenefits {
   final MembershipNextTier? nextTier;
   final String eligibilityMessage;
   final bool isHighestTier;
+
+  /// VND spent per membership point — despite its server name
+  /// (`pointsPerOrder` in bakery-web `lib/membership/rules.ts`, default
+  /// 10000, editable by the admin), not a per-order count.
   final int pointsPerOrder;
   final List<MembershipTier> tiers;
+
+  /// Points an order of [orderTotal] VND earns, as the server computes it:
+  /// `floor(orderTotal / pointsPerOrder)`.
+  int pointsFor(num orderTotal) =>
+      pointsPerOrder <= 0 ? 0 : (orderTotal / pointsPerOrder).floor();
 }
 
 class MembershipTier {
