@@ -48,6 +48,12 @@ shader `ink_sparkle` và `pub get` sửa lung tung file ios/android.
   biến thể khai báo bằng `enum <Tên>Variant` trong cùng file (vd `PriceVariant.card`), không tạo class riêng cho từng
   biến thể. Widget gắn nghiệp vụ một feature (vd `AdminPagedList`) ở lại trong feature đó.
 - Tiền luôn hiển thị qua `formatVnd` (`120.000 ₫`); ngày qua `formatDateVi`/`formatDateTimeVi` (nhớ `.toLocal()`).
+- **Không viết số trần cho spacing/màu/bo góc/thời lượng** — dùng token trong `lib/src/core/theme/`:
+  `AppSpacing` (lưới 4px: `xxs` 2 · `xs` 4 · `sm` 8 · `md` 12 · `lg` 16 · `xl` 20 · `xxl` 24 · `x3l` 32 · `x4l` 40 ·
+  `x5l` 48) cho `EdgeInsets`/`spacing:`; khoảng cách giữa phần tử anh em dùng `Gap(AppSpacing.md)` (package `gap`)
+  trong `Row`/`Column`/`ListView` thay vì `SizedBox(height/width:)`; `AppRadius`, `AppDurations`, màu `AppTheme.*`.
+  Giá trị ngoài thang là kích thước bố cục (vd khoảng chừa thanh điều hướng) → hằng có tên trong file đó.
+  Ngoại lệ: `invoice_pdf.dart` dùng đơn vị point của PDF, không theo token màn hình.
 - Tái dùng widget/helper có sẵn trước khi viết mới; xem feature gần nhất làm mẫu.
 
 ## Quy tắc riêng cho Claude

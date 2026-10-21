@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class PageTemplateData {
   const PageTemplateData({
@@ -91,10 +93,15 @@ class BuiltInPageBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.md,
+        AppSpacing.lg,
+        AppSpacing.x3l,
+      ),
       children: [
         Container(
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(AppSpacing.xl),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppRadius.xxl),
             gradient: LinearGradient(
@@ -117,7 +124,7 @@ class BuiltInPageBody extends StatelessWidget {
                     backgroundColor: Colors.white.withValues(alpha: 0.85),
                     child: Icon(template.icon, color: scheme.primary),
                   ),
-                  const SizedBox(width: 10),
+                  const Gap(AppSpacing.md),
                   Text(
                     template.eyebrow.toUpperCase(),
                     style: TextStyle(
@@ -128,14 +135,14 @@ class BuiltInPageBody extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const Gap(AppSpacing.md),
               Text(
                 template.title,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: 6),
+              const Gap(AppSpacing.sm),
               Text(
                 template.subtitle,
                 style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
@@ -143,7 +150,7 @@ class BuiltInPageBody extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 14),
+        const Gap(AppSpacing.lg),
         template.body,
       ],
     );
@@ -159,7 +166,7 @@ class _CardSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(AppRadius.xl),
@@ -178,7 +185,7 @@ class _CardSection extends StatelessWidget {
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: 10),
+          const Gap(AppSpacing.md),
           child,
         ],
       ),
@@ -203,7 +210,7 @@ class _MetaRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 16, color: Theme.of(context).colorScheme.primary),
-        const SizedBox(width: 8),
+        const Gap(AppSpacing.sm),
         Expanded(
           child: RichText(
             text: TextSpan(
@@ -241,7 +248,7 @@ class _SectionListBody extends StatelessWidget {
         children: [
           for (var i = 0; i < sections.length; i++) ...[
             _SectionTile(data: sections[i]),
-            if (i < sections.length - 1) const SizedBox(height: 10),
+            if (i < sections.length - 1) const Gap(AppSpacing.md),
           ],
         ],
       ),
@@ -258,7 +265,7 @@ class _SectionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.md),
         color: scheme.surfaceContainerHighest.withValues(alpha: 0.3),
@@ -267,7 +274,7 @@ class _SectionTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(data.title, style: const TextStyle(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 8),
+          const Gap(AppSpacing.sm),
           for (final line in data.lines) ...[
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,7 +282,10 @@ class _SectionTile extends StatelessWidget {
                 Container(
                   width: 6,
                   height: 6,
-                  margin: const EdgeInsets.only(top: 7, right: 8),
+                  margin: const EdgeInsets.only(
+                    top: AppSpacing.sm,
+                    right: AppSpacing.sm,
+                  ),
                   decoration: BoxDecoration(
                     color: scheme.primary,
                     shape: BoxShape.circle,
@@ -292,7 +302,7 @@ class _SectionTile extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 6),
+            const Gap(AppSpacing.sm),
           ],
         ],
       ),
@@ -317,7 +327,7 @@ class _AboutBody extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        const Gap(AppSpacing.md),
         const _CardSection(
           title: 'Hệ thống chi nhánh',
           child: Column(
@@ -327,7 +337,7 @@ class _AboutBody extends StatelessWidget {
                 label: 'Quảng Ngãi',
                 value: 'ĐT624, TT. Chợ Chùa, Nghĩa Hành, Quảng Ngãi',
               ),
-              SizedBox(height: 8),
+              Gap(AppSpacing.sm),
               _MetaRow(
                 icon: Icons.schedule_rounded,
                 label: 'Giờ mở cửa',
@@ -357,13 +367,13 @@ class _MembershipBody extends StatelessWidget {
                 points: '0 - 299 điểm',
                 discount: 'Giảm 3%',
               ),
-              SizedBox(height: 10),
+              Gap(AppSpacing.md),
               _MembershipTierTile(
                 name: 'Vàng',
                 points: '300 - 899 điểm',
                 discount: 'Giảm 7%',
               ),
-              SizedBox(height: 10),
+              Gap(AppSpacing.md),
               _MembershipTierTile(
                 name: 'Bạch kim',
                 points: 'Từ 900 điểm',
@@ -372,7 +382,7 @@ class _MembershipBody extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        const Gap(AppSpacing.md),
         const _SectionListBody(sections: _membershipSections),
       ],
     );
@@ -395,7 +405,7 @@ class _MembershipTierTile extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.md),
         color: scheme.surfaceContainerHighest.withValues(alpha: 0.28),
@@ -407,13 +417,16 @@ class _MembershipTierTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name, style: const TextStyle(fontWeight: FontWeight.w700)),
-                const SizedBox(height: 2),
+                const Gap(AppSpacing.xxs),
                 Text(points, style: TextStyle(color: scheme.onSurfaceVariant)),
               ],
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.xs,
+            ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppRadius.pill),
               color: scheme.primary.withValues(alpha: 0.12),
@@ -446,13 +459,13 @@ class _StoreBody extends StatelessWidget {
             label: 'Địa chỉ',
             value: '2QXG+RXV, ĐT624, TT. Chợ Chùa, Nghĩa Hành, Quảng Ngãi',
           ),
-          SizedBox(height: 8),
+          Gap(AppSpacing.sm),
           _MetaRow(
             icon: Icons.phone_rounded,
             label: 'Điện thoại',
             value: '+84 978 780 176',
           ),
-          SizedBox(height: 8),
+          Gap(AppSpacing.sm),
           _MetaRow(
             icon: Icons.schedule_rounded,
             label: 'Giờ mở cửa',
@@ -480,13 +493,13 @@ class _ShippingBody extends StatelessWidget {
                 label: 'Trong bán kính 10km từ cửa hàng',
                 value: '2 - 4 tiếng | 20.000đ - 35.000đ | Miễn phí từ 500.000đ',
               ),
-              SizedBox(height: 8),
+              Gap(AppSpacing.sm),
               _MetaRow(
                 icon: Icons.local_shipping_rounded,
                 label: 'Các khu vực còn lại của Quảng Ngãi',
                 value: '4 - 8 tiếng | 40.000đ - 60.000đ | Miễn phí từ 500.000đ',
               ),
-              SizedBox(height: 8),
+              Gap(AppSpacing.sm),
               _MetaRow(
                 icon: Icons.local_shipping_rounded,
                 label: 'Tỉnh thành lân cận',
@@ -495,7 +508,7 @@ class _ShippingBody extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 12),
+        Gap(AppSpacing.md),
         _SectionListBody(sections: _shippingSections),
       ],
     );

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/admin/orders/domain/models/admin_order.dart';
 import 'package:bakery_mobile/src/shared/widgets/order_status_pill_widget.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// One row of the admin orders list: order number + status, customer,
 /// total, payment method/status and creation time.
@@ -25,12 +27,12 @@ class OrderCard extends StatelessWidget {
     ].join(' · ');
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -48,14 +50,14 @@ class OrderCard extends StatelessWidget {
                   OrderStatusPillWidget(status: order.status),
                 ],
               ),
-              const SizedBox(height: 6),
+              const Gap(AppSpacing.sm),
               Text(
                 order.customerName,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodyMedium,
               ),
-              const SizedBox(height: 6),
+              const Gap(AppSpacing.sm),
               Row(
                 children: [
                   Expanded(
@@ -75,7 +77,7 @@ class OrderCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
+              const Gap(AppSpacing.xs),
               Text(formatDateTimeVi(order.createdAt.toLocal()), style: muted),
             ],
           ),

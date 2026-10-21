@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
@@ -22,6 +23,10 @@ import 'package:bakery_mobile/src/features/notifications/presentation/screens/no
 import 'package:bakery_mobile/src/features/wishlist/presentation/screens/wishlist_screen.dart';
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
+
+/// Bottom space so the last content clears the floating navigation bar.
+const double _navBarClearance = 96;
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -92,7 +97,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
       body: RefreshIndicator(
         onRefresh: ref.read(homeViewModelProvider.notifier).loadInitial,
         child: ListView(
-          padding: const EdgeInsets.only(bottom: 96),
+          padding: const EdgeInsets.only(bottom: _navBarClearance),
           children: [
             HomeHeader(
               unreadCount: notifications.unreadCount,
@@ -111,13 +116,13 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                 context,
               ).push(MaterialPageRoute(builder: (_) => const SearchScreen())),
             ),
-            const SizedBox(height: 12),
+            const Gap(AppSpacing.md),
             if (showInitialSkeleton) ...[
               const SkeletonBannerWidget(),
-              const SizedBox(height: 10),
+              const Gap(AppSpacing.md),
             ] else if (vm.banners.isNotEmpty) ...[
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 child: SizedBox(
                   height: 190,
                   child: PageView.builder(
@@ -132,21 +137,21 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+              const Gap(AppSpacing.md),
               HomeBannerDots(
                 activeIndex: _bannerIndex,
                 count: vm.banners.length,
               ),
             ],
-            const SizedBox(height: 12),
+            const Gap(AppSpacing.md),
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
               child: _HomeSectionTitle(
                 title: 'Danh Mục Sản Phẩm',
                 icon: Icons.grid_view_rounded,
               ),
             ),
-            const SizedBox(height: 6),
+            const Gap(AppSpacing.sm),
             if (showInitialSkeleton)
               const SkeletonCategoryRailWidget()
             else
@@ -157,7 +162,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                     ref.read(homeViewModelProvider.notifier).selectCategory(id),
               ),
             if (subCategories.isNotEmpty) ...[
-              const SizedBox(height: 6),
+              const Gap(AppSpacing.sm),
               HomeSubcategoryChips(
                 subCategories: subCategories,
                 selectedCategoryId: vm.selectedCategoryId,
@@ -165,10 +170,10 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                     ref.read(homeViewModelProvider.notifier).selectCategory(id),
               ),
             ],
-            const SizedBox(height: 12),
+            const Gap(AppSpacing.md),
             if (vm.personalizedProducts.isNotEmpty) ...[
               const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 child: _HomeSectionTitle(
                   title: 'Gợi Ý Dành Cho Bạn',
                   icon: Icons.favorite_rounded,
@@ -176,7 +181,12 @@ class _HomeViewState extends ConsumerState<_HomeView> {
               ),
               if (_personalizedMessage(vm) != null)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.sm,
+                    AppSpacing.lg,
+                    0,
+                  ),
                   child: Text(
                     _personalizedMessage(vm)!,
                     style: Theme.of(
@@ -185,25 +195,25 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                   ),
                 ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 child: GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: vm.personalizedProducts.length,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 14,
+                    mainAxisSpacing: AppSpacing.lg,
+                    crossAxisSpacing: AppSpacing.lg,
                     childAspectRatio: 0.72,
                   ),
                   itemBuilder: (context, index) =>
                       HomeProductCard(product: vm.personalizedProducts[index]),
                 ),
               ),
-              const SizedBox(height: 12),
+              const Gap(AppSpacing.md),
             ],
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
               child: _HomeSectionTitle(
                 title: 'Sản Phẩm Nổi Bật',
                 icon: Icons.auto_awesome_rounded,
@@ -212,7 +222,12 @@ class _HomeViewState extends ConsumerState<_HomeView> {
             if (showInitialSkeleton) const SkeletonProductGridWidget(),
             if (vm.errorMessage != null)
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  0,
+                  AppSpacing.lg,
+                  0,
+                ),
                 child: Text(
                   vm.errorMessage!,
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -221,7 +236,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
             if (vm.bestSellers.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
+                  horizontal: AppSpacing.lg,
                   vertical: 0,
                 ),
                 child: GridView.builder(
@@ -230,8 +245,8 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                   itemCount: vm.bestSellers.length,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 14,
+                    mainAxisSpacing: AppSpacing.lg,
+                    crossAxisSpacing: AppSpacing.lg,
                     childAspectRatio: 0.72,
                   ),
                   itemBuilder: (context, index) =>
@@ -312,7 +327,7 @@ class _HomeSectionTitle extends StatelessWidget {
               ),
               child: Icon(icon, size: 16, color: AppTheme.warmBrown),
             ),
-            const SizedBox(width: 8),
+            const Gap(AppSpacing.sm),
             Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -323,7 +338,7 @@ class _HomeSectionTitle extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 6),
+        const Gap(AppSpacing.sm),
         Container(
           width: 54,
           height: 3,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// "Nothing here" state: muted [message], optionally with an [icon] above
 /// it, centered in the available space.
@@ -9,7 +11,7 @@ class EmptyStateWidget extends StatelessWidget {
     super.key,
     required this.message,
     this.icon,
-    this.padding = const EdgeInsets.all(24),
+    this.padding = const EdgeInsets.all(AppSpacing.xxl),
   });
 
   final String message;
@@ -31,7 +33,7 @@ class EmptyStateWidget extends StatelessWidget {
                 size: 44,
                 color: AppTheme.warmBrown.withValues(alpha: 0.6),
               ),
-              const SizedBox(height: 10),
+              const Gap(AppSpacing.md),
             ],
             Text(
               message,

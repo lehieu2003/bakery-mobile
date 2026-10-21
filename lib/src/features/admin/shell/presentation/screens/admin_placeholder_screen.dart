@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Root screen for every admin section until its phase ships: a themed
 /// "coming soon" panel in the middle of the screen.
@@ -21,7 +23,7 @@ class AdminPlaceholderScreen extends StatelessWidget {
               size: 56,
               color: AppTheme.warmBrown.withValues(alpha: 0.55),
             ),
-            const SizedBox(height: 16),
+            const Gap(AppSpacing.lg),
             Text(
               'Mục "$title" sắp ra mắt',
               textAlign: TextAlign.center,

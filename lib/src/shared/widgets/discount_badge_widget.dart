@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Size presets for [DiscountBadgeWidget].
 enum DiscountBadgeVariant {
@@ -31,12 +32,18 @@ class DiscountBadgeWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final (padding, fontSize, shadow) = switch (variant) {
       DiscountBadgeVariant.small => (
-        const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+        const EdgeInsets.symmetric(
+          horizontal: AppSpacing.xs,
+          vertical: AppSpacing.xxs,
+        ),
         9.0,
         null,
       ),
       DiscountBadgeVariant.medium => (
-        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.xs,
+        ),
         11.0,
         BoxShadow(
           color: Colors.black.withValues(alpha: 0.10),
@@ -45,7 +52,10 @@ class DiscountBadgeWidget extends StatelessWidget {
         ),
       ),
       DiscountBadgeVariant.large => (
-        const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
         null,
         BoxShadow(
           color: Colors.black.withValues(alpha: 0.14),

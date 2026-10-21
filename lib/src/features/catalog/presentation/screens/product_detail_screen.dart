@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
@@ -20,6 +21,10 @@ import 'package:bakery_mobile/src/shared/widgets/summary_row_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/favorite_icon_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
+
+/// Bottom space so content clears the pinned price/"Add to Cart" bar.
+const double _bottomBarClearance = 120;
 
 /// Products shown in the "related" strip under the details.
 const int _relatedProductsShown = 8;
@@ -225,7 +230,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           duration: AppDurations.fast,
                           width: active ? 18 : 8,
                           height: 8,
-                          margin: const EdgeInsets.symmetric(horizontal: 3),
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.xs,
+                          ),
                           decoration: BoxDecoration(
                             color: active
                                 ? Colors.white
@@ -242,7 +249,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.lg,
+                _bottomBarClearance,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -252,7 +264,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const Gap(AppSpacing.sm),
                   Row(
                     children: [
                       Flexible(
@@ -264,11 +276,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           variant: PriceVariant.detail,
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const Gap(AppSpacing.md),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.xs,
                         ),
                         decoration: BoxDecoration(
                           color: product.stock > 0
@@ -290,7 +302,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const Gap(AppSpacing.lg),
                   if (summaryText.isNotEmpty) ...[
                     Text(
                       'Mô tả sản phẩm',
@@ -298,14 +310,14 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const Gap(AppSpacing.sm),
                     Text(
                       summaryText,
                       style: Theme.of(
                         context,
                       ).textTheme.bodyMedium?.copyWith(height: 1.45),
                     ),
-                    const SizedBox(height: 18),
+                    const Gap(AppSpacing.xl),
                   ],
                   if (hasVariants) ...[
                     Text(
@@ -314,10 +326,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const Gap(AppSpacing.md),
                     Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.sm,
                       children: product.variants
                           .map(
                             (variant) => ChoiceChip(
@@ -331,10 +343,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           )
                           .toList(),
                     ),
-                    const SizedBox(height: 18),
+                    const Gap(AppSpacing.xl),
                   ],
                   Container(
-                    padding: const EdgeInsets.all(14),
+                    padding: const EdgeInsets.all(AppSpacing.lg),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -347,20 +359,20 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                             label: 'Giá trước ưu đãi',
                             value: formatVnd(originalPrice!),
                           ),
-                          const SizedBox(height: 8),
+                          const Gap(AppSpacing.sm),
                           SummaryRowWidget(
                             variant: SummaryRowVariant.emphasis,
                             label: 'Ưu đãi',
                             value: '-$detailDiscount%',
                           ),
-                          const SizedBox(height: 8),
+                          const Gap(AppSpacing.sm),
                         ],
                         SummaryRowWidget(
                           variant: SummaryRowVariant.emphasis,
                           label: 'Giá đang chọn',
                           value: formatVnd(currentPrice),
                         ),
-                        const SizedBox(height: 8),
+                        const Gap(AppSpacing.sm),
                         SummaryRowWidget(
                           variant: SummaryRowVariant.emphasis,
                           label: 'Mã sản phẩm',
@@ -369,17 +381,17 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const Gap(AppSpacing.lg),
                   const Divider(),
-                  const SizedBox(height: 8),
+                  const Gap(AppSpacing.sm),
                   ProductReviewsSection(
                     productId: product.id,
                     productRatingAverage: product.ratingAverage,
                     productReviewCount: product.reviewCount,
                   ),
-                  const SizedBox(height: 8),
+                  const Gap(AppSpacing.sm),
                   if (_isLoadingRelated) ...[
-                    const SizedBox(height: 18),
+                    const Gap(AppSpacing.xl),
                     Text(
                       'Sản Phẩm Liên Quan',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -387,10 +399,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const Gap(AppSpacing.md),
                     const SkeletonProductRailWidget(),
                   ] else if (_relatedProducts.isNotEmpty) ...[
-                    const SizedBox(height: 18),
+                    const Gap(AppSpacing.xl),
                     Text(
                       'Sản Phẩm Liên Quan',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -398,13 +410,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const Gap(AppSpacing.md),
                     SizedBox(
                       height: 252,
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: _relatedProducts.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 12),
+                        separatorBuilder: (_, __) => const Gap(AppSpacing.md),
                         itemBuilder: (context, index) {
                           return SizedBox(
                             width: 166,
@@ -425,7 +437,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       bottomNavigationBar: SafeArea(
         top: false,
         child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.md,
+            AppSpacing.lg,
+            AppSpacing.md,
+          ),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             boxShadow: [
@@ -456,7 +473,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
+              const Gap(AppSpacing.md),
               FilledButton.icon(
                 onPressed: product.stock > 0
                     ? () {
@@ -470,8 +487,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 label: const Text('Add to Cart'),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 22,
-                    vertical: 14,
+                    horizontal: AppSpacing.xxl,
+                    vertical: AppSpacing.lg,
                   ),
                 ),
               ),

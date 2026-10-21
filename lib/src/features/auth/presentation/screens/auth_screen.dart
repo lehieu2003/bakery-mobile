@@ -2,12 +2,14 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
 import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_view_model.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Page background behind the auth card.
 const Color _authBackground = Color(0xFFF8F1E8);
@@ -72,8 +74,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             return Center(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 28,
+                  horizontal: AppSpacing.xl,
+                  vertical: AppSpacing.x3l,
                 ),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 420),
@@ -98,7 +100,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                         children: [
                           const _BakeryHeader(),
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(24, 24, 24, 26),
+                            padding: const EdgeInsets.fromLTRB(
+                              AppSpacing.xxl,
+                              AppSpacing.xxl,
+                              AppSpacing.xxl,
+                              AppSpacing.xxl,
+                            ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
@@ -113,7 +120,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                 //         fontWeight: FontWeight.w700,
                                 //       ),
                                 // ),
-                                const SizedBox(height: 6),
+                                const Gap(AppSpacing.sm),
                                 Text(
                                   _subtitle(),
                                   textAlign: TextAlign.center,
@@ -123,7 +130,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                         height: 1.35,
                                       ),
                                 ),
-                                const SizedBox(height: 24),
+                                const Gap(AppSpacing.xxl),
                                 _buildForm(context, viewModel),
                               ],
                             ),
@@ -151,20 +158,20 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           labelText: 'Email',
           prefixIcon: const Icon(Icons.mail_outline),
         ),
-        const SizedBox(height: 12),
+        const Gap(AppSpacing.md),
         if (_isRegister && _otpSent) ...[
           AppTextInputWidget(
             controller: _nameCtrl,
             labelText: 'Name (optional)',
             prefixIcon: const Icon(Icons.person_outline),
           ),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
           AppTextInputWidget(
             controller: _otpCtrl,
             labelText: 'OTP',
             prefixIcon: const Icon(Icons.pin_outlined),
           ),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
         ],
         if (_isReset && _otpSent) ...[
           AppTextInputWidget(
@@ -172,7 +179,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             labelText: 'OTP',
             prefixIcon: const Icon(Icons.pin_outlined),
           ),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
           AppTextInputWidget(
             controller: _newPasswordCtrl,
             obscureText: _hideNewPassword,
@@ -188,7 +195,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
         ],
         if (!_isReset && (!_isRegister || _otpSent)) ...[
           AppTextInputWidget(
@@ -205,7 +212,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
         ],
         if (viewModel.errorMessage != null) ...[
           DecoratedBox(
@@ -214,7 +221,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               borderRadius: BorderRadius.circular(AppRadius.lg),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(AppSpacing.md),
               child: Text(
                 viewModel.errorMessage!,
                 style: TextStyle(
@@ -223,7 +230,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
         ],
         FilledButton(
           style: FilledButton.styleFrom(
@@ -246,7 +253,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 )
               : Text(_primaryCta()),
         ),
-        const SizedBox(height: 12),
+        const Gap(AppSpacing.md),
         if (!_isReset && !_isRegister)
           TextButton(
             onPressed: () {
@@ -406,7 +413,7 @@ class _BakeryHeader extends StatelessWidget {
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 18),
+              padding: const EdgeInsets.only(bottom: AppSpacing.xl),
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.78),
@@ -414,7 +421,10 @@ class _BakeryHeader extends StatelessWidget {
                   border: Border.all(color: AppTheme.outlineBeige),
                 ),
                 child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.sm,
+                  ),
                   child: Text(
                     'BAKERY SHOP',
                     style: TextStyle(

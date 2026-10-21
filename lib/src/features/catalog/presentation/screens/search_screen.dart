@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
@@ -11,6 +12,7 @@ import 'package:bakery_mobile/src/features/catalog/presentation/controllers/sear
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/search_product_tile.dart';
 import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class SearchScreen extends ConsumerWidget {
   const SearchScreen({super.key, this.initialQuery = ''});
@@ -89,7 +91,12 @@ class _SearchViewState extends ConsumerState<_SearchView> {
       body: ListView(
         controller: _scrollController,
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: EdgeInsets.fromLTRB(16, 16, 16, bottomInset),
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.lg,
+          bottomInset,
+        ),
         children: [
           AppTextInputWidget(
             controller: _controller,
@@ -99,10 +106,10 @@ class _SearchViewState extends ConsumerState<_SearchView> {
             onSubmitted: (value) =>
                 ref.read(searchViewModelProvider.notifier).search(value),
           ),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
             children: [
               _sortChip(context, vm, SearchSortOption.popular, 'Popular'),
               _sortChip(context, vm, SearchSortOption.newest, 'Newest'),
@@ -120,9 +127,9 @@ class _SearchViewState extends ConsumerState<_SearchView> {
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const Gap(AppSpacing.lg),
           Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
             child: Text(
               vm.query.isEmpty
                   ? 'All products (${vm.sortedProducts.length})'
@@ -140,7 +147,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
           ],
           if (!vm.isLoading && vm.error != null)
             Padding(
-              padding: const EdgeInsets.only(top: 18),
+              padding: const EdgeInsets.only(top: AppSpacing.xl),
               child: Text(
                 vm.error!,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -148,7 +155,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
             ),
           if (!vm.isLoading && vm.sortedProducts.isEmpty)
             Padding(
-              padding: const EdgeInsets.only(top: 24),
+              padding: const EdgeInsets.only(top: AppSpacing.xxl),
               child: Center(
                 child: Text(
                   vm.query.isEmpty
@@ -162,12 +169,12 @@ class _SearchViewState extends ConsumerState<_SearchView> {
           ),
           if (vm.isLoadingMore)
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
               child: LoadingWidget(),
             ),
           if (!vm.isLoading && !vm.isLoadingMore && vm.hasMore)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
               child: OutlinedButton(
                 onPressed: ref.read(searchViewModelProvider.notifier).loadMore,
                 child: const Text('Load more'),
@@ -217,10 +224,10 @@ class _SearchViewState extends ConsumerState<_SearchView> {
               child: ListView(
                 shrinkWrap: true,
                 padding: EdgeInsets.fromLTRB(
-                  16,
+                  AppSpacing.lg,
                   0,
-                  16,
-                  MediaQuery.viewInsetsOf(context).bottom + 16,
+                  AppSpacing.lg,
+                  MediaQuery.viewInsetsOf(context).bottom + AppSpacing.lg,
                 ),
                 children: [
                   Text(
@@ -229,7 +236,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const Gap(AppSpacing.md),
                   Row(
                     children: [
                       Expanded(
@@ -239,7 +246,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
                           labelText: 'Min price',
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const Gap(AppSpacing.md),
                       Expanded(
                         child: AppTextInputWidget(
                           controller: maxCtrl,
@@ -256,17 +263,17 @@ class _SearchViewState extends ConsumerState<_SearchView> {
                     onChanged: (value) => setModalState(() => inStock = value),
                   ),
                   for (final group in vm.filters.groups) ...[
-                    const SizedBox(height: 10),
+                    const Gap(AppSpacing.md),
                     Text(
                       group.name,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const Gap(AppSpacing.sm),
                     Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.sm,
                       children: group.values.map((value) {
                         final values = selected[group.slug] ?? <String>{};
                         final isSelected = values.contains(value.slug);
@@ -292,7 +299,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
                       }).toList(),
                     ),
                   ],
-                  const SizedBox(height: 18),
+                  const Gap(AppSpacing.xl),
                   Row(
                     children: [
                       Expanded(
@@ -306,7 +313,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
                           child: const Text('Clear'),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const Gap(AppSpacing.md),
                       Expanded(
                         child: FilledButton(
                           onPressed: () {

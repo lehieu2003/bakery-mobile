@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/shared/widgets/skeleton_box_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class SkeletonBlogCardWidget extends StatelessWidget {
   const SkeletonBlogCardWidget({super.key});
@@ -17,20 +19,25 @@ class SkeletonBlogCardWidget extends StatelessWidget {
             child: LayoutBuilder(builder: skeletonFillBuilder),
           ),
           Padding(
-            padding: EdgeInsets.fromLTRB(14, 14, 14, 12),
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.lg,
+              AppSpacing.lg,
+              AppSpacing.md,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SkeletonBoxWidget(width: double.infinity, height: 18),
-                SizedBox(height: 8),
+                Gap(AppSpacing.sm),
                 SkeletonBoxWidget(width: 220, height: 18),
-                SizedBox(height: 14),
+                Gap(AppSpacing.lg),
                 SkeletonBoxWidget(width: double.infinity, height: 13),
-                SizedBox(height: 8),
+                Gap(AppSpacing.sm),
                 SkeletonBoxWidget(width: double.infinity, height: 13),
-                SizedBox(height: 8),
+                Gap(AppSpacing.sm),
                 SkeletonBoxWidget(width: 180, height: 13),
-                SizedBox(height: 18),
+                Gap(AppSpacing.xl),
                 SkeletonBoxWidget(width: 160, height: 12),
               ],
             ),

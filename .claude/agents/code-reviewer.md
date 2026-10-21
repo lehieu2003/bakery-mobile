@@ -21,6 +21,7 @@ khi cần — không review code ngoài diff.
 3. **UI dùng chung**: không tự viết lại thứ đã có trong `lib/src/shared/widgets` (ảnh mạng, loading, lỗi + thử lại,
    rỗng, giá, badge giảm giá, card/dòng thông tin, pill trạng thái, avatar, tim yêu thích); widget mới trong
    `shared/widgets` theo quy ước một public widget/file, hậu tố `Widget`, biến thể bằng enum `…Variant`.
+   Không số trần cho spacing/màu/bo góc/thời lượng: `AppSpacing` + `Gap`, `AppRadius`, `AppDurations`, `AppTheme`.
 4. **Kiến trúc**: đúng tầng `features/<x>/{data,domain,presentation,application}`; provider khai báo ở
    `core/di/app_providers.dart` / `data_providers.dart`; widget không gọi API trực tiếp; tái dùng
    `core/widgets`, widget/format dùng chung trước khi viết mới.

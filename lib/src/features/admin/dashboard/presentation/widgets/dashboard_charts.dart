@@ -2,9 +2,11 @@ import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/domain/models/dashboard_stats.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Chart grid lines: AppTheme.warmBrown at ~12% alpha.
 const Color _gridLine = Color(0x1F8D5D43);
@@ -30,7 +32,7 @@ class DashboardCharts extends StatelessWidget {
           ],
           lineColor: AppTheme.primaryPink,
         ),
-        const SizedBox(height: 16),
+        const Gap(AppSpacing.lg),
         _ChartCard(
           title: 'Doanh thu theo ngày',
           spots: [
@@ -60,7 +62,12 @@ class _ChartCard extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 14, 14, 10),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.md,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -71,7 +78,7 @@ class _ChartCard extends StatelessWidget {
                 color: AppTheme.inkBrown,
               ),
             ),
-            const SizedBox(height: 12),
+            const Gap(AppSpacing.md),
             SizedBox(
               height: 180,
               width: double.infinity,

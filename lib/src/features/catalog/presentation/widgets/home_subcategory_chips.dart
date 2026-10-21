@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class HomeSubcategoryChips extends StatelessWidget {
   const HomeSubcategoryChips({
@@ -23,7 +25,7 @@ class HomeSubcategoryChips extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           child: Text(
             'Danh Mục Con',
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -32,16 +34,16 @@ class HomeSubcategoryChips extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 8),
+        const Gap(AppSpacing.sm),
         SizedBox(
           height: 36,
           child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             scrollDirection: Axis.horizontal,
             children: subCategories
                 .map(
                   (subcategory) => Padding(
-                    padding: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.only(right: AppSpacing.sm),
                     child: FilterChip(
                       backgroundColor: AppTheme.surfaceCream,
                       selectedColor: AppTheme.peachTint,

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/shared/widgets/skeleton_box_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class SkeletonProductCardWidget extends StatelessWidget {
   const SkeletonProductCardWidget({super.key});
@@ -46,12 +48,17 @@ class SkeletonProductCardWidget extends StatelessWidget {
                   ),
                 ),
                 const Padding(
-                  padding: EdgeInsets.fromLTRB(12, 10, 44, 12),
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.md,
+                    AppSpacing.md,
+                    AppSpacing.x5l,
+                    AppSpacing.md,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SkeletonBoxWidget(width: double.infinity, height: 13),
-                      SizedBox(height: 7),
+                      Gap(AppSpacing.sm),
                       SkeletonBoxWidget(width: 92, height: 12),
                     ],
                   ),

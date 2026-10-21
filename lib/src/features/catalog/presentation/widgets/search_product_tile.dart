@@ -9,6 +9,7 @@ import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/discount_badge_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/price_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class SearchProductTile extends ConsumerWidget {
   const SearchProductTile({super.key, required this.product});
@@ -22,7 +23,7 @@ class SearchProductTile extends ConsumerWidget {
     final discount = product.discountPercent;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
       child: ListTile(
         leading: SizedBox(
           width: 58,

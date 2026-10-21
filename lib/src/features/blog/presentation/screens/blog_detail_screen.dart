@@ -2,6 +2,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:bakery_mobile/src/core/config/app_config.dart';
@@ -14,6 +15,7 @@ import 'package:bakery_mobile/src/shared/widgets/skeleton_tile_widget.dart';
 import 'package:bakery_mobile/src/features/blog/domain/models/blog.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Related posts displayed under an article.
 const int _relatedPostsShown = 3;
@@ -191,13 +193,21 @@ class _BlogPostContent extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.x3l,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (post.category != null)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.sm,
+              ),
               decoration: BoxDecoration(
                 color: AppTheme.blushPink.withValues(alpha: 0.26),
                 borderRadius: BorderRadius.circular(AppRadius.pill),
@@ -212,7 +222,7 @@ class _BlogPostContent extends StatelessWidget {
                 ),
               ),
             ),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
           Text(
             post.title,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -222,7 +232,7 @@ class _BlogPostContent extends StatelessWidget {
             ),
           ),
           if ((post.excerpt ?? '').trim().isNotEmpty) ...[
-            const SizedBox(height: 12),
+            const Gap(AppSpacing.md),
             DecoratedBox(
               decoration: BoxDecoration(
                 border: Border(
@@ -233,7 +243,7 @@ class _BlogPostContent extends StatelessWidget {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.only(left: 12),
+                padding: const EdgeInsets.only(left: AppSpacing.md),
                 child: Text(
                   post.excerpt!.trim(),
                   style: TextStyle(
@@ -245,10 +255,10 @@ class _BlogPostContent extends StatelessWidget {
               ),
             ),
           ],
-          const SizedBox(height: 16),
+          const Gap(AppSpacing.lg),
           Wrap(
-            spacing: 14,
-            runSpacing: 8,
+            spacing: AppSpacing.lg,
+            runSpacing: AppSpacing.sm,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               _MetaItem(
@@ -263,7 +273,7 @@ class _BlogPostContent extends StatelessWidget {
                 onTap: onShare,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
                 child: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 2),
+                  padding: EdgeInsets.symmetric(vertical: AppSpacing.xxs),
                   child: _MetaItem(
                     icon: Icons.ios_share_rounded,
                     label: 'Chia sẻ',
@@ -272,7 +282,7 @@ class _BlogPostContent extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const Gap(AppSpacing.xl),
           if (imageUrl.isNotEmpty)
             ClipRRect(
               borderRadius: BorderRadius.circular(AppRadius.xxl),
@@ -285,7 +295,7 @@ class _BlogPostContent extends StatelessWidget {
               ),
             ),
           if ((post.content ?? '').isNotEmpty) ...[
-            const SizedBox(height: 18),
+            const Gap(AppSpacing.xl),
             DecoratedBox(
               decoration: BoxDecoration(
                 color: AppTheme.surfaceCream,
@@ -299,16 +309,21 @@ class _BlogPostContent extends StatelessWidget {
                 ],
               ),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.md,
+                  AppSpacing.sm,
+                  AppSpacing.md,
+                  AppSpacing.sm,
+                ),
                 child: Html(data: post.content ?? ''),
               ),
             ),
           ],
           if (post.tags.isNotEmpty) ...[
-            const SizedBox(height: 18),
+            const Gap(AppSpacing.xl),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
               children: post.tags
                   .map(
                     (tag) => Chip(
@@ -319,13 +334,13 @@ class _BlogPostContent extends StatelessWidget {
                   .toList(),
             ),
           ],
-          const SizedBox(height: 24),
+          const Gap(AppSpacing.xxl),
           if (isLoadingRelated)
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SkeletonBoxWidget(width: 170, height: 18),
-                SizedBox(height: 12),
+                Gap(AppSpacing.md),
                 SkeletonTileWidget(),
                 SkeletonTileWidget(),
               ],
@@ -338,10 +353,10 @@ class _BlogPostContent extends StatelessWidget {
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 12),
+            const Gap(AppSpacing.md),
             ...relatedPosts.map(
               (item) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
                 child: _RelatedBlogPostTile(post: item),
               ),
             ),
@@ -372,7 +387,7 @@ class _MetaItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 16, color: AppTheme.textMuted),
-        const SizedBox(width: 5),
+        const Gap(AppSpacing.xs),
         Text(
           label,
           style: const TextStyle(
@@ -404,7 +419,7 @@ class _RelatedBlogPostTile extends StatelessWidget {
           MaterialPageRoute(builder: (_) => BlogDetailScreen(slug: post.slug)),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(AppSpacing.md),
           child: Row(
             children: [
               ClipRRect(
@@ -421,7 +436,7 @@ class _RelatedBlogPostTile extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const Gap(AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,7 +451,7 @@ class _RelatedBlogPostTile extends StatelessWidget {
                         height: 1.25,
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    const Gap(AppSpacing.xs),
                     Text(
                       _formatDate(post.publishedAt),
                       style: const TextStyle(

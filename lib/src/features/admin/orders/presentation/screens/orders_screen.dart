@@ -16,6 +16,7 @@ import 'package:bakery_mobile/src/features/admin/orders/utils/orders_csv.dart';
 import 'package:bakery_mobile/src/shared/utils/order_status_display.dart';
 import 'package:bakery_mobile/src/features/admin/shared/presentation/widgets/admin_paged_list.dart';
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Status filter chips: 'Tất cả' plus the 6 lifecycle statuses.
 final List<AdminFilterChip> _statusFilters = [
@@ -129,7 +130,12 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 4, 0),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.sm,
+            AppSpacing.xs,
+            0,
+          ),
           child: Row(
             children: [
               Expanded(
