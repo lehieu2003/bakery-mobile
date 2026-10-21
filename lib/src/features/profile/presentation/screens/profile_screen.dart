@@ -177,6 +177,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               padding: const EdgeInsets.only(bottom: 10),
               child: _OrderCard(
                 order: order,
+                pointsEarned: membership.benefits?.pointsFor(order.total),
                 isPreparingReorder: orders.preparingReorderOrderId == order.id,
                 onReorder: () => _prepareReorder(order),
                 onOpenDetail: () {
@@ -651,12 +652,17 @@ class _OrdersHeader extends StatelessWidget {
 class _OrderCard extends StatelessWidget {
   const _OrderCard({
     required this.order,
+    required this.pointsEarned,
     required this.isPreparingReorder,
     required this.onReorder,
     required this.onOpenDetail,
   });
 
   final Order order;
+
+  /// Membership points this order earns; null while the membership rules
+  /// are not loaded (nothing is shown rather than a guessed number).
+  final int? pointsEarned;
   final bool isPreparingReorder;
   final VoidCallback onReorder;
   final VoidCallback onOpenDetail;
@@ -669,7 +675,6 @@ class _OrderCard extends StatelessWidget {
     final extraItems = order.orderItems.length > 1
         ? ' +${order.orderItems.length - 1} more'
         : '';
-    final pointsEarned = (order.total * 0.2).floor();
     final createdAt = order.createdAt.toLocal();
     final dateText =
         '${createdAt.day.toString().padLeft(2, '0')}/${createdAt.month.toString().padLeft(2, '0')}/${createdAt.year} ${createdAt.hour.toString().padLeft(2, '0')}:${createdAt.minute.toString().padLeft(2, '0')}';
@@ -752,15 +757,17 @@ class _OrderCard extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '+$pointsEarned pts',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                      if (pointsEarned != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          '+${pointsEarned!} pts',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ],
