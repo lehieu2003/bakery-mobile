@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Rounded tray under the splash pastry mark.
 const double _trayRadius = 26;
@@ -60,7 +62,7 @@ class _SplashMark extends StatelessWidget {
             child: Center(child: _BreadIcon()),
           ),
         ),
-        const SizedBox(height: 22),
+        const Gap(AppSpacing.xxl),
         const Text(
           'BAKERY SHOP',
           style: TextStyle(
@@ -70,7 +72,7 @@ class _SplashMark extends StatelessWidget {
             letterSpacing: 0,
           ),
         ),
-        const SizedBox(height: 8),
+        const Gap(AppSpacing.sm),
         const Text(
           'Bánh ngon cho mỗi ngày',
           style: TextStyle(

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Category labels under the round icons are cut to this many words.
 const int _maxLabelWords = 2;
@@ -29,7 +31,7 @@ class HomeCategoryRail extends StatelessWidget {
     return SizedBox(
       height: 104,
       child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         scrollDirection: Axis.horizontal,
         children: [
           ...categories.map(
@@ -98,7 +100,7 @@ class _CategoryCapsule extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 14),
+      padding: const EdgeInsets.only(right: AppSpacing.lg),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.xxxl),
@@ -106,7 +108,12 @@ class _CategoryCapsule extends StatelessWidget {
           duration: AppDurations.fast,
           curve: Curves.easeOut,
           width: 72,
-          padding: const EdgeInsets.fromLTRB(6, 6, 6, 8),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.sm,
+            AppSpacing.sm,
+            AppSpacing.sm,
+            AppSpacing.sm,
+          ),
           decoration: BoxDecoration(
             color: isSelected ? AppTheme.peachTint : Colors.transparent,
             borderRadius: BorderRadius.circular(AppRadius.xxxl),
@@ -142,7 +149,7 @@ class _CategoryCapsule extends StatelessWidget {
                   iconColor: AppTheme.warmBrown,
                 ),
               ),
-              const SizedBox(height: 7),
+              const Gap(AppSpacing.sm),
               Text(
                 label,
                 maxLines: 2,

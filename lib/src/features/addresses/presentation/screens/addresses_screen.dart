@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
 import 'package:bakery_mobile/src/features/addresses/domain/models/address.dart';
 import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
+
+/// Bottom space so the last address clears the floating add button.
+const double _fabClearance = 88;
 
 /// Same VN phone rule the checkout form and the server enforce.
 final _vnPhoneRegex = RegExp(r'^(0|\+84)(3|5|7|8|9)\d{8}$');
@@ -41,16 +46,21 @@ class _AddressesScreenState extends ConsumerState<AddressesScreen> {
       body: RefreshIndicator(
         onRefresh: notifier.load,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 88),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.md,
+            AppSpacing.lg,
+            _fabClearance,
+          ),
           children: [
             if (vm.isLoading && vm.items.isEmpty)
               const Padding(
-                padding: EdgeInsets.symmetric(vertical: 32),
+                padding: EdgeInsets.symmetric(vertical: AppSpacing.x3l),
                 child: LoadingWidget(),
               ),
             if (vm.error != null)
               Padding(
-                padding: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
                 child: Text(
                   vm.error!,
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -58,13 +68,13 @@ class _AddressesScreenState extends ConsumerState<AddressesScreen> {
               ),
             if (!vm.isLoading && vm.items.isEmpty)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 40),
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.x4l),
                 child: Column(
                   children: [
                     const Icon(Icons.location_off_outlined, size: 42),
-                    const SizedBox(height: 10),
+                    const Gap(AppSpacing.md),
                     const Text('Bạn chưa có địa chỉ nào.'),
-                    const SizedBox(height: 4),
+                    const Gap(AppSpacing.xs),
                     Text(
                       'Thêm địa chỉ để chọn nhanh khi đặt hàng giao tận nơi.',
                       style: Theme.of(context).textTheme.bodySmall,
@@ -75,7 +85,7 @@ class _AddressesScreenState extends ConsumerState<AddressesScreen> {
               ),
             ...vm.items.map(
               (address) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
                 child: _AddressCard(
                   address: address,
                   isPending: vm.pendingId == address.id,
@@ -186,7 +196,12 @@ class _AddressCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.md,
+          AppSpacing.lg,
+          AppSpacing.md,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -205,8 +220,8 @@ class _AddressCard extends StatelessWidget {
                 if (address.isDefault)
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.xs,
                     ),
                     decoration: BoxDecoration(
                       color: colorScheme.primaryContainer,
@@ -223,14 +238,14 @@ class _AddressCard extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 4),
+            const Gap(AppSpacing.xs),
             Text(address.phone),
-            const SizedBox(height: 2),
+            const Gap(AppSpacing.xxs),
             Text(
               address.addressLine,
               style: Theme.of(context).textTheme.bodySmall,
             ),
-            const SizedBox(height: 10),
+            const Gap(AppSpacing.md),
             Row(
               children: [
                 OutlinedButton.icon(
@@ -238,7 +253,7 @@ class _AddressCard extends StatelessWidget {
                   icon: const Icon(Icons.edit_outlined, size: 16),
                   label: const Text('Sửa'),
                 ),
-                const SizedBox(width: 8),
+                const Gap(AppSpacing.sm),
                 if (!address.isDefault)
                   OutlinedButton.icon(
                     onPressed: isPending ? null : onSetDefault,
@@ -381,10 +396,10 @@ class _AddressFormSheetState extends ConsumerState<_AddressFormSheet> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        16,
-        16,
-        16,
-        MediaQuery.viewInsetsOf(context).bottom + 16,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        MediaQuery.viewInsetsOf(context).bottom + AppSpacing.lg,
       ),
       child: Form(
         key: _formKey,
@@ -399,7 +414,7 @@ class _AddressFormSheetState extends ConsumerState<_AddressFormSheet> {
                   context,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: 14),
+              const Gap(AppSpacing.lg),
               AppTextInputWidget(
                 controller: _fullNameCtrl,
                 labelText: 'Họ và tên',
@@ -407,7 +422,7 @@ class _AddressFormSheetState extends ConsumerState<_AddressFormSheet> {
                 prefixIcon: const Icon(Icons.person_outline),
                 validator: (value) => _validateRequired(value, 'họ và tên'),
               ),
-              const SizedBox(height: 12),
+              const Gap(AppSpacing.md),
               AppTextInputWidget(
                 controller: _phoneCtrl,
                 labelText: 'Số điện thoại',
@@ -416,7 +431,7 @@ class _AddressFormSheetState extends ConsumerState<_AddressFormSheet> {
                 prefixIcon: const Icon(Icons.phone_outlined),
                 validator: _validatePhone,
               ),
-              const SizedBox(height: 12),
+              const Gap(AppSpacing.md),
               AppTextInputWidget(
                 controller: _streetCtrl,
                 labelText: 'Số nhà, tên đường',
@@ -425,7 +440,7 @@ class _AddressFormSheetState extends ConsumerState<_AddressFormSheet> {
                 validator: (value) =>
                     _validateRequired(value, 'số nhà, tên đường'),
               ),
-              const SizedBox(height: 12),
+              const Gap(AppSpacing.md),
               AppTextInputWidget(
                 controller: _wardCtrl,
                 labelText: 'Phường / Xã',
@@ -433,7 +448,7 @@ class _AddressFormSheetState extends ConsumerState<_AddressFormSheet> {
                 prefixIcon: const Icon(Icons.location_city_outlined),
                 validator: (value) => _validateRequired(value, 'phường / xã'),
               ),
-              const SizedBox(height: 12),
+              const Gap(AppSpacing.md),
               AppTextInputWidget(
                 controller: _districtCtrl,
                 labelText: 'Quận / Huyện',
@@ -441,7 +456,7 @@ class _AddressFormSheetState extends ConsumerState<_AddressFormSheet> {
                 prefixIcon: const Icon(Icons.map_outlined),
                 validator: (value) => _validateRequired(value, 'quận / huyện'),
               ),
-              const SizedBox(height: 12),
+              const Gap(AppSpacing.md),
               AppTextInputWidget(
                 controller: _provinceCtrl,
                 labelText: 'Tỉnh / Thành phố',
@@ -451,13 +466,13 @@ class _AddressFormSheetState extends ConsumerState<_AddressFormSheet> {
                     _validateRequired(value, 'tỉnh / thành phố'),
               ),
               if (_errorMessage != null) ...[
-                const SizedBox(height: 10),
+                const Gap(AppSpacing.md),
                 Text(
                   _errorMessage!,
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ],
-              const SizedBox(height: 16),
+              const Gap(AppSpacing.lg),
               FilledButton(
                 onPressed: _isSaving ? null : _save,
                 child: _isSaving

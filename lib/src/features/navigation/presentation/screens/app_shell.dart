@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
@@ -11,6 +12,7 @@ import 'package:bakery_mobile/src/features/profile/presentation/screens/profile_
 import 'package:bakery_mobile/src/shared/widgets/initial_avatar_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Top corners of the bottom navigation bar.
 const double _navBarRadius = 30;
@@ -95,7 +97,7 @@ class _BottomNavigator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 5),
+      margin: EdgeInsets.only(bottom: AppSpacing.xs),
       child: ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(_navBarRadius)),
         child: BottomAppBar(
@@ -107,7 +109,7 @@ class _BottomNavigator extends StatelessWidget {
             children: [
               // Left side: Home, Person
               Row(
-                spacing: 24,
+                spacing: AppSpacing.xxl,
                 children: [
                   _NavButton(
                     index: 0,
@@ -129,7 +131,7 @@ class _BottomNavigator extends StatelessWidget {
               ),
               // Right side: Favorite, Chatbot
               Row(
-                spacing: 24,
+                spacing: AppSpacing.xxl,
                 children: [
                   _NavButton(
                     index: 3,
@@ -188,7 +190,10 @@ class _NavButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRadius.pill),
           color: selected ? Colors.white.withValues(alpha: 0.18) : null,
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.sm,
+        ),
         child: Tooltip(
           message: label,
           child: Icon(
@@ -282,7 +287,7 @@ class _AppDrawer extends StatelessWidget {
                     onLogout?.call();
                   },
           ),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
         ],
       ),
     );

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Typography presets for [SummaryRowWidget].
 enum SummaryRowVariant {
@@ -58,13 +60,13 @@ class SummaryRowWidget extends StatelessWidget {
       ),
     };
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Row(
         children: [
           // Labels are short fixed strings; the value takes the rest, sits
           // flush right and wraps when long (e.g. a product code).
           Text(label, style: labelStyle),
-          const SizedBox(width: 10),
+          const Gap(AppSpacing.md),
           Expanded(
             child: Text(value, textAlign: TextAlign.end, style: valueStyle),
           ),

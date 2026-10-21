@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
 import 'package:bakery_mobile/src/features/chatbot/domain/models/chat.dart';
 import 'package:bakery_mobile/src/features/chatbot/presentation/widgets/suggested_product_tile.dart';
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class ChatbotScreen extends ConsumerStatefulWidget {
   const ChatbotScreen({super.key});
@@ -70,7 +72,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
             child: ListView.builder(
               controller: _scrollController,
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(AppSpacing.md),
               itemCount: vm.messages.length,
               itemBuilder: (context, index) {
                 final message = vm.messages[index];
@@ -80,7 +82,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
           ),
           if (vm.error != null)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
               child: Text(
                 vm.error!,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -90,12 +92,12 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
             SizedBox(
               height: 40,
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
                 scrollDirection: Axis.horizontal,
                 children: _quickPrompts
                     .map(
                       (prompt) => Padding(
-                        padding: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.only(right: AppSpacing.sm),
                         child: ActionChip(
                           label: Text(prompt),
                           onPressed: vm.isSending
@@ -110,7 +112,12 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
           AnimatedPadding(
             duration: AppDurations.fast,
             curve: Curves.easeOut,
-            padding: EdgeInsets.fromLTRB(8, 8, 8, composerBottomInset),
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.sm,
+              AppSpacing.sm,
+              AppSpacing.sm,
+              composerBottomInset,
+            ),
             child: Row(
               children: [
                 Expanded(
@@ -122,7 +129,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
                     onSubmitted: (_) => _send(context),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const Gap(AppSpacing.sm),
                 FilledButton(
                   onPressed: vm.isSending ? null : () => _send(context),
                   child: vm.isSending
@@ -166,18 +173,18 @@ class _MessageBubble extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 320),
         child: Card(
-          margin: const EdgeInsets.only(bottom: 8),
+          margin: const EdgeInsets.only(bottom: AppSpacing.sm),
           color: isUser
               ? Theme.of(context).colorScheme.primaryContainer
               : Theme.of(context).colorScheme.surfaceContainerHighest,
           child: Padding(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(AppSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(message.content),
                 if (!isUser && message.suggestedProducts.isNotEmpty) ...[
-                  const SizedBox(height: 8),
+                  const Gap(AppSpacing.sm),
                   ...message.suggestedProducts.map(
                     (product) => SuggestedProductTile(product: product),
                   ),

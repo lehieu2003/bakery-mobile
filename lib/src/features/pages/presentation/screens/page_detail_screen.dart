@@ -1,12 +1,14 @@
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/pages/domain/models/app_page.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/states/static_page_fallbacks.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/widgets/page_templates.dart';
 import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class PageDetailScreen extends ConsumerStatefulWidget {
   const PageDetailScreen({super.key, required this.slug});
@@ -67,13 +69,13 @@ class _PageDetailScreenState extends ConsumerState<PageDetailScreen> {
           : _page == null
           ? const Center(child: Text('Page not found'))
           : ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppSpacing.lg),
               children: [
                 Text(
                   _page!.title,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                const SizedBox(height: 12),
+                const Gap(AppSpacing.md),
                 Html(data: _page!.content),
               ],
             ),

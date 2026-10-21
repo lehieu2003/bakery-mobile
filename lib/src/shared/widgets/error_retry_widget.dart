@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Failure state with a 'Thử lại' action.
 ///
@@ -36,7 +38,10 @@ class ErrorRetryWidget extends StatelessWidget {
 
     if (compact) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24),
+        padding: const EdgeInsets.symmetric(
+          vertical: AppSpacing.sm,
+          horizontal: AppSpacing.xxl,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -56,12 +61,12 @@ class ErrorRetryWidget extends StatelessWidget {
     final secondary = secondaryAction;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSpacing.xxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 44, color: AppTheme.warmBrown),
-            const SizedBox(height: 12),
+            const Gap(AppSpacing.md),
             if (heading != null) ...[
               Text(
                 heading,
@@ -70,7 +75,7 @@ class ErrorRetryWidget extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(height: 6),
+              const Gap(AppSpacing.sm),
             ],
             Text(
               message,
@@ -78,14 +83,14 @@ class ErrorRetryWidget extends StatelessWidget {
               style: theme.textTheme.bodyMedium,
             ),
             if (retry != null) ...[
-              const SizedBox(height: 16),
+              const Gap(AppSpacing.lg),
               FilledButton.icon(
                 onPressed: retry,
                 icon: const Icon(Icons.refresh_rounded),
                 label: const Text('Thử lại'),
               ),
             ],
-            if (secondary != null) ...[const SizedBox(height: 8), secondary],
+            if (secondary != null) ...[const Gap(AppSpacing.sm), secondary],
           ],
         ),
       ),

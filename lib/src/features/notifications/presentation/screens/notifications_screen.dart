@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/shared/widgets/skeleton_notification_tile_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
@@ -82,7 +83,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               ),
             if (vm.error != null)
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.lg),
                 child: Text(
                   vm.error!,
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -90,7 +91,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               ),
             if (!vm.isLoading && vm.notifications.isEmpty)
               const Padding(
-                padding: EdgeInsets.all(24),
+                padding: EdgeInsets.all(AppSpacing.xxl),
                 child: Center(child: Text('No notifications.')),
               ),
             ...vm.notifications.map(
@@ -114,12 +115,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             ),
             if (vm.isLoadingMore)
               const Padding(
-                padding: EdgeInsets.symmetric(vertical: 14),
+                padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
                 child: LoadingWidget(),
               ),
             if (!vm.isLoading && !vm.isLoadingMore && vm.hasMore)
               Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(AppSpacing.md),
                 child: OutlinedButton(
                   onPressed: ref
                       .read(notificationsViewModelProvider.notifier)

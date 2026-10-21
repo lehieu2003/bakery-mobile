@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/empty_state_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Một lựa chọn lọc cho hàng chip: [value] null là chip 'Tất cả'.
 class AdminFilterChip {
@@ -80,7 +81,12 @@ class AdminPagedList<T> extends StatelessWidget {
       children: [
         if (onSearchChanged != null)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              AppSpacing.sm,
+            ),
             child: _AdminSearchField(
               hint: searchHint,
               text: searchText ?? '',
@@ -92,11 +98,11 @@ class AdminPagedList<T> extends StatelessWidget {
             height: 40,
             child: ListView(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
               children: [
                 for (final filter in filters)
                   Padding(
-                    padding: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.only(right: AppSpacing.sm),
                     child: ChoiceChip(
                       label: Text(filter.label),
                       selected: selectedFilter == filter.value,
@@ -281,7 +287,12 @@ class _AdminPagedListBodyState<T> extends State<_AdminPagedListBody<T>> {
       child: ListView.builder(
         controller: _controller,
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.xs,
+          AppSpacing.lg,
+          AppSpacing.lg,
+        ),
         itemCount: widget.items.length + (showFooter ? 1 : 0),
         itemBuilder: (context, index) {
           if (index >= widget.items.length) return _buildFooter(context);
@@ -295,7 +306,7 @@ class _AdminPagedListBodyState<T> extends State<_AdminPagedListBody<T>> {
     if (widget.isLoadingMore) {
       return const LoadingWidget(
         size: 24,
-        padding: EdgeInsets.symmetric(vertical: 16),
+        padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
       );
     }
     if (widget.error != null) {

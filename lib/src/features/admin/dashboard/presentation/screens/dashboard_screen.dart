@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
@@ -13,6 +14,7 @@ import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/empty_state_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Latest orders listed on the dashboard.
 const int _recentOrdersShown = 5;
@@ -95,7 +97,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -107,7 +109,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     message: state.error!,
                     onRetry: _reload,
                   ),
-                  const SizedBox(height: 16),
+                  const Gap(AppSpacing.lg),
                 ],
                 SegmentedButton<int>(
                   segments: const [
@@ -119,7 +121,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   onSelectionChanged: (selection) =>
                       _selectWindow(selection.first),
                 ),
-                const SizedBox(height: 16),
+                const Gap(AppSpacing.lg),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -129,7 +131,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         value: '${kpi.todayOrders}',
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const Gap(AppSpacing.md),
                     Expanded(
                       child: KpiCard(
                         label: 'Doanh thu hôm nay',
@@ -138,7 +140,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const Gap(AppSpacing.md),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -148,7 +150,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         value: '${kpi.conversionRate.toStringAsFixed(1)}%',
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const Gap(AppSpacing.md),
                     Expanded(
                       child: KpiCard(
                         label: 'Trạng thái đơn',
@@ -167,7 +169,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 children: [
                                   for (final orderState in statusRows)
                                     Padding(
-                                      padding: const EdgeInsets.only(bottom: 6),
+                                      padding: const EdgeInsets.only(
+                                        bottom: AppSpacing.sm,
+                                      ),
                                       child: Row(
                                         children: [
                                           OrderStatusPillWidget(
@@ -193,9 +197,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const Gap(AppSpacing.lg),
                 DashboardCharts(chartData: stats.chartData),
-                const SizedBox(height: 16),
+                const Gap(AppSpacing.lg),
                 _RecentOrdersCard(
                   orders: stats.recentOrders.take(_recentOrdersShown).toList(),
                 ),
@@ -226,14 +230,19 @@ class _DashboardErrorBanner extends StatelessWidget {
         color: colorScheme.errorContainer,
         borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
-      padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.xs,
+        AppSpacing.xs,
+        AppSpacing.xs,
+      ),
       child: Row(
         children: [
           Icon(
             Icons.warning_amber_rounded,
             color: colorScheme.onErrorContainer,
           ),
-          const SizedBox(width: 10),
+          const Gap(AppSpacing.md),
           Expanded(
             child: Text(
               message,
@@ -242,7 +251,7 @@ class _DashboardErrorBanner extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const Gap(AppSpacing.sm),
           TextButton(
             style: TextButton.styleFrom(
               foregroundColor: colorScheme.onErrorContainer,
@@ -268,7 +277,12 @@ class _RecentOrdersCard extends StatelessWidget {
     return Card(
       key: const Key('dashboard_recent_orders'),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 14, 14, 4),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.xs,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -280,11 +294,11 @@ class _RecentOrdersCard extends StatelessWidget {
                 color: AppTheme.inkBrown,
               ),
             ),
-            const SizedBox(height: 8),
+            const Gap(AppSpacing.sm),
             if (orders.isEmpty)
               const EmptyStateWidget(
                 message: 'Chưa có đơn nào',
-                padding: EdgeInsets.symmetric(vertical: 16),
+                padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
               )
             else
               for (final order in orders) _RecentOrderTile(order: order),
@@ -308,7 +322,7 @@ class _RecentOrderTile extends StatelessWidget {
         // TODO(phase-2): push order detail
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
         child: Row(
           children: [
             Expanded(
@@ -328,11 +342,11 @@ class _RecentOrderTile extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const Gap(AppSpacing.sm),
                       OrderStatusPillWidget(status: order.status),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const Gap(AppSpacing.xs),
                   Text(
                     '${order.customerName} · ${order.itemsCount} món',
                     maxLines: 1,
@@ -344,7 +358,7 @@ class _RecentOrderTile extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 12),
+            const Gap(AppSpacing.md),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -355,7 +369,7 @@ class _RecentOrderTile extends StatelessWidget {
                     color: AppTheme.inkBrown,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const Gap(AppSpacing.xs),
                 Text(
                   formatDateVi(order.createdAt),
                   style: theme.textTheme.bodySmall?.copyWith(

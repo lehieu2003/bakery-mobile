@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
@@ -8,6 +9,7 @@ import 'package:bakery_mobile/src/features/cart/presentation/screens/checkout_sc
 import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class CartScreen extends ConsumerWidget {
   const CartScreen({super.key});
@@ -42,10 +44,15 @@ class CartScreen extends ConsumerWidget {
               children: [
                 Expanded(
                   child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      AppSpacing.md,
+                      AppSpacing.md,
+                      0,
+                    ),
                     itemCount: cart.items.length,
                     itemBuilder: (context, index) => Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
                       child: _CartTile(item: cart.items[index]),
                     ),
                   ),
@@ -53,7 +60,7 @@ class CartScreen extends ConsumerWidget {
                 SafeArea(
                   top: false,
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(AppSpacing.lg),
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surface,
@@ -67,7 +74,7 @@ class CartScreen extends ConsumerWidget {
                         ],
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(14),
+                        padding: const EdgeInsets.all(AppSpacing.lg),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -88,7 +95,7 @@ class CartScreen extends ConsumerWidget {
                               ],
                             ),
                             if (auth.user != null && discountPercent > 0) ...[
-                              const SizedBox(height: 8),
+                              const Gap(AppSpacing.sm),
                               Row(
                                 children: [
                                   Expanded(
@@ -127,13 +134,13 @@ class CartScreen extends ConsumerWidget {
                                 ],
                               ),
                             ] else if (auth.user == null) ...[
-                              const SizedBox(height: 8),
+                              const Gap(AppSpacing.sm),
                               Text(
                                 'Sign in to apply membership savings.',
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                             ],
-                            const SizedBox(height: 10),
+                            const Gap(AppSpacing.md),
                             FilledButton.icon(
                               onPressed: () {
                                 Navigator.of(context).push(
@@ -169,7 +176,7 @@ class _CartTile extends ConsumerWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(AppSpacing.md),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -180,7 +187,7 @@ class _CartTile extends ConsumerWidget {
               borderRadius: BorderRadius.circular(AppRadius.md),
               emptyIcon: Icons.cake_outlined,
             ),
-            const SizedBox(width: 12),
+            const Gap(AppSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,20 +202,20 @@ class _CartTile extends ConsumerWidget {
                   ),
                   if (item.variantName != null &&
                       item.variantName!.trim().isNotEmpty) ...[
-                    const SizedBox(height: 4),
+                    const Gap(AppSpacing.xs),
                     Text(
                       item.variantName!,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
-                  const SizedBox(height: 8),
+                  const Gap(AppSpacing.sm),
                   Text(
                     formatVnd(item.price),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const Gap(AppSpacing.sm),
                   Row(
                     children: [
                       _QtyButton(
@@ -216,7 +223,9 @@ class _CartTile extends ConsumerWidget {
                         onTap: () => cart.decrease(item),
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md,
+                        ),
                         child: Text(
                           '${item.quantity}',
                           style: const TextStyle(fontWeight: FontWeight.w700),
@@ -276,7 +285,7 @@ class _EmptyCartView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 28),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x3l),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -294,14 +303,14 @@ class _EmptyCartView extends StatelessWidget {
                 color: Theme.of(context).colorScheme.primary,
               ),
             ),
-            const SizedBox(height: 14),
+            const Gap(AppSpacing.lg),
             Text(
               'Your cart is empty',
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 6),
+            const Gap(AppSpacing.sm),
             Text(
               'Pick your favorite cakes and desserts to start an order.',
               textAlign: TextAlign.center,

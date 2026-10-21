@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Bottom curve of the home header.
 const double _headerCurveRadius = 38;
@@ -36,10 +38,10 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.fromLTRB(
-        14,
-        MediaQuery.paddingOf(context).top + 8,
-        14,
-        16,
+        AppSpacing.lg,
+        MediaQuery.paddingOf(context).top + AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.lg,
       ),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -75,7 +77,7 @@ class HomeHeader extends StatelessWidget {
                 icon: Icons.shopping_cart_outlined,
                 onTap: onCartTap,
               ),
-              const SizedBox(width: 10),
+              const Gap(AppSpacing.md),
               Badge(
                 isLabelVisible: favoriteCount > 0,
                 label: Text('$favoriteCount'),
@@ -84,7 +86,7 @@ class HomeHeader extends StatelessWidget {
                   onTap: onFavoriteTap,
                 ),
               ),
-              const SizedBox(width: 10),
+              const Gap(AppSpacing.md),
               Badge(
                 isLabelVisible: unreadCount > 0,
                 label: Text('$unreadCount'),
@@ -95,7 +97,7 @@ class HomeHeader extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const Gap(AppSpacing.md),
           InkWell(
             onTap: onSearchTap,
             borderRadius: BorderRadius.circular(AppRadius.pill),
@@ -114,7 +116,7 @@ class HomeHeader extends StatelessWidget {
                 ],
               ),
               alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(horizontal: 14),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
               child: const Row(
                 children: [
                   Icon(
@@ -122,7 +124,7 @@ class HomeHeader extends StatelessWidget {
                     size: 19,
                     color: AppTheme.textHint,
                   ),
-                  SizedBox(width: 8),
+                  Gap(AppSpacing.sm),
                   Text(
                     'Search fresh pastry',
                     style: TextStyle(

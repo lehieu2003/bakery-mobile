@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// One tile of the dashboard's KPI grid: a [Card] (theme from AppTheme) with a
 /// muted [label] on top and the bold [value] beneath. [child] optionally
@@ -23,7 +25,7 @@ class KpiCard extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -38,7 +40,7 @@ class KpiCard extends StatelessWidget {
               ),
             ),
             if (value.isNotEmpty) ...[
-              const SizedBox(height: 6),
+              const Gap(AppSpacing.sm),
               // FittedBox shrinks long values (e.g. '1.250.000 ₫' on narrow
               // phones) instead of clipping them.
               FittedBox(
@@ -52,7 +54,7 @@ class KpiCard extends StatelessWidget {
                 ),
               ),
             ],
-            if (child != null) ...[const SizedBox(height: 8), child!],
+            if (child != null) ...[const Gap(AppSpacing.sm), child!],
           ],
         ),
       ),

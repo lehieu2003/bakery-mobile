@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Rounded square behind each onboarding illustration.
 const double _illustrationRadius = 42;
@@ -56,7 +58,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       backgroundColor: AppTheme.canvasCream,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(22, 18, 22, 24),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.xxl,
+            AppSpacing.xl,
+            AppSpacing.xxl,
+            AppSpacing.xxl,
+          ),
           child: Column(
             children: [
               Align(
@@ -77,7 +84,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
               _OnboardingDots(activeIndex: _index, count: _slides.length),
-              const SizedBox(height: 24),
+              const Gap(AppSpacing.xxl),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
@@ -146,7 +153,7 @@ class _OnboardingPage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _BakeryIllustration(slide: slide),
-        const SizedBox(height: 36),
+        const Gap(AppSpacing.x4l),
         Text(
           slide.title,
           textAlign: TextAlign.center,
@@ -156,7 +163,7 @@ class _OnboardingPage extends StatelessWidget {
             height: 1.15,
           ),
         ),
-        const SizedBox(height: 14),
+        const Gap(AppSpacing.lg),
         Text(
           slide.description,
           textAlign: TextAlign.center,
@@ -273,7 +280,7 @@ class _OnboardingDots extends StatelessWidget {
         final active = index == activeIndex;
         return AnimatedContainer(
           duration: AppDurations.fast,
-          margin: const EdgeInsets.symmetric(horizontal: 4),
+          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
           width: active ? 24 : 8,
           height: 8,
           decoration: BoxDecoration(

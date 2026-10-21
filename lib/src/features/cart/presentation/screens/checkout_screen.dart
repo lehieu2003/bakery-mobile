@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -14,6 +15,7 @@ import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 import 'package:bakery_mobile/src/shared/widgets/summary_row_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Mirrors the per-order limit in bakery-web app/api/incentives/preview.
 const int _maxIncentiveCodes = 5;
@@ -195,11 +197,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
             Card(
               child: Padding(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(AppSpacing.lg),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -209,7 +211,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const Gap(AppSpacing.md),
                     AppTextInputWidget(
                       controller: _nameCtrl,
                       textInputAction: TextInputAction.next,
@@ -221,7 +223,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 12),
+                    const Gap(AppSpacing.md),
                     AppTextInputWidget(
                       controller: _phoneCtrl,
                       keyboardType: TextInputType.phone,
@@ -229,7 +231,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       labelText: 'Customer phone',
                       validator: _validatePhone,
                     ),
-                    const SizedBox(height: 12),
+                    const Gap(AppSpacing.md),
                     if (auth.user != null && addresses.items.isNotEmpty) ...[
                       Text(
                         'Địa chỉ đã lưu',
@@ -259,7 +261,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const Gap(AppSpacing.sm),
                     ],
                     AppTextInputWidget(
                       controller: _addressCtrl,
@@ -271,7 +273,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            const Gap(AppSpacing.md),
             _IncentivesCard(
               controller: _incentiveCtrl,
               selectedCodes: _selectedIncentiveCodes,
@@ -284,10 +286,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               onApplyCode: _applyIncentive,
               onRemoveCode: _removeIncentive,
             ),
-            const SizedBox(height: 12),
+            const Gap(AppSpacing.md),
             Card(
               child: Padding(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(AppSpacing.lg),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -297,10 +299,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const Gap(AppSpacing.md),
                     Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.sm,
                       children: _paymentMethods
                           .map(
                             (method) => ChoiceChip(
@@ -320,10 +322,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            const Gap(AppSpacing.md),
             Card(
               child: Padding(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(AppSpacing.lg),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -333,10 +335,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const Gap(AppSpacing.sm),
                     ...cart.items.map(
                       (item) => Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
+                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                         child: Row(
                           children: [
                             Expanded(
@@ -384,7 +386,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const Gap(AppSpacing.lg),
             FilledButton(
               onPressed: orders.isCreatingOrder
                   ? null
@@ -399,14 +401,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           width: 18,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
-                        SizedBox(width: 10),
+                        Gap(AppSpacing.md),
                         Text('Creating order...'),
                       ],
                     )
                   : const Text('Place order'),
             ),
             if (orders.errorMessage != null) ...[
-              const SizedBox(height: 10),
+              const Gap(AppSpacing.md),
               Text(
                 orders.errorMessage!,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -487,17 +489,17 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             children: [
               ...detailLines.map(
                 (line) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
+                  padding: const EdgeInsets.only(bottom: AppSpacing.xs),
                   child: Text(line),
                 ),
               ),
               if (result.paymentUrl != null) ...[
-                const SizedBox(height: 8),
+                const Gap(AppSpacing.sm),
                 const Text(
                   'Payment URL',
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 4),
+                const Gap(AppSpacing.xs),
                 SelectableText(result.paymentUrl!),
               ],
             ],
@@ -705,7 +707,7 @@ class _IncentivesCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -716,7 +718,7 @@ class _IncentivesCard extends StatelessWidget {
                   color: AppTheme.warmBrown,
                   size: 20,
                 ),
-                const SizedBox(width: 8),
+                const Gap(AppSpacing.sm),
                 Text(
                   'Savings',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -732,7 +734,7 @@ class _IncentivesCard extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 12),
+            const Gap(AppSpacing.md),
             Row(
               children: [
                 Expanded(
@@ -745,7 +747,7 @@ class _IncentivesCard extends StatelessWidget {
                     onSubmitted: (_) => onApply(),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const Gap(AppSpacing.sm),
                 FilledButton(
                   onPressed: isApplying ? null : onApply,
                   child: isApplying
@@ -759,10 +761,10 @@ class _IncentivesCard extends StatelessWidget {
               ],
             ),
             if (selectedCodes.isNotEmpty) ...[
-              const SizedBox(height: 10),
+              const Gap(AppSpacing.md),
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
                 children: selectedCodes
                     .map(
                       (code) => InputChip(
@@ -774,7 +776,7 @@ class _IncentivesCard extends StatelessWidget {
               ),
             ],
             if (availableIncentives.isNotEmpty) ...[
-              const SizedBox(height: 12),
+              const Gap(AppSpacing.md),
               Text(
                 'Available now',
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -782,10 +784,10 @@ class _IncentivesCard extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(height: 8),
+              const Gap(AppSpacing.sm),
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
                 children: availableIncentives.take(_incentivesShown).map((
                   incentive,
                 ) {
@@ -799,7 +801,7 @@ class _IncentivesCard extends StatelessWidget {
               ),
             ],
             if (message != null) ...[
-              const SizedBox(height: 8),
+              const Gap(AppSpacing.sm),
               Text(
                 message!,
                 style: const TextStyle(
@@ -809,7 +811,7 @@ class _IncentivesCard extends StatelessWidget {
               ),
             ],
             if (error != null) ...[
-              const SizedBox(height: 8),
+              const Gap(AppSpacing.sm),
               Text(
                 error!,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/features/pages/domain/models/app_page.dart';
@@ -7,6 +8,7 @@ import 'package:bakery_mobile/src/features/pages/presentation/screens/page_detai
 import 'package:bakery_mobile/src/features/pages/presentation/states/static_page_fallbacks.dart';
 import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class PagesScreen extends ConsumerStatefulWidget {
   const PagesScreen({super.key});
@@ -53,12 +55,17 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
       body: RefreshIndicator(
         onRefresh: ref.read(pagesViewModelProvider.notifier).loadPages,
         child: ListView(
-          padding: const EdgeInsets.only(bottom: 20),
+          padding: const EdgeInsets.only(bottom: AppSpacing.xl),
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 14),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.sm,
+                AppSpacing.md,
+                AppSpacing.lg,
+              ),
               child: Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.lg),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(AppRadius.xxl),
                   gradient: LinearGradient(
@@ -81,12 +88,12 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
             ),
             if (vm.isLoading)
               const Padding(
-                padding: EdgeInsets.all(24),
+                padding: EdgeInsets.all(AppSpacing.xxl),
                 child: LoadingWidget(),
               ),
             if (vm.error != null)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 child: Text(
                   vm.error!,
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -95,7 +102,12 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
             ...merged.map((page) {
               final fallback = staticPageFallbacks[page.slug];
               return Padding(
-                padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.md,
+                  0,
+                  AppSpacing.md,
+                  AppSpacing.md,
+                ),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(AppRadius.xl),
                   onTap: () {
@@ -106,7 +118,7 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
                     );
                   },
                   child: Ink(
-                    padding: const EdgeInsets.all(14),
+                    padding: const EdgeInsets.all(AppSpacing.lg),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(AppRadius.xl),
@@ -126,7 +138,7 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
                             color: scheme.primary,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const Gap(AppSpacing.md),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,7 +148,7 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
                                 style: Theme.of(context).textTheme.titleMedium
                                     ?.copyWith(fontWeight: FontWeight.w700),
                               ),
-                              const SizedBox(height: 3),
+                              const Gap(AppSpacing.xs),
                               Text(
                                 fallback?.summary ?? '/${page.slug}',
                                 maxLines: 2,
@@ -149,7 +161,7 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        const Gap(AppSpacing.md),
                         Icon(
                           Icons.chevron_right_rounded,
                           color: scheme.onSurfaceVariant,

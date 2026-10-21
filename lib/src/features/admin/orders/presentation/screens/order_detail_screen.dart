@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
@@ -24,12 +25,13 @@ import 'package:bakery_mobile/src/shared/widgets/section_card_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/info_row_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/summary_row_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Max callback events / reconciliation attempts shown (web parity).
 const int _investigationLimit = 10;
 
 /// Spacing between the stacked section cards.
-const EdgeInsets _sectionMargin = EdgeInsets.only(bottom: 12);
+const EdgeInsets _sectionMargin = EdgeInsets.only(bottom: AppSpacing.md);
 
 /// Admin order detail: customer, payment, items, totals, status transitions
 /// (cancel requires a reason), audit trail, payment investigation and the
@@ -159,10 +161,15 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
       onRefresh: _vm.load,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.md,
+          AppSpacing.lg,
+          AppSpacing.x3l,
+        ),
         children: [
           _OrderHeader(order: order),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
           _StatusSection(
             order: order,
             isUpdating: state.isUpdating,
@@ -178,7 +185,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             title: 'Nhật ký',
             child: state.audit == null
                 ? const Padding(
-                    padding: EdgeInsets.all(8),
+                    padding: EdgeInsets.all(AppSpacing.sm),
                     child: LoadingWidget(),
                   )
                 : AuditLogList(logs: state.audit!),
@@ -254,8 +261,8 @@ class _StatusSection extends StatelessWidget {
       );
     } else {
       content = Wrap(
-        spacing: 8,
-        runSpacing: 8,
+        spacing: AppSpacing.sm,
+        runSpacing: AppSpacing.sm,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           for (final status in next)
@@ -396,7 +403,7 @@ class _ItemsCard extends StatelessWidget {
         children: [
           for (final item in order.items)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -410,7 +417,7 @@ class _ItemsCard extends StatelessWidget {
                     errorIcon: Icons.cake_outlined,
                     iconColor: AppTheme.warmBrown,
                   ),
-                  const SizedBox(width: 10),
+                  const Gap(AppSpacing.md),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -499,11 +506,16 @@ class _InvestigationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
       clipBehavior: Clip.antiAlias,
       child: ExpansionTile(
         title: const Text('Điều tra thanh toán'),
-        childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+        childrenPadding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          0,
+          AppSpacing.lg,
+          AppSpacing.lg,
+        ),
         expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
         onExpansionChanged: (expanded) {
           if (expanded) onExpand();
@@ -552,16 +564,16 @@ class _InvestigationCard extends StatelessWidget {
               : '${payment.provider} · ${payment.status} · '
                     '${formatVnd(payment.amount)}',
         ),
-        const SizedBox(height: 8),
+        const Gap(AppSpacing.sm),
         Text('Callback (${data.callbackEvents.length})', style: heading),
         if (events.isEmpty) Text('Không có', style: muted),
         for (final event in events) _eventLine(event, theme, muted),
-        const SizedBox(height: 8),
+        const Gap(AppSpacing.sm),
         Text('Đối soát (${data.attempts.length})', style: heading),
         if (attempts.isEmpty) Text('Không có', style: muted),
         for (final attempt in attempts)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 3),
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
             child: Text(
               '${formatDateTimeVi(attempt.createdAt.toLocal())} · '
               '${attempt.provider} · ${attempt.outcome}'
@@ -583,7 +595,7 @@ class _InvestigationCard extends StatelessWidget {
       if (event.reason != null) event.reason!,
     ].join(' — ');
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -627,10 +639,10 @@ class _CancelReasonSheetState extends State<_CancelReasonSheet> {
     final reason = _controller.text.trim();
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        16,
-        16,
-        16,
-        16 + MediaQuery.viewInsetsOf(context).bottom,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg + MediaQuery.viewInsetsOf(context).bottom,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -642,12 +654,12 @@ class _CancelReasonSheetState extends State<_CancelReasonSheet> {
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: 4),
+          const Gap(AppSpacing.xs),
           const Text(
             'Lý do huỷ sẽ được lưu vào nhật ký đơn.',
             style: TextStyle(color: AppTheme.warmBrown),
           ),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
           TextField(
             controller: _controller,
             autofocus: true,
@@ -656,7 +668,7 @@ class _CancelReasonSheetState extends State<_CancelReasonSheet> {
             decoration: const InputDecoration(hintText: 'Nhập lý do huỷ'),
             onChanged: (_) => setState(() {}),
           ),
-          const SizedBox(height: 12),
+          const Gap(AppSpacing.md),
           FilledButton(
             onPressed: reason.isEmpty
                 ? null

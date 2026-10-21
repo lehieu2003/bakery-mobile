@@ -10,6 +10,7 @@
 // still renders AdminPlaceholderScreen.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
@@ -18,6 +19,7 @@ import 'package:bakery_mobile/src/features/admin/orders/presentation/screens/ord
 import 'package:bakery_mobile/src/features/admin/shell/domain/admin_section.dart';
 import 'package:bakery_mobile/src/features/admin/shell/presentation/screens/admin_placeholder_screen.dart';
 import 'package:bakery_mobile/src/shared/widgets/initial_avatar_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class AdminShell extends ConsumerStatefulWidget {
   const AdminShell({super.key});
@@ -63,14 +65,14 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                 child: Row(
                   children: [
                     Icon(Icons.logout, size: 20),
-                    SizedBox(width: 8),
+                    Gap(AppSpacing.sm),
                     Text('Đăng xuất'),
                   ],
                 ),
               ),
             ],
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
               child: InitialAvatarWidget(name: auth.user?.name, fallback: 'A'),
             ),
           ),
@@ -132,14 +134,19 @@ class _AdminDrawer extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 4),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.xl,
+                  AppSpacing.lg,
+                  AppSpacing.xs,
+                ),
                 child: Row(
                   children: [
                     const Icon(
                       Icons.bakery_dining_rounded,
                       color: AppTheme.primaryPink,
                     ),
-                    const SizedBox(width: 8),
+                    const Gap(AppSpacing.sm),
                     Text(
                       'Bakery Admin',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -152,7 +159,12 @@ class _AdminDrawer extends StatelessWidget {
               ),
               for (final group in AdminSectionGroup.values) ...[
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.xs,
+                  ),
                   child: Text(
                     group.vietnameseTitle,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -178,7 +190,12 @@ class _AdminDrawer extends StatelessWidget {
               ],
               const Divider(height: 24),
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  0,
+                  AppSpacing.lg,
+                  AppSpacing.lg,
+                ),
                 child: Row(
                   children: [
                     InitialAvatarWidget(
@@ -186,7 +203,7 @@ class _AdminDrawer extends StatelessWidget {
                       radius: 16,
                       fallback: 'A',
                     ),
-                    const SizedBox(width: 10),
+                    const Gap(AppSpacing.md),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

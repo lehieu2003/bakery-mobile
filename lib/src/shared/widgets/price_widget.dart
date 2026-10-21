@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Layout/typography presets for [PriceWidget].
 enum PriceVariant {
@@ -43,7 +45,7 @@ class PriceWidget extends StatelessWidget {
     switch (variant) {
       case PriceVariant.compact:
         return Wrap(
-          spacing: 8,
+          spacing: AppSpacing.sm,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Text(
@@ -62,8 +64,8 @@ class PriceWidget extends StatelessWidget {
         );
       case PriceVariant.detail:
         return Wrap(
-          spacing: 10,
-          runSpacing: 2,
+          spacing: AppSpacing.md,
+          runSpacing: AppSpacing.xxs,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Text(
@@ -113,8 +115,8 @@ class PriceWidget extends StatelessWidget {
               child: isChip
                   ? Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
+                        horizontal: AppSpacing.sm,
+                        vertical: AppSpacing.xs,
                       ),
                       decoration: BoxDecoration(
                         color: scheme.primaryContainer.withValues(alpha: 0.8),
@@ -125,7 +127,7 @@ class PriceWidget extends StatelessWidget {
                   : priceText,
             ),
             if (showCompare) ...[
-              const SizedBox(width: 6),
+              const Gap(AppSpacing.sm),
               Flexible(
                 child: Text(
                   formatVnd(compare),

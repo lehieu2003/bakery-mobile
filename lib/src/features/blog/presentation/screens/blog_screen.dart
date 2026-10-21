@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
@@ -6,6 +7,7 @@ import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/skeleton_blog_card_widget.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/widgets/blog_post_card.dart';
 import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class BlogScreen extends ConsumerWidget {
   const BlogScreen({super.key});
@@ -60,7 +62,7 @@ class _BlogViewState extends ConsumerState<_BlogView> {
         onRefresh: ref.read(blogViewModelProvider.notifier).loadInitial,
         child: ListView(
           controller: _scrollController,
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
             AppTextInputWidget(
               textInputAction: TextInputAction.search,
@@ -70,14 +72,14 @@ class _BlogViewState extends ConsumerState<_BlogView> {
                   .read(blogViewModelProvider.notifier)
                   .applyFilter(search: text),
             ),
-            const SizedBox(height: 10),
+            const Gap(AppSpacing.md),
             SizedBox(
               height: 40,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.only(right: AppSpacing.sm),
                     child: ChoiceChip(
                       label: const Text('All categories'),
                       selected: vm.categorySlug.isEmpty,
@@ -88,7 +90,7 @@ class _BlogViewState extends ConsumerState<_BlogView> {
                   ),
                   ...vm.categories.map(
                     (category) => Padding(
-                      padding: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.only(right: AppSpacing.sm),
                       child: ChoiceChip(
                         label: Text(category.name),
                         selected: vm.categorySlug == category.slug,
@@ -104,7 +106,7 @@ class _BlogViewState extends ConsumerState<_BlogView> {
                 ],
               ),
             ),
-            const SizedBox(height: 10),
+            const Gap(AppSpacing.md),
             SizedBox(
               height: 38,
               child: ListView(
@@ -112,7 +114,7 @@ class _BlogViewState extends ConsumerState<_BlogView> {
                 children: [
                   ...vm.tags.map(
                     (tag) => Padding(
-                      padding: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.only(right: AppSpacing.sm),
                       child: FilterChip(
                         label: Text('#${tag.name}'),
                         selected: vm.tagSlug == tag.slug,
@@ -128,17 +130,17 @@ class _BlogViewState extends ConsumerState<_BlogView> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const Gap(AppSpacing.lg),
             if (vm.isLoading && vm.posts.isEmpty) ...[
               const SkeletonBlogCardWidget(),
-              const SizedBox(height: 12),
+              const Gap(AppSpacing.md),
               const SkeletonBlogCardWidget(),
-              const SizedBox(height: 12),
+              const Gap(AppSpacing.md),
               const SkeletonBlogCardWidget(),
             ],
             if (vm.error != null)
               Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
                 child: Text(
                   vm.error!,
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -146,23 +148,23 @@ class _BlogViewState extends ConsumerState<_BlogView> {
               ),
             if (!vm.isLoading && vm.posts.isEmpty)
               const Padding(
-                padding: EdgeInsets.only(top: 24),
+                padding: EdgeInsets.only(top: AppSpacing.xxl),
                 child: Center(child: Text('No blog posts found.')),
               ),
             ...vm.posts.map(
               (post) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
                 child: BlogPostCard(post: post),
               ),
             ),
             if (vm.isLoadingMore)
               const Padding(
-                padding: EdgeInsets.symmetric(vertical: 14),
+                padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
                 child: LoadingWidget(),
               ),
             if (!vm.isLoading && !vm.isLoadingMore && vm.hasMore)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                 child: OutlinedButton(
                   onPressed: ref.read(blogViewModelProvider.notifier).loadMore,
                   child: const Text('Load more posts'),

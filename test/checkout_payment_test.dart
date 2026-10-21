@@ -35,7 +35,10 @@ class _CapturingOrderRepository extends OrderRepository {
   _CapturingOrderRepository()
     : super(
         OrderApiService(
-          ApiClient(baseUrl: 'http://localhost:1', tokenProvider: () async => null),
+          ApiClient(
+            baseUrl: 'http://localhost:1',
+            tokenProvider: () async => null,
+          ),
         ),
       );
 
@@ -128,6 +131,9 @@ void main() {
     );
     await tester.pump();
 
+    // Scroll to the chip first: its position depends on spacing above it.
+    await tester.ensureVisible(find.text('VNPAY (QR/ATM/Visa)'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('VNPAY (QR/ATM/Visa)'));
     await tester.pump();
 
