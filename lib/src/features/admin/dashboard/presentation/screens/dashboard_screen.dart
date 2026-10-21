@@ -12,6 +12,10 @@ import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/empty_state_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+
+/// Latest orders listed on the dashboard.
+const int _recentOrdersShown = 5;
 
 /// Admin dashboard: window switcher, 2×2 KPI grid, fl_chart trend charts and
 /// the newest orders — driven by [dashboardViewModelProvider] (Task 5).
@@ -192,7 +196,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 const SizedBox(height: 16),
                 DashboardCharts(chartData: stats.chartData),
                 const SizedBox(height: 16),
-                _RecentOrdersCard(orders: stats.recentOrders.take(5).toList()),
+                _RecentOrdersCard(
+                  orders: stats.recentOrders.take(_recentOrdersShown).toList(),
+                ),
               ],
             ),
           ),
@@ -218,7 +224,7 @@ class _DashboardErrorBanner extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
       child: Row(

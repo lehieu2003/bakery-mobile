@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 
+/// Dot of a banner page that is not shown.
+const Color _inactiveDot = Color(0xFFE3D8CF);
+
 class HomeBannerDots extends StatelessWidget {
   const HomeBannerDots({
     super.key,
@@ -24,7 +27,7 @@ class HomeBannerDots extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: active ? AppTheme.warmBrown : const Color(0xFFE3D8CF),
+            color: active ? AppTheme.warmBrown : _inactiveDot,
           ),
         );
       }),

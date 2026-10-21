@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+
+/// Bottom curve of the home header.
+const double _headerCurveRadius = 38;
+
+/// Pink start of the header gradient.
+const Color _headerGradientStart = Color(0xFFFFDEE7);
+
+/// Peach end of the header gradient.
+const Color _headerGradientEnd = Color(0xFFFFE6CF);
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({
@@ -35,9 +45,11 @@ class HomeHeader extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFFFFDEE7), Color(0xFFFFE6CF)],
+          colors: [_headerGradientStart, _headerGradientEnd],
         ),
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(38)),
+        borderRadius: const BorderRadius.vertical(
+          bottom: Radius.circular(_headerCurveRadius),
+        ),
         boxShadow: [
           BoxShadow(
             color: AppTheme.pastryPeach.withValues(alpha: 0.18),
@@ -86,13 +98,13 @@ class HomeHeader extends StatelessWidget {
           const SizedBox(height: 10),
           InkWell(
             onTap: onSearchTap,
-            borderRadius: BorderRadius.circular(999),
+            borderRadius: BorderRadius.circular(AppRadius.pill),
             child: Container(
               width: double.infinity,
               height: 36,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.74),
-                borderRadius: BorderRadius.circular(999),
+                borderRadius: BorderRadius.circular(AppRadius.pill),
                 boxShadow: [
                   BoxShadow(
                     color: AppTheme.warmBrown.withValues(alpha: 0.08),
@@ -108,13 +120,13 @@ class HomeHeader extends StatelessWidget {
                   Icon(
                     Icons.search_rounded,
                     size: 19,
-                    color: Color(0xFF9B8474),
+                    color: AppTheme.textHint,
                   ),
                   SizedBox(width: 8),
                   Text(
                     'Search fresh pastry',
                     style: TextStyle(
-                      color: Color(0xFF9B8474),
+                      color: AppTheme.textHint,
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                     ),
@@ -139,10 +151,10 @@ class _HeaderSquareButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.white.withValues(alpha: 0.52),
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: SizedBox(
           width: 38,
           height: 38,

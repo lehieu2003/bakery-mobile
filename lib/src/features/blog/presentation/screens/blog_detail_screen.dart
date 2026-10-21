@@ -13,6 +13,14 @@ import 'package:bakery_mobile/src/shared/widgets/skeleton_box_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/skeleton_tile_widget.dart';
 import 'package:bakery_mobile/src/features/blog/domain/models/blog.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
+
+/// Related posts displayed under an article.
+const int _relatedPostsShown = 3;
+
+/// Posts fetched for the "related" strip (the current post is filtered out
+/// afterwards, so up to 3 remain).
+const int _relatedPostsLimit = 4;
 
 class BlogDetailScreen extends ConsumerStatefulWidget {
   const BlogDetailScreen({super.key, required this.slug});
@@ -63,21 +71,24 @@ class _BlogDetailScreenState extends ConsumerState<BlogDetailScreen> {
     try {
       final result = await ref
           .read(blogRepositoryProvider)
-          .getPosts(limit: 4, categorySlug: post.category?.slug);
+          .getPosts(
+            limit: _relatedPostsLimit,
+            categorySlug: post.category?.slug,
+          );
       if (!mounted) return;
       var posts = result.posts.where((item) => item.slug != post.slug).toList();
 
       if (posts.isEmpty) {
         final fallback = await ref
             .read(blogRepositoryProvider)
-            .getPosts(limit: 4);
+            .getPosts(limit: _relatedPostsLimit);
         posts = fallback.posts
             .where((item) => item.slug != post.slug)
-            .take(3)
+            .take(_relatedPostsShown)
             .toList();
       }
 
-      setState(() => _relatedPosts = posts.take(3).toList());
+      setState(() => _relatedPosts = posts.take(_relatedPostsShown).toList());
     } catch (_) {
       if (!mounted) return;
       setState(() => _relatedPosts = const []);
@@ -189,7 +200,7 @@ class _BlogPostContent extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
               decoration: BoxDecoration(
                 color: AppTheme.blushPink.withValues(alpha: 0.26),
-                borderRadius: BorderRadius.circular(999),
+                borderRadius: BorderRadius.circular(AppRadius.pill),
               ),
               child: Text(
                 post.category!.name.toUpperCase(),
@@ -250,7 +261,7 @@ class _BlogPostContent extends StatelessWidget {
               ),
               InkWell(
                 onTap: onShare,
-                borderRadius: BorderRadius.circular(999),
+                borderRadius: BorderRadius.circular(AppRadius.pill),
                 child: const Padding(
                   padding: EdgeInsets.symmetric(vertical: 2),
                   child: _MetaItem(
@@ -264,7 +275,7 @@ class _BlogPostContent extends StatelessWidget {
           const SizedBox(height: 18),
           if (imageUrl.isNotEmpty)
             ClipRRect(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(AppRadius.xxl),
               child: AspectRatio(
                 aspectRatio: 16 / 9,
                 child: AppNetworkImageWidget(
@@ -278,7 +289,7 @@ class _BlogPostContent extends StatelessWidget {
             DecoratedBox(
               decoration: BoxDecoration(
                 color: AppTheme.surfaceCream,
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(AppRadius.xxl),
                 boxShadow: [
                   BoxShadow(
                     color: AppTheme.warmBrown.withValues(alpha: 0.07),
@@ -360,12 +371,12 @@ class _MetaItem extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16, color: const Color(0xFF8A7464)),
+        Icon(icon, size: 16, color: AppTheme.textMuted),
         const SizedBox(width: 5),
         Text(
           label,
           style: const TextStyle(
-            color: Color(0xFF8A7464),
+            color: AppTheme.textMuted,
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
@@ -386,9 +397,9 @@ class _RelatedBlogPostTile extends StatelessWidget {
 
     return Material(
       color: AppTheme.surfaceCream,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(AppRadius.lg),
       child: InkWell(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         onTap: () => Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => BlogDetailScreen(slug: post.slug)),
         ),
@@ -397,13 +408,13 @@ class _RelatedBlogPostTile extends StatelessWidget {
           child: Row(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadius.md),
                 child: SizedBox(
                   width: 76,
                   height: 58,
                   child: AppNetworkImageWidget(
                     url: imageUrl,
-                    backgroundColor: const Color(0xFFE9DCCB),
+                    backgroundColor: AppTheme.placeholderBeige,
                     emptyIcon: Icons.article_outlined,
                     errorIcon: Icons.article_outlined,
                     iconSize: 22,
@@ -429,7 +440,7 @@ class _RelatedBlogPostTile extends StatelessWidget {
                     Text(
                       _formatDate(post.publishedAt),
                       style: const TextStyle(
-                        color: Color(0xFF8A7464),
+                        color: AppTheme.textMuted,
                         fontSize: 12,
                       ),
                     ),

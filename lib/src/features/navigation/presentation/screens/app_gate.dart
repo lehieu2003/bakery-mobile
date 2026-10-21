@@ -26,11 +26,15 @@ class _AppGateState extends ConsumerState<AppGate> {
     });
   }
 
+  /// The splash stays up at least this long, even when bootstrap is
+  /// instant, so it reads as an intentional screen rather than a flicker.
+  static const Duration _minSplashDuration = Duration(milliseconds: 1200);
+
   Future<void> _bootstrap() async {
     await Future.wait([
       ref.read(authViewModelProvider.notifier).bootstrap(),
       ref.read(onboardingViewModelProvider.notifier).bootstrap(),
-      Future<void>.delayed(const Duration(milliseconds: 1200)),
+      Future<void>.delayed(_minSplashDuration),
     ]);
     if (!mounted) return;
     setState(() => _gateReady = true);

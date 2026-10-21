@@ -23,6 +23,7 @@ import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/section_card_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/info_row_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/summary_row_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 
 /// Max callback events / reconciliation attempts shown (web parity).
 const int _investigationLimit = 10;
@@ -403,7 +404,7 @@ class _ItemsCard extends StatelessWidget {
                     url: item.imageUrl,
                     width: 48,
                     height: 48,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadius.xs),
                     backgroundColor: AppTheme.canvasCream,
                     emptyIcon: Icons.cake_outlined,
                     errorIcon: Icons.cake_outlined,

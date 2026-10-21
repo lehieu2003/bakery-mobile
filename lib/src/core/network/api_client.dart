@@ -1,9 +1,14 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:bakery_mobile/src/core/network/api_exception.dart';
+
+/// Debug logging only: characters of a response body / bearer token shown.
+const int _bodyPreviewLength = 220;
+const int _tokenPreviewLength = 12;
 
 typedef TokenProvider = Future<String?> Function();
 
@@ -57,8 +62,8 @@ class ApiClient {
 
     final decoded = _decodeBody(response.body);
     if (kDebugMode) {
-      final preview = response.body.length > 220
-          ? '${response.body.substring(0, 220)}...'
+      final preview = response.body.length > _bodyPreviewLength
+          ? '${response.body.substring(0, _bodyPreviewLength)}...'
           : response.body;
       debugPrint('[API] <- ${response.statusCode} ${uri.path} body=$preview');
     }
@@ -98,7 +103,7 @@ class ApiClient {
     if (kDebugMode) {
       final tokenPreview = token == null || token.isEmpty
           ? 'none'
-          : '${token.substring(0, token.length > 12 ? 12 : token.length)}...';
+          : '${token.substring(0, min(token.length, _tokenPreviewLength))}...';
       debugPrint(
         '[API] $method ${uri.path}${uri.hasQuery ? '?${uri.query}' : ''} token=$tokenPreview',
       );

@@ -20,6 +20,8 @@ import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_pro
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_subcategory_chips.dart';
 import 'package:bakery_mobile/src/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:bakery_mobile/src/features/wishlist/presentation/screens/wishlist_screen.dart';
+import 'package:bakery_mobile/src/core/theme/app_durations.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -51,12 +53,12 @@ class _HomeViewState extends ConsumerState<_HomeView> {
       ref.read(notificationsViewModelProvider.notifier).load();
       ref.read(wishlistViewModelProvider.notifier).load();
     });
-    _bannerTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+    _bannerTimer = Timer.periodic(AppDurations.carouselAutoplay, (_) {
       if (!_bannerController.hasClients || _bannerCount <= 1) return;
       final next = (_bannerIndex + 1) % _bannerCount;
       _bannerController.animateToPage(
         next,
-        duration: const Duration(milliseconds: 280),
+        duration: AppDurations.medium,
         curve: Curves.easeInOut,
       );
     });
@@ -177,9 +179,9 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                   padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
                   child: Text(
                     _personalizedMessage(vm)!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: const Color(0xFF8A7464),
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: AppTheme.textMuted),
                   ),
                 ),
               Padding(
@@ -305,8 +307,8 @@ class _HomeSectionTitle extends StatelessWidget {
               width: 28,
               height: 28,
               decoration: BoxDecoration(
-                color: const Color(0xFFFFE5D4),
-                borderRadius: BorderRadius.circular(8),
+                color: AppTheme.peachTint,
+                borderRadius: BorderRadius.circular(AppRadius.xs),
               ),
               child: Icon(icon, size: 16, color: AppTheme.warmBrown),
             ),
@@ -327,7 +329,7 @@ class _HomeSectionTitle extends StatelessWidget {
           height: 3,
           decoration: BoxDecoration(
             color: AppTheme.blushPink.withValues(alpha: 0.62),
-            borderRadius: BorderRadius.circular(999),
+            borderRadius: BorderRadius.circular(AppRadius.pill),
           ),
         ),
       ],

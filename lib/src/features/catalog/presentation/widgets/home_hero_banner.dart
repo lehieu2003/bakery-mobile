@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 
 class HomeHeroBanner extends StatelessWidget {
   const HomeHeroBanner({super.key, this.title, this.imageUrl});
@@ -15,7 +16,7 @@ class HomeHeroBanner extends StatelessWidget {
     return Container(
       height: 190,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppRadius.xxl),
         boxShadow: [
           BoxShadow(
             color: AppTheme.warmBrown.withValues(alpha: 0.10),
@@ -30,13 +31,13 @@ class HomeHeroBanner extends StatelessWidget {
           if (resolveImageUrl(imageUrl).isNotEmpty)
             AppNetworkImageWidget(
               url: imageUrl,
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(AppRadius.xxl),
               placeholder: const SizedBox.shrink(),
             ),
           if (resolveImageUrl(imageUrl).isNotEmpty)
             Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(AppRadius.xxl),
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,

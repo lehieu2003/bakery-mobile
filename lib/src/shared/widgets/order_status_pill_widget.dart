@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:bakery_mobile/src/shared/utils/order_status_display.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 
 /// Rounded pill showing the Vietnamese label of an order status, tinted with
 /// the status background/text color pair.
@@ -15,7 +16,7 @@ class OrderStatusPillWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: orderStatusColor(status),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Text(
         orderStatusLabel(status),

@@ -51,6 +51,10 @@ class DashboardState {
 /// and a 5-minute polling loop that keeps the KPIs fresh while the screen
 /// is mounted.
 class DashboardViewModel extends Notifier<DashboardState> {
+  /// Matches the server's `meta.refreshIntervalSeconds` (300) for the
+  /// admin dashboard.
+  static const Duration _pollInterval = Duration(minutes: 5);
+
   Timer? _refreshTimer;
 
   @override
@@ -93,7 +97,7 @@ class DashboardViewModel extends Notifier<DashboardState> {
   /// alive; [ref.onDispose] cancels it when the provider goes away.
   void startAutoRefresh() {
     _stopAutoRefresh();
-    _refreshTimer = Timer.periodic(const Duration(seconds: 300), (_) {
+    _refreshTimer = Timer.periodic(_pollInterval, (_) {
       load();
     });
   }

@@ -8,6 +8,7 @@ import 'package:bakery_mobile/src/features/catalog/presentation/screens/product_
 import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/discount_badge_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/price_widget.dart';
+import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 
 class SuggestedProductTile extends ConsumerWidget {
   const SuggestedProductTile({super.key, required this.product});
@@ -26,7 +27,7 @@ class SuggestedProductTile extends ConsumerWidget {
       margin: const EdgeInsets.only(top: 8),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(color: scheme.primary.withValues(alpha: 0.45)),
         boxShadow: [
           BoxShadow(
@@ -37,7 +38,7 @@ class SuggestedProductTile extends ConsumerWidget {
         ],
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         onTap: () {
           final idOrSlug = product.slug.isNotEmpty ? product.slug : product.id;
           Navigator.of(context).push(
@@ -60,7 +61,7 @@ class SuggestedProductTile extends ConsumerWidget {
                       url: imageUrl,
                       width: 56,
                       height: 56,
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
                       backgroundColor: scheme.surfaceContainerHighest,
                       iconSize: 20,
                     ),
