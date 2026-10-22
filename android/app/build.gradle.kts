@@ -39,8 +39,9 @@ android {
         applicationId = "vn.phuongloan.bakery"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        // flutter_secure_storage 10 requires API 23 (Flutter 3.32 defaults to 21).
-        minSdk = 23
+        // Play's automatic protection needs API 24+ (flutter_secure_storage 10
+        // alone needs 23; Flutter 3.32 defaults to 21).
+        minSdk = 24
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
