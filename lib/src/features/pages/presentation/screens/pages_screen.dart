@@ -7,6 +7,8 @@ import 'package:bakery_mobile/src/features/pages/domain/models/app_page.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/screens/page_detail_screen.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/states/static_page_fallbacks.dart';
 import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
+import 'package:bakery_mobile/src/features/pages/presentation/pages_keys.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
@@ -55,6 +57,7 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
       body: RefreshIndicator(
         onRefresh: ref.read(pagesViewModelProvider.notifier).loadPages,
         child: ListView(
+          key: PagesKeys.list,
           padding: const EdgeInsets.only(bottom: AppSpacing.xl),
           children: [
             Padding(
@@ -88,20 +91,26 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
             ),
             if (vm.isLoading)
               const Padding(
+                key: PagesKeys.loading,
                 padding: EdgeInsets.all(AppSpacing.xxl),
                 child: LoadingWidget(),
               ),
-            if (vm.error != null)
+            // Static pages still render below, so a failed fetch is a compact
+            // retry rather than a full-screen error.
+            if (vm.error != null && !vm.isLoading)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                child: Text(
-                  vm.error!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                child: ErrorRetryWidget(
+                  key: PagesKeys.error,
+                  message: vm.error!,
+                  compact: true,
+                  onRetry: ref.read(pagesViewModelProvider.notifier).loadPages,
                 ),
               ),
             ...merged.map((page) {
               final fallback = staticPageFallbacks[page.slug];
               return Padding(
+                key: PagesKeys.item(page.slug),
                 padding: const EdgeInsets.fromLTRB(
                   AppSpacing.md,
                   0,
