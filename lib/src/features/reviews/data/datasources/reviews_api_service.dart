@@ -30,10 +30,7 @@ class ReviewsApiService {
   }) async {
     final response = await _client.post(
       '/api/products/${Uri.encodeComponent(productId)}/reviews',
-      body: {
-        'rating': rating,
-        if (comment != null) 'comment': comment,
-      },
+      body: {'rating': rating, if (comment != null) 'comment': comment},
     );
     final data = response as Map<String, dynamic>? ?? const {};
     final review = data['review'];
