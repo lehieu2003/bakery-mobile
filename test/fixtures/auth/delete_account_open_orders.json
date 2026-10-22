@@ -1,0 +1,5 @@
+{
+  "success": false,
+  "error": "Bạn còn đơn hàng đang xử lý. Vui lòng chờ đơn hoàn tất hoặc hủy đơn trước khi xóa tài khoản.",
+  "data": { "openOrders": 1 }
+}

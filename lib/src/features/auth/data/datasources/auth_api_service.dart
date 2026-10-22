@@ -60,6 +60,15 @@ class AuthApiService {
     return UserDto.fromJson(data['user'] as Map<String, dynamic>? ?? {});
   }
 
+  /// Anonymizes the signed-in customer server-side (Play account-deletion
+  /// requirement). 400 wrong password, 403 admin, 409 open orders.
+  Future<void> deleteAccount({required String password}) async {
+    await _client.post(
+      '/api/auth/delete-account',
+      body: {'password': password},
+    );
+  }
+
   Future<void> register({required String email}) async {
     await _client.post('/api/auth/register', body: {'email': email});
   }

@@ -14,6 +14,8 @@ import 'package:bakery_mobile/src/features/notifications/presentation/screens/no
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
 import 'package:bakery_mobile/src/features/orders/presentation/screens/order_detail_screen.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/screens/pages_screen.dart';
+import 'package:bakery_mobile/src/features/profile/presentation/delete_account_keys.dart';
+import 'package:bakery_mobile/src/features/profile/presentation/screens/delete_account_screen.dart';
 import 'package:bakery_mobile/src/shared/widgets/order_status_pill_widget.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 import 'package:bakery_mobile/src/shared/widgets/initial_avatar_widget.dart';
@@ -117,16 +119,36 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           // "Sổ địa chỉ" — only reachable while signed in, same guard as the
           // order history section below (the body early-returns for guests).
           Card(
-            child: _ActionTile(
-              icon: Icons.location_on_outlined,
-              title: 'Sổ địa chỉ',
-              subtitle: 'Quản lý địa chỉ giao hàng đã lưu',
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const AddressesScreen()),
-                );
-              },
-              hideDivider: true,
+            child: Column(
+              children: [
+                _ActionTile(
+                  icon: Icons.location_on_outlined,
+                  title: 'Sổ địa chỉ',
+                  subtitle: 'Quản lý địa chỉ giao hàng đã lưu',
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const AddressesScreen(),
+                      ),
+                    );
+                  },
+                ),
+                _ActionTile(
+                  key: DeleteAccountKeys.entry,
+                  icon: Icons.person_remove_outlined,
+                  title: 'Xóa tài khoản',
+                  subtitle: 'Xóa vĩnh viễn tài khoản và dữ liệu cá nhân',
+                  onTap: () {
+                    ref.read(authViewModelProvider.notifier).clearError();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const DeleteAccountScreen(),
+                      ),
+                    );
+                  },
+                  hideDivider: true,
+                ),
+              ],
             ),
           ),
           const Gap(AppSpacing.lg),
@@ -603,6 +625,7 @@ class _QuickActionsCard extends StatelessWidget {
 
 class _ActionTile extends StatelessWidget {
   const _ActionTile({
+    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,
