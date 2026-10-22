@@ -1,0 +1,257 @@
+{
+  "success": true,
+  "data": {
+    "categories": [
+      {
+        "id": "cmmzpnjqo0003uy6sqc9x7o9r",
+        "name": "Đồ pha chế",
+        "slug": "do-pha-che",
+        "description": "Mọi thứ cần cho ly nước hoàn hảo",
+        "imageUrl": "https://res.cloudinary.com/dj7hjn48w/image/upload/v1774167825/categories/ecyzgjkh5njrgg4ym2nu.png",
+        "parentId": null,
+        "level": 1,
+        "displayOrder": 1,
+        "isActive": true,
+        "showInMenu": true,
+        "createdAt": "2026-03-21T02:30:26.736Z",
+        "updatedAt": "2026-10-03T04:53:37.231Z",
+        "_count": {
+          "products": 0
+        },
+        "children": [
+          {
+            "id": "cmmzpotwd0005uy6s639eiqfx",
+            "name": "Nguyên liệu pha chế",
+            "slug": "nguyen-lieu-pha-che",
+            "description": null,
+            "imageUrl": null,
+            "parentId": "cmmzpnjqo0003uy6sqc9x7o9r",
+            "level": 2,
+            "displayOrder": 0,
+            "isActive": true,
+            "showInMenu": true,
+            "createdAt": "2026-03-21T02:31:26.557Z",
+            "updatedAt": "2026-03-21T03:30:56.429Z",
+            "_count": {
+              "products": 4
+            },
+            "children": [
+              {
+                "id": "cmmzpr21r000buy6s4wdvz1br",
+                "name": "Siro",
+                "slug": "siro",
+                "description": null,
+                "imageUrl": null,
+                "parentId": "cmmzpotwd0005uy6s639eiqfx",
+                "level": 3,
+                "displayOrder": 0,
+                "isActive": true,
+                "showInMenu": true,
+                "createdAt": "2026-03-21T02:33:10.431Z",
+                "updatedAt": "2026-03-21T02:33:10.431Z",
+                "_count": {
+                  "products": 1
+                }
+              },
+              {
+                "id": "cmmzpqqol0009uy6szelw2tp1",
+                "name": "Trà",
+                "slug": "tra",
+                "description": null,
+                "imageUrl": null,
+                "parentId": "cmmzpotwd0005uy6s639eiqfx",
+                "level": 3,
+                "displayOrder": 0,
+                "isActive": true,
+                "showInMenu": true,
+                "createdAt": "2026-03-21T02:32:55.701Z",
+                "updatedAt": "2026-03-21T03:30:58.868Z",
+                "_count": {
+                  "products": 1
+                }
+              }
+            ]
+          },
+          {
+            "id": "cmmzpp3o40007uy6swcqfgc0k",
+            "name": "Dụng cụ pha chế",
+            "slug": "dung-cu-pha-che",
+            "description": null,
+            "imageUrl": null,
+            "parentId": "cmmzpnjqo0003uy6sqc9x7o9r",
+            "level": 2,
+            "displayOrder": 1,
+            "isActive": true,
+            "showInMenu": true,
+            "createdAt": "2026-03-21T02:31:39.220Z",
+            "updatedAt": "2026-03-21T03:30:58.383Z",
+            "_count": {
+              "products": 0
+            },
+            "children": [
+              {
+                "id": "cmmzpsdsj000huy6s6h3f3xa1",
+                "name": "Bình lắc",
+                "slug": "binh-lac",
+                "description": null,
+                "imageUrl": null,
+                "parentId": "cmmzpp3o40007uy6swcqfgc0k",
+                "level": 3,
+                "displayOrder": 0,
+                "isActive": true,
+                "showInMenu": true,
+                "createdAt": "2026-03-21T02:34:12.308Z",
+                "updatedAt": "2026-03-21T03:31:00.329Z",
+                "_count": {
+                  "products": 0
+                }
+              },
+              {
+                "id": "cmmzps37i000fuy6szm1uedds",
+                "name": "Giá đựng",
+                "slug": "gia-dung",
+                "description": null,
+                "imageUrl": null,
+                "parentId": "cmmzpp3o40007uy6swcqfgc0k",
+                "level": 3,
+                "displayOrder": 0,
+                "isActive": true,
+                "showInMenu": true,
+                "createdAt": "2026-03-21T02:33:58.590Z",
+                "updatedAt": "2026-03-21T03:30:59.839Z",
+                "_count": {
+                  "products": 0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "cmmzpu46y000juy6s66fu5kca",
+        "name": "Đồ làm bánh",
+        "slug": "do-lam-banh",
+        "description": "Nguyên liệu và dụng cụ làm bánh",
+        "imageUrl": "https://res.cloudinary.com/dj7hjn48w/image/upload/v1774167978/categories/uh4v7jdfykxe2suzylix.jpg",
+        "parentId": null,
+        "level": 1,
+        "displayOrder": 2,
+        "isActive": true,
+        "showInMenu": true,
+        "createdAt": "2026-03-21T02:35:33.178Z",
+        "updatedAt": "2026-10-03T04:53:37.776Z",
+        "_count": {
+          "products": 0
+        },
+        "children": [
+          {
+            "id": "cmmzpw7xp000luy6sgzt2css1",
+            "name": "Nguyên liệu làm bánh",
+            "slug": "nguyen-lieu-lam-banh",
+            "description": null,
+            "imageUrl": null,
+            "parentId": "cmmzpu46y000juy6s66fu5kca",
+            "level": 2,
+            "displayOrder": 0,
+            "isActive": true,
+            "showInMenu": true,
+            "createdAt": "2026-03-21T02:37:11.341Z",
+            "updatedAt": "2026-03-21T03:30:56.917Z",
+            "_count": {
+              "products": 1
+            },
+            "children": [
+              {
+                "id": "cmmzq1axg000xuy6sqyoarzqk",
+                "name": "Đường",
+                "slug": "duong",
+                "description": null,
+                "imageUrl": null,
+                "parentId": "cmmzpw7xp000luy6sgzt2css1",
+                "level": 3,
+                "displayOrder": 0,
+                "isActive": true,
+                "showInMenu": true,
+                "createdAt": "2026-03-21T02:41:08.500Z",
+                "updatedAt": "2026-03-21T03:31:02.287Z",
+                "_count": {
+                  "products": 1
+                }
+              },
+              {
+                "id": "cmmzq0w96000tuy6sv0sctj6e",
+                "name": "Bơ",
+                "slug": "bo",
+                "description": null,
+                "imageUrl": null,
+                "parentId": "cmmzpw7xp000luy6sgzt2css1",
+                "level": 3,
+                "displayOrder": 0,
+                "isActive": true,
+                "showInMenu": true,
+                "createdAt": "2026-03-21T02:40:49.482Z",
+                "updatedAt": "2026-03-21T03:31:01.297Z",
+                "_count": {
+                  "products": 1
+                }
+              }
+            ]
+          },
+          {
+            "id": "cmmzpx9on000nuy6sj6zg28ue",
+            "name": "Dụng cụ làm bánh",
+            "slug": "dung-cu-lam-banh",
+            "description": null,
+            "imageUrl": null,
+            "parentId": "cmmzpu46y000juy6s66fu5kca",
+            "level": 2,
+            "displayOrder": 0,
+            "isActive": true,
+            "showInMenu": true,
+            "createdAt": "2026-03-21T02:38:00.264Z",
+            "updatedAt": "2026-03-21T03:30:57.408Z",
+            "_count": {
+              "products": 1
+            },
+            "children": [
+              {
+                "id": "cmmzq2mmb0011uy6smpd0c336",
+                "name": "Túi, đui bắt kem",
+                "slug": "tui-dui-bat-kem",
+                "description": null,
+                "imageUrl": null,
+                "parentId": "cmmzpx9on000nuy6sj6zg28ue",
+                "level": 3,
+                "displayOrder": 0,
+                "isActive": true,
+                "showInMenu": true,
+                "createdAt": "2026-03-21T02:42:10.307Z",
+                "updatedAt": "2026-03-21T03:31:03.071Z",
+                "_count": {
+                  "products": 1
+                }
+              },
+              {
+                "id": "cmmzq36x50013uy6simkunvgl",
+                "name": "Dụng cụ trang trí",
+                "slug": "dung-cu-trang-tri",
+                "description": null,
+                "imageUrl": null,
+                "parentId": "cmmzpx9on000nuy6sj6zg28ue",
+                "level": 3,
+                "displayOrder": 0,
+                "isActive": true,
+                "showInMenu": true,
+                "createdAt": "2026-03-21T02:42:36.617Z",
+                "updatedAt": "2026-03-21T03:31:03.563Z",
+                "_count": {
+                  "products": 0
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
