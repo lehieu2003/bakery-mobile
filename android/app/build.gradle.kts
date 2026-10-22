@@ -42,7 +42,9 @@ android {
         // Play's automatic protection needs API 24+ (flutter_secure_storage 10
         // alone needs 23; Flutter 3.32 defaults to 21).
         minSdk = 24
-        targetSdk = flutter.targetSdkVersion
+        // Play requires API 36 (Flutter 3.32 defaults to 35). Android 16 enforces
+        // edge-to-edge and predictive back — the app opts out of neither.
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
