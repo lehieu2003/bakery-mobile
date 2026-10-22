@@ -129,6 +129,19 @@ class AuthViewModel extends Notifier<AuthState> {
     }
   }
 
+  /// Drops a stale error (e.g. from a previous form) before a new flow.
+  void clearError() => state = state.copyWith(clearError: true);
+
+  /// Deletes the account; on success the user is signed out (AppGate
+  /// returns to the auth screen). The server's reason lands in errorMessage.
+  Future<bool> deleteAccount({required String password}) {
+    return _submit(() async {
+      await ref.read(authRepositoryProvider).deleteAccount(password: password);
+      state = state.copyWith(clearUser: true);
+      return true;
+    });
+  }
+
   Future<bool> updateProfile({String? name, String? phone}) {
     return _submit(() async {
       final user = await ref
