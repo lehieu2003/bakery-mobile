@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Mobile debug — Pixel 7 emulator (cần API đang chạy ở 3001)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "flutterMode": "debug",
+      "deviceId": "emulator-5554"
+    },
+    {
+      "name": "Mobile debug — chọn thiết bị khi chạy",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "flutterMode": "debug"
+    },
+    {
+      "name": "Mobile release mode (tốc độ thật, không breakpoint)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "flutterMode": "release",
+      "deviceId": "emulator-5554"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full stack — API (3001) + Mobile debug",
+      "configurations": ["Mobile debug — Pixel 7 emulator (cần API đang chạy ở 3001)"],
+      "preLaunchTask": "bakery-web: chạy API ở cổng 3001"
+    }
+  ]
+}
