@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
 import 'package:bakery_mobile/src/features/chatbot/domain/models/chat.dart';
+import 'package:bakery_mobile/src/features/chatbot/presentation/chatbot_keys.dart';
 import 'package:bakery_mobile/src/features/chatbot/presentation/widgets/suggested_product_tile.dart';
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
@@ -70,18 +71,23 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
         children: [
           Expanded(
             child: ListView.builder(
+              key: ChatbotKeys.messages,
               controller: _scrollController,
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.all(AppSpacing.md),
               itemCount: vm.messages.length,
               itemBuilder: (context, index) {
                 final message = vm.messages[index];
-                return _MessageBubble(message: message);
+                return _MessageBubble(
+                  key: ChatbotKeys.message(index),
+                  message: message,
+                );
               },
             ),
           ),
           if (vm.error != null)
             Padding(
+              key: ChatbotKeys.error,
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
               child: Text(
                 vm.error!,
@@ -94,15 +100,16 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
                 scrollDirection: Axis.horizontal,
-                children: _quickPrompts
+                children: _quickPrompts.indexed
                     .map(
-                      (prompt) => Padding(
+                      (entry) => Padding(
                         padding: const EdgeInsets.only(right: AppSpacing.sm),
                         child: ActionChip(
-                          label: Text(prompt),
+                          key: ChatbotKeys.quickPrompt(entry.$1),
+                          label: Text(entry.$2),
                           onPressed: vm.isSending
                               ? null
-                              : () => _sendPrompt(context, prompt),
+                              : () => _sendPrompt(context, entry.$2),
                         ),
                       ),
                     )
@@ -122,6 +129,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
               children: [
                 Expanded(
                   child: AppTextInputWidget(
+                    key: ChatbotKeys.input,
                     controller: _controller,
                     minLines: 1,
                     maxLines: 4,
@@ -131,9 +139,11 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
                 ),
                 const Gap(AppSpacing.sm),
                 FilledButton(
+                  key: ChatbotKeys.send,
                   onPressed: vm.isSending ? null : () => _send(context),
                   child: vm.isSending
                       ? const SizedBox(
+                          key: ChatbotKeys.sending,
                           height: 18,
                           width: 18,
                           child: CircularProgressIndicator(strokeWidth: 2),
@@ -160,7 +170,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
 }
 
 class _MessageBubble extends StatelessWidget {
-  const _MessageBubble({required this.message});
+  const _MessageBubble({super.key, required this.message});
 
   final ChatMessage message;
 
@@ -186,7 +196,10 @@ class _MessageBubble extends StatelessWidget {
                 if (!isUser && message.suggestedProducts.isNotEmpty) ...[
                   const Gap(AppSpacing.sm),
                   ...message.suggestedProducts.map(
-                    (product) => SuggestedProductTile(product: product),
+                    (product) => SuggestedProductTile(
+                      key: ChatbotKeys.suggestion(product.id),
+                      product: product,
+                    ),
                   ),
                 ],
               ],
