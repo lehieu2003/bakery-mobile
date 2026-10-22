@@ -1,0 +1,41 @@
+{
+  "success": true,
+  "data": {
+    "notifications": [
+      {
+        "id": "cmvixyhuw000di9pviia3qzlg",
+        "title": "Order Update",
+        "content": "Your order #BK261022198T is now PENDING.",
+        "imageUrl": null,
+        "linkUrl": "http://localhost:3000/orders/BK261022198T",
+        "status": "PUBLISHED",
+        "publishedAt": "2026-10-22T02:48:10.291Z",
+        "createdById": "cmm9b9k110001uyzsm6xhx6x4",
+        "createdAt": "2026-10-22T02:48:10.472Z",
+        "updatedAt": "2026-10-22T02:48:10.472Z",
+        "isRead": false,
+        "readAt": null
+      },
+      {
+        "id": "cmuor1x5e0018i91ix64l5lbm",
+        "title": "TEST- Khuyến mãi cuối tuần",
+        "content": "Giảm 20% mọi loại bánh từ thứ 6 đến chủ nhật. Smoke test từ admin.",
+        "imageUrl": null,
+        "linkUrl": null,
+        "status": "PUBLISHED",
+        "publishedAt": "2026-09-30T23:41:47.665Z",
+        "createdById": "cmm9b9j7a0000uyzs622wj3in",
+        "createdAt": "2026-09-30T23:41:47.666Z",
+        "updatedAt": "2026-09-30T23:41:47.666Z",
+        "isRead": false,
+        "readAt": null
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "total": 7,
+      "totalPages": 1
+    }
+  }
+}

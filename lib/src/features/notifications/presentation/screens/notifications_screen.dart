@@ -5,6 +5,9 @@ import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/shared/widgets/skeleton_notification_tile_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
+import 'package:bakery_mobile/src/features/notifications/presentation/notifications_keys.dart';
+import 'package:bakery_mobile/src/shared/widgets/empty_state_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
@@ -22,6 +25,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     super.initState();
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Guests only see the sign-in prompt; the API would answer 401.
+      if (!ref.read(authViewModelProvider).isAuthenticated) return;
       ref.read(notificationsViewModelProvider.notifier).load();
     });
   }
@@ -57,6 +62,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         title: Text('Notifications (${vm.unreadCount})'),
         actions: [
           TextButton(
+            key: NotificationsKeys.markAllRead,
             onPressed: vm.unreadCount > 0
                 ? ref
                       .read(notificationsViewModelProvider.notifier)
@@ -69,10 +75,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       body: RefreshIndicator(
         onRefresh: ref.read(notificationsViewModelProvider.notifier).load,
         child: ListView(
+          key: NotificationsKeys.list,
           controller: _scrollController,
           children: [
             if (vm.isLoading && vm.notifications.isEmpty)
               const Column(
+                key: NotificationsKeys.loading,
                 children: [
                   SkeletonNotificationTileWidget(),
                   SkeletonNotificationTileWidget(),
@@ -81,21 +89,23 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   SkeletonNotificationTileWidget(),
                 ],
               ),
-            if (vm.error != null)
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                child: Text(
-                  vm.error!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                ),
+            // Nothing to show and the load failed: error + retry (instead of
+            // the empty message, which would claim there are none).
+            if (vm.error != null && vm.notifications.isEmpty && !vm.isLoading)
+              ErrorRetryWidget(
+                key: NotificationsKeys.error,
+                message: vm.error!,
+                onRetry: ref.read(notificationsViewModelProvider.notifier).load,
               ),
-            if (!vm.isLoading && vm.notifications.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(AppSpacing.xxl),
-                child: Center(child: Text('No notifications.')),
+            if (!vm.isLoading && vm.error == null && vm.notifications.isEmpty)
+              const EmptyStateWidget(
+                key: NotificationsKeys.empty,
+                message: 'No notifications.',
+                icon: Icons.notifications_none_rounded,
               ),
             ...vm.notifications.map(
               (n) => ListTile(
+                key: NotificationsKeys.item(n.id),
                 leading: Icon(
                   n.isRead
                       ? Icons.mark_email_read_outlined
@@ -106,6 +116,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 trailing: n.isRead
                     ? null
                     : TextButton(
+                        key: NotificationsKeys.markRead(n.id),
                         onPressed: () => ref
                             .read(notificationsViewModelProvider.notifier)
                             .markOneAsRead(n.id),
@@ -113,6 +124,15 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                       ),
               ),
             ),
+            // A later page failed while earlier ones are shown.
+            if (vm.error != null && vm.notifications.isNotEmpty)
+              ErrorRetryWidget(
+                message: vm.error!,
+                onRetry: ref
+                    .read(notificationsViewModelProvider.notifier)
+                    .loadMore,
+                compact: true,
+              ),
             if (vm.isLoadingMore)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
@@ -122,6 +142,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 child: OutlinedButton(
+                  key: NotificationsKeys.loadMore,
                   onPressed: ref
                       .read(notificationsViewModelProvider.notifier)
                       .loadMore,

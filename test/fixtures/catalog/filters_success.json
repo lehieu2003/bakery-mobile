@@ -1,0 +1,87 @@
+{
+  "success": true,
+  "data": {
+    "filters": [
+      {
+        "id": "cmmrswz7c001auydwwdog2hj3",
+        "name": "Mousse Cheesecake",
+        "slug": "mousse-cheesecake",
+        "code": "mousse_cheesecake",
+        "type": "MULTI_SELECT",
+        "description": null,
+        "isRequired": false,
+        "isFilterable": true,
+        "isVariantAxis": false,
+        "isActive": true,
+        "displayOrder": 0,
+        "createdAt": "2026-03-15T13:39:36.121Z",
+        "updatedAt": "2026-03-15T13:39:36.121Z",
+        "values": [
+          {
+            "id": "cmmrswz7d001duydw167pphra",
+            "attributeId": "cmmrswz7c001auydwwdog2hj3",
+            "value": "Red velvet",
+            "slug": "red-velvet",
+            "label": "Red velvet",
+            "colorHex": null,
+            "imageUrl": null,
+            "displayOrder": 2,
+            "isActive": true,
+            "createdAt": "2026-03-15T13:39:36.121Z",
+            "updatedAt": "2026-03-15T13:39:36.121Z",
+            "productCount": 1
+          }
+        ]
+      },
+      {
+        "id": "cmmrsmtca000luydwb1voyfob",
+        "name": "Nhân bánh kem",
+        "slug": "nhan-banh-kem",
+        "code": "nhan_banh_kem",
+        "type": "MULTI_SELECT",
+        "description": null,
+        "isRequired": false,
+        "isFilterable": true,
+        "isVariantAxis": true,
+        "isActive": true,
+        "displayOrder": 1,
+        "createdAt": "2026-03-15T13:31:41.963Z",
+        "updatedAt": "2026-03-15T13:34:10.807Z",
+        "values": [
+          {
+            "id": "cmmrsq06v000puydwzihv5vz8",
+            "attributeId": "cmmrsmtca000luydwb1voyfob",
+            "value": "Bắp",
+            "slug": "bap",
+            "label": "Bắp",
+            "colorHex": null,
+            "imageUrl": null,
+            "displayOrder": 0,
+            "isActive": true,
+            "createdAt": "2026-03-15T13:34:10.807Z",
+            "updatedAt": "2026-03-15T13:34:10.807Z",
+            "productCount": 1
+          },
+          {
+            "id": "cmmrsq06v000quydw26563meu",
+            "attributeId": "cmmrsmtca000luydwb1voyfob",
+            "value": "Thơm",
+            "slug": "thom",
+            "label": "Thơm",
+            "colorHex": null,
+            "imageUrl": null,
+            "displayOrder": 1,
+            "isActive": true,
+            "createdAt": "2026-03-15T13:34:10.807Z",
+            "updatedAt": "2026-03-15T13:34:10.807Z",
+            "productCount": 1
+          }
+        ]
+      }
+    ],
+    "priceRange": {
+      "min": 16000,
+      "max": 4200000
+    }
+  }
+}

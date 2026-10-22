@@ -1,0 +1,8 @@
+{
+  "success": true,
+  "data": {
+    "products": [],
+    "source": "behavioral",
+    "reason": "behavior-match"
+  }
+}

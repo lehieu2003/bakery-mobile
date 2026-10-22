@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "data": {
+    "filters": [],
+    "priceRange": {
+      "min": 16000,
+      "max": 4200000
+    }
+  }
+}

@@ -22,6 +22,9 @@ class ErrorRetryWidget extends StatelessWidget {
     this.compact = false,
   });
 
+  /// Key of the 'Thử lại' button (both layouts) — for tests and finders.
+  static const Key retryButtonKey = Key('error_retry.retry');
+
   final String message;
 
   /// Hides the retry button when null.
@@ -51,7 +54,11 @@ class ErrorRetryWidget extends StatelessWidget {
               style: TextStyle(color: theme.colorScheme.error),
             ),
             if (retry != null)
-              TextButton(onPressed: retry, child: const Text('Thử lại')),
+              TextButton(
+                key: retryButtonKey,
+                onPressed: retry,
+                child: const Text('Thử lại'),
+              ),
           ],
         ),
       );
@@ -85,6 +92,7 @@ class ErrorRetryWidget extends StatelessWidget {
             if (retry != null) ...[
               const Gap(AppSpacing.lg),
               FilledButton.icon(
+                key: retryButtonKey,
                 onPressed: retry,
                 icon: const Icon(Icons.refresh_rounded),
                 label: const Text('Thử lại'),
