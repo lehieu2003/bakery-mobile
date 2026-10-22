@@ -43,9 +43,7 @@ class _CapturingApiClient extends ApiClient {
   Future<dynamic> post(String path, {Object? body}) async {
     lastPath = path;
     lastBody = body;
-    return {
-      'review': Map<String, dynamic>.from(_fullReview)..['rating'] = 4,
-    };
+    return {'review': Map<String, dynamic>.from(_fullReview)..['rating'] = 4};
   }
 }
 
@@ -85,10 +83,22 @@ void main() {
     });
 
     test('clamps rating into the 1-5 range', () {
-      expect(ReviewDto.fromJson({..._fullReview, 'rating': 9}).toDomain().rating, 5);
-      expect(ReviewDto.fromJson({..._fullReview, 'rating': 0}).toDomain().rating, 1);
-      expect(ReviewDto.fromJson({..._fullReview, 'rating': '4'}).toDomain().rating, 4);
-      expect(ReviewDto.fromJson({..._fullReview, 'rating': null}).toDomain().rating, 1);
+      expect(
+        ReviewDto.fromJson({..._fullReview, 'rating': 9}).toDomain().rating,
+        5,
+      );
+      expect(
+        ReviewDto.fromJson({..._fullReview, 'rating': 0}).toDomain().rating,
+        1,
+      );
+      expect(
+        ReviewDto.fromJson({..._fullReview, 'rating': '4'}).toDomain().rating,
+        4,
+      );
+      expect(
+        ReviewDto.fromJson({..._fullReview, 'rating': null}).toDomain().rating,
+        1,
+      );
     });
 
     test('list parsing via fromJsonList skips malformed entries', () {
@@ -158,20 +168,23 @@ void main() {
       expect(page.reviewCount, 7);
     });
 
-    test('POST sends {rating, comment} to the product reviews endpoint', () async {
-      final client = _CapturingApiClient();
-      final repository = ReviewsRepository(ReviewsApiService(client));
+    test(
+      'POST sends {rating, comment} to the product reviews endpoint',
+      () async {
+        final client = _CapturingApiClient();
+        final repository = ReviewsRepository(ReviewsApiService(client));
 
-      final review = await repository.submitReview(
-        'product-1',
-        rating: 4,
-        comment: 'Rất tốt',
-      );
+        final review = await repository.submitReview(
+          'product-1',
+          rating: 4,
+          comment: 'Rất tốt',
+        );
 
-      expect(client.lastPath, '/api/products/product-1/reviews');
-      expect(client.lastBody, {'rating': 4, 'comment': 'Rất tốt'});
-      expect(review.rating, 4);
-    });
+        expect(client.lastPath, '/api/products/product-1/reviews');
+        expect(client.lastBody, {'rating': 4, 'comment': 'Rất tốt'});
+        expect(review.rating, 4);
+      },
+    );
 
     test('POST omits comment when null', () async {
       final client = _CapturingApiClient();

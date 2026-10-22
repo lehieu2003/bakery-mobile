@@ -75,10 +75,7 @@ void main() {
       expect(stats.recentOrders, hasLength(1));
       expect(stats.recentOrders[0].total, 250000.0);
       expect(stats.recentOrders[0].total, isA<double>());
-      expect(
-        stats.recentOrders[0].createdAt,
-        DateTime.utc(2026, 10, 7, 9, 30),
-      );
+      expect(stats.recentOrders[0].createdAt, DateTime.utc(2026, 10, 7, 9, 30));
     });
 
     test('falls back to zeroed defaults for an empty payload', () {
