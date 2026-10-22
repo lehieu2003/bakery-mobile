@@ -1,6 +1,9 @@
 {
   "success": true,
   "data": {
-    "tags": []
+    "tags": [
+      { "id": "blogtag-cake", "name": "banh-kem", "slug": "banh-kem" },
+      { "id": "blogtag-tips", "name": "meo-hay", "slug": "meo-hay" }
+    ]
   }
 }

@@ -1,6 +1,9 @@
 {
   "success": true,
   "data": {
-    "categories": []
+    "categories": [
+      { "id": "blogcat-recipes", "name": "Công thức", "slug": "cong-thuc" },
+      { "id": "blogcat-news", "name": "Tin tức", "slug": "tin-tuc" }
+    ]
   }
 }
