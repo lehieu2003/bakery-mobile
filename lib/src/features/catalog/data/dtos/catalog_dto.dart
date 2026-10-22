@@ -194,7 +194,10 @@ class ProductDto {
       ratingAverage: _toDoubleOrNull(json['ratingAverage']),
       reviewCount: json['reviewCount'] == null
           ? null
-          : ParseUtils.toInt(json['reviewCount'], field: 'ProductDto.reviewCount'),
+          : ParseUtils.toInt(
+              json['reviewCount'],
+              field: 'ProductDto.reviewCount',
+            ),
     );
   }
 
