@@ -1,4 +1,4 @@
-package com.example.bakery_mobile
+package vn.phuongloan.bakery
 
 import io.flutter.embedding.android.FlutterActivity
 
