@@ -38,8 +38,14 @@ fi
 step "Branch name ($BRANCH)"
 bash scripts/git-conventions.sh branch "$BRANCH"
 
-step "Commit messages ($BASE..HEAD)"
-bash scripts/git-conventions.sh commits "$BASE"
+# A release branch carries all of dev: those commits were checked on their way
+# into dev (or predate the rule), so only its own commits are checked here.
+COMMIT_BASE="$BASE"
+if [[ "$BRANCH" == release/* ]] && git rev-parse -q --verify origin/dev >/dev/null; then
+  COMMIT_BASE=origin/dev
+fi
+step "Commit messages ($COMMIT_BASE..HEAD)"
+bash scripts/git-conventions.sh commits "$COMMIT_BASE"
 
 step "Flutter SDK"
 "${FLUTTER[@]}" --version | head -1
