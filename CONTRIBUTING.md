@@ -86,7 +86,7 @@ Ngoài ra, theo loại thay đổi:
 | | dev | prod |
 |---|---|---|
 | Config Dart | `config/dev.json` | `config/prod.json` |
-| `API_BASE_URL` | `http://10.0.2.2:3001` (bakery-web local, emulator Android) | `https://phuong-loan-bakery.vercel.app` |
+| `API_BASE_URL` | `http://10.0.2.2:3000` (bakery-web local, emulator Android) | `https://phuong-loan-bakery.vercel.app` |
 | App id (Android / iOS) / tên | `vn.phuongloan.bakery.dev` / "Bakery Dev" — cài song song với prod | `vn.phuongloan.bakery` / "Phương Loan Bakery" |
 | Dải "DEV" ở góc | có | không |
 | `.env` | override cục bộ (vd IP LAN cho máy thật) | **bị bỏ qua** |

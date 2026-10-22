@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Mobile debug — Pixel 7 emulator (cần API đang chạy ở 3001)",
+      "name": "Mobile debug — Pixel 7 emulator (cần API đang chạy ở 3000)",
       "type": "dart",
       "request": "launch",
       "program": "lib/main.dart",
@@ -27,9 +27,9 @@
   ],
   "compounds": [
     {
-      "name": "Full stack — API (3001) + Mobile debug",
-      "configurations": ["Mobile debug — Pixel 7 emulator (cần API đang chạy ở 3001)"],
-      "preLaunchTask": "bakery-web: chạy API ở cổng 3001"
+      "name": "Full stack — API (3000) + Mobile debug",
+      "configurations": ["Mobile debug — Pixel 7 emulator (cần API đang chạy ở 3000)"],
+      "preLaunchTask": "bakery-web: chạy API ở cổng 3000"
     }
   ]
 }
