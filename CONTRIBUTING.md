@@ -87,7 +87,7 @@ Ngoài ra, theo loại thay đổi:
 |---|---|---|
 | Config Dart | `config/dev.json` | `config/prod.json` |
 | `API_BASE_URL` | `http://10.0.2.2:3001` (bakery-web local, emulator Android) | `https://phuong-loan-bakery.vercel.app` |
-| Android app id / tên | `….dev` / "Bakery Dev" — cài song song với prod | `com.example.bakery_mobile` / "Phương Loan Bakery" |
+| App id (Android / iOS) / tên | `vn.phuongloan.bakery.dev` / "Bakery Dev" — cài song song với prod | `vn.phuongloan.bakery` / "Phương Loan Bakery" |
 | Dải "DEV" ở góc | có | không |
 | `.env` | override cục bộ (vd IP LAN cho máy thật) | **bị bỏ qua** |
 
@@ -95,6 +95,28 @@ Ngoài ra, theo loại thay đổi:
 - Build phát hành: `fvm flutter build appbundle --flavor prod --dart-define-from-file=config/prod.json`.
 - Build thiếu `API_BASE_URL` sẽ dừng ngay khi khởi động; không truyền `FLAVOR` thì luôn là dev (không bao giờ vô tình thành prod).
 - Thêm môi trường (vd staging): thêm `config/<env>.json` + một `productFlavors` trong `android/app/build.gradle.kts`.
+
+App id `vn.phuongloan.bakery` **cố định vĩnh viễn** sau khi lên store — không đổi.
+
+## Ký bản phát hành (Android)
+
+Bản release ký bằng keystore riêng, cấu hình trong `android/key.properties` (đã gitignore). Thiếu file này
+thì bản release tự ký bằng debug key — chạy được trên máy, nhưng **Play Console từ chối**.
+
+1. Tạo keystore (một lần, ngoài repo):
+   `keytool -genkey -v -keystore ~/keys/bakery-upload.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload`
+2. Tạo `android/key.properties`:
+   ```properties
+   storeFile=/Users/<bạn>/keys/bakery-upload.jks
+   storePassword=<mật khẩu store>
+   keyAlias=upload
+   keyPassword=<mật khẩu key>
+   ```
+3. Build: `fvm flutter build appbundle --flavor prod --dart-define-from-file=config/prod.json`.
+
+**Sao lưu keystore + mật khẩu** (trình quản lý mật khẩu). Bật *Play App Signing* khi tạo app trên Play Console:
+keystore này chỉ là *upload key*, mất thì xin Google reset được; không bật thì mất key = không cập nhật app được nữa.
+Không commit keystore hay `key.properties`.
 
 ## Release & hotfix
 
