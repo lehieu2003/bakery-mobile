@@ -20,7 +20,7 @@ void main() {
         resolveBaseUrl(
           flavor: AppFlavor.prod,
           defined: 'https://phuong-loan-bakery.vercel.app/',
-          envFile: 'http://10.0.2.2:3001',
+          envFile: 'http://10.0.2.2:3000',
         ),
         'https://phuong-loan-bakery.vercel.app',
       );
@@ -30,10 +30,10 @@ void main() {
       expect(
         resolveBaseUrl(
           flavor: AppFlavor.dev,
-          defined: 'http://10.0.2.2:3001',
-          envFile: 'http://192.168.1.20:3001',
+          defined: 'http://10.0.2.2:3000',
+          envFile: 'http://192.168.1.20:3000',
         ),
-        'http://192.168.1.20:3001',
+        'http://192.168.1.20:3000',
       );
     });
 
@@ -41,18 +41,18 @@ void main() {
       expect(
         resolveBaseUrl(
           flavor: AppFlavor.dev,
-          defined: 'http://10.0.2.2:3001',
+          defined: 'http://10.0.2.2:3000',
           envFile: '',
         ),
-        'http://10.0.2.2:3001',
+        'http://10.0.2.2:3000',
       );
       expect(
         resolveBaseUrl(
           flavor: AppFlavor.dev,
-          defined: 'http://10.0.2.2:3001',
+          defined: 'http://10.0.2.2:3000',
           envFile: null,
         ),
-        'http://10.0.2.2:3001',
+        'http://10.0.2.2:3000',
       );
     });
   });
