@@ -1,0 +1,48 @@
+{
+  "success": true,
+  "data": {
+    "products": [
+      {
+        "id": "cmm9b9uob000iuyzs3q78v3e9",
+        "name": "Bánh cưới kem trắng",
+        "slug": "classic-white-wedding",
+        "description": "Bánh cưới 3 tầng trang nhã với lớp kem fondant trắng.",
+        "shortDescription": null,
+        "price": "2400000",
+        "comparePrice": null,
+        "costPrice": null,
+        "sku": null,
+        "barcode": null,
+        "stock": 91,
+        "trackStock": true,
+        "weight": null,
+        "isActive": true,
+        "isFeatured": false,
+        "createdAt": "2026-03-02T15:05:52.523Z",
+        "updatedAt": "2026-10-03T04:53:43.018Z",
+        "categories": [
+          {
+            "productId": "cmm9b9uob000iuyzs3q78v3e9",
+            "categoryId": "cmm9b9ok10007uyzso9b9gyaj",
+            "category": {
+              "id": "cmm9b9ok10007uyzso9b9gyaj",
+              "name": "Bánh sinh nhật",
+              "slug": "birthday-cakes"
+            }
+          }
+        ],
+        "images": [
+          {
+            "id": "cmmrssefp000yuydwtjwmoj0z",
+            "productId": "cmm9b9uob000iuyzs3q78v3e9",
+            "url": "/images/cake-3.jpg",
+            "altText": null,
+            "displayOrder": 0,
+            "isPrimary": true
+          }
+        ],
+        "totalSold": 7
+      }
+    ]
+  }
+}

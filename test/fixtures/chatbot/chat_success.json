@@ -1,0 +1,49 @@
+{
+  "success": true,
+  "data": {
+    "reply": "Bạn có thể thử bánh sinh nhật dâu tây, rất được yêu thích.",
+    "suggestedProducts": [
+      {
+        "id": "cmus84gkh001ai95kix8aluko",
+        "name": "Trà đào cam sả",
+        "slug": "tra-dao-cam-sa",
+        "description": "Trà đen ủ lạnh với đào ngâm, cam tươi và sả tươi đập dập. Giải khát mát lạnh, bán chạy nhất mùa nóng.",
+        "shortDescription": "Trà đen ủ lạnh, đào — cam — sả tươi",
+        "price": "46000",
+        "comparePrice": null,
+        "costPrice": null,
+        "sku": "PL-DU-002",
+        "barcode": null,
+        "stock": 99,
+        "trackStock": true,
+        "weight": null,
+        "isActive": true,
+        "isFeatured": true,
+        "createdAt": "2026-10-03T10:02:58.145Z",
+        "updatedAt": "2026-10-03T10:02:58.145Z",
+        "categories": [
+          {
+            "productId": "cmus84gkh001ai95kix8aluko",
+            "categoryId": "cmm8zden00004uy3ov0dkivsd",
+            "category": {
+              "id": "cmm8zden00004uy3ov0dkivsd",
+              "name": "Đồ uống",
+              "slug": "do-uong"
+            }
+          }
+        ],
+        "images": [
+          {
+            "id": "cmus84gkh001bi95k8umth896",
+            "productId": "cmus84gkh001ai95kix8aluko",
+            "url": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=800&q=80&fm=jpg",
+            "altText": null,
+            "displayOrder": 0,
+            "isPrimary": true
+          }
+        ],
+        "attributeAssignments": []
+      }
+    ]
+  }
+}

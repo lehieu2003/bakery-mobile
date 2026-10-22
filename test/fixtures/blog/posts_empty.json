@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "data": {
+    "posts": [],
+    "pagination": {
+      "page": 1,
+      "limit": 12,
+      "total": 0,
+      "totalPages": 1
+    }
+  }
+}

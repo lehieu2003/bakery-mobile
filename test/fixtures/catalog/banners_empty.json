@@ -1,0 +1,25 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": "cmmjf16cu001euyrk6mb1fbuy",
+      "title": "Ưu đãi mùa bánh cưới",
+      "description": "Đặt bánh cưới trong mơ của bạn ngay hôm nay!",
+      "imageUrl": "/images/cake-3.jpg",
+      "linkUrl": "/category/wedding",
+      "displayOrder": 1,
+      "isActive": true,
+      "createdAt": "2026-03-09T16:48:47.983Z"
+    },
+    {
+      "id": "cmmjf15hw001cuyrkkufi5us8",
+      "title": "Bộ sưu tập Xuân 2026",
+      "description": "Khám phá bộ sưu tập bánh lấy cảm hứng mùa xuân!",
+      "imageUrl": "/images/hero-cake.jpg",
+      "linkUrl": "/category/seasonal",
+      "displayOrder": 2,
+      "isActive": true,
+      "createdAt": "2026-03-09T16:48:46.868Z"
+    }
+  ]
+}
