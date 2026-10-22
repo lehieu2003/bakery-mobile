@@ -25,8 +25,10 @@ class Address {
 
   /// One-line text used to fill the checkout address field, mirroring the
   /// web app: "street, ward, district, province".
-  String get addressLine => [street, ward, district, province]
-      .map((part) => part.trim())
-      .where((part) => part.isNotEmpty)
-      .join(', ');
+  String get addressLine => [
+    street,
+    ward,
+    district,
+    province,
+  ].map((part) => part.trim()).where((part) => part.isNotEmpty).join(', ');
 }

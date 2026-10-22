@@ -49,9 +49,7 @@ class ReviewsState {
       reviews: reviews ?? this.reviews,
       reviewCount: clearReviewCount ? null : (reviewCount ?? this.reviewCount),
       isSubmitting: isSubmitting ?? this.isSubmitting,
-      submitError: clearSubmitError
-          ? null
-          : (submitError ?? this.submitError),
+      submitError: clearSubmitError ? null : (submitError ?? this.submitError),
     );
   }
 }

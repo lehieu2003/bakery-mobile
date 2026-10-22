@@ -68,7 +68,10 @@ void main() {
         isNotNull,
         reason: 'missing createdAt falls back to now instead of crashing',
       );
-      expect(address.addressLine, '9 Lê Lợi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh');
+      expect(
+        address.addressLine,
+        '9 Lê Lợi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh',
+      );
     });
 
     test('list parsing via fromJsonList keeps order', () {
