@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.1.4+6
+version: 1.1.5+7
 
 environment:
   sdk: ^3.8.1
@@ -63,6 +63,7 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   integration_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -105,3 +106,17 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# App icon — regenerate after changing the source images:
+#   fvm dart run flutter_launcher_icons
+# Sources live in assets/branding/ (not bundled into the app):
+#   app_icon.png            cake on cream, iOS + pre-Android 8 launchers
+#   app_icon_foreground.png cake on transparent, Android adaptive foreground
+#   logo_full.png           full logo with the shop name (store listing, web)
+flutter_launcher_icons:
+  image_path: assets/branding/app_icon.png
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  adaptive_icon_background: "#FAF2E4"
+  adaptive_icon_foreground: assets/branding/app_icon_foreground.png

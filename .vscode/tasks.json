@@ -1,0 +1,55 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "bakery-web: chạy API ở cổng 3000",
+      "type": "shell",
+      "command": "pnpm start",
+      "options": {
+        "cwd": "${workspaceFolder}/../bakery-web",
+        "env": {
+          "PORT": "3000"
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "api"
+      }
+    },
+    {
+      "label": "bakery-web: API dev mode (hot reload, cổng 3000)",
+      "type": "shell",
+      "command": "pnpm dev",
+      "options": {
+        "cwd": "${workspaceFolder}/../bakery-web",
+        "env": {
+          "PORT": "3000"
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "api"
+      }
+    },
+    {
+      "label": "mobile: chạy trên Pixel 7 emulator",
+      "type": "shell",
+      "command": "fvm flutter run -d emulator-5554",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    }
+  ]
+}

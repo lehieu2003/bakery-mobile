@@ -79,14 +79,14 @@ Ngoài ra, theo loại thay đổi:
 - Thay đổi luồng chính (đăng nhập, giỏ hàng, checkout) → chạy integration test trên emulator:
   `fvm flutter test integration_test/app_e2e_test.dart -d <device> --flavor dev --dart-define-from-file=config/dev.json` (thêm `--dart-define=E2E_WRITE=true` để chạy cả bước tạo dữ liệu thật: lưu địa chỉ, đặt đơn, gửi chatbot).
 - Thay đổi UI → chạy app kiểm tra thủ công, đính kèm ảnh chụp.
-- Không stage file do công cụ tự sinh/sửa (`ios|macos/Flutter/*.xcconfig`, `Podfile`, `.env`).
+- Không commit `.env`, `android/key.properties`, keystore. `Podfile` và các dòng `#include? "Pods/…"` trong xcconfig đã được track.
 
 ## Môi trường (dev / prod)
 
 | | dev | prod |
 |---|---|---|
 | Config Dart | `config/dev.json` | `config/prod.json` |
-| `API_BASE_URL` | `http://10.0.2.2:3001` (bakery-web local, emulator Android) | `https://phuong-loan-bakery.vercel.app` |
+| `API_BASE_URL` | `http://10.0.2.2:3000` (bakery-web local, emulator Android) | `https://phuong-loan-bakery.vercel.app` |
 | App id (Android / iOS) / tên | `vn.phuongloan.bakery.dev` / "Bakery Dev" — cài song song với prod | `vn.phuongloan.bakery` / "Phương Loan Bakery" |
 | Dải "DEV" ở góc | có | không |
 | `.env` | override cục bộ (vd IP LAN cho máy thật) | **bị bỏ qua** |

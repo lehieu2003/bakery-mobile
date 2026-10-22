@@ -53,3 +53,5 @@ app.*.map.json
 
 # git worktrees
 .worktrees/
+# Widget Preview related
+.widget_preview/
