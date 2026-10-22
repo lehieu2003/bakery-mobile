@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/shared/widgets/skeleton_tile_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/empty_state_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
+import 'package:bakery_mobile/src/features/wishlist/presentation/wishlist_keys.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/product_detail_screen.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/discount_badge_widget.dart';
@@ -39,9 +42,11 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
       body: RefreshIndicator(
         onRefresh: notifier.load,
         child: ListView(
+          key: WishlistKeys.list,
           children: [
             if (vm.isLoading && vm.items.isEmpty)
               const Padding(
+                key: WishlistKeys.loading,
                 padding: EdgeInsets.symmetric(
                   horizontal: AppSpacing.lg,
                   vertical: AppSpacing.sm,
@@ -55,18 +60,25 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
                   ],
                 ),
               ),
-            if (vm.error != null)
+            if (vm.error != null && vm.items.isEmpty && !vm.isLoading)
+              ErrorRetryWidget(
+                key: WishlistKeys.error,
+                message: vm.error!,
+                onRetry: notifier.load,
+              ),
+            if (vm.error != null && vm.items.isNotEmpty)
               Padding(
+                key: WishlistKeys.errorBanner,
                 padding: const EdgeInsets.all(AppSpacing.lg),
                 child: Text(
                   vm.error!,
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ),
-            if (!vm.isLoading && vm.items.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(AppSpacing.xxl),
-                child: Center(child: Text('No favorite products yet.')),
+            if (!vm.isLoading && vm.error == null && vm.items.isEmpty)
+              const EmptyStateWidget(
+                key: WishlistKeys.empty,
+                message: 'No favorite products yet.',
               ),
             ...vm.items.map((item) {
               final product = item.product;
@@ -81,6 +93,7 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
               final discount = product.discountPercent;
 
               return ListTile(
+                key: WishlistKeys.item(product.id),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.lg,
                   vertical: AppSpacing.xs,
@@ -120,6 +133,7 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
                       : null,
                 ),
                 trailing: IconButton(
+                  key: WishlistKeys.toggle(product.id),
                   onPressed: vm.isPending(product.id)
                       ? null
                       : () => notifier.toggle(product),

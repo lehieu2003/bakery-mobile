@@ -1,0 +1,70 @@
+{
+  "success": true,
+  "data": {
+    "item": {
+      "id": "cmviymp5u000ni9pvh315sfh2",
+      "userId": "cmm9b9k110001uyzsm6xhx6x4",
+      "productId": "cmm8zdhm5000cuy3o5q4128t2",
+      "createdAt": "2026-10-22T03:06:59.682Z",
+      "product": {
+        "id": "cmm8zdhm5000cuy3o5q4128t2",
+        "name": "Tiramisu",
+        "slug": "tiramisu",
+        "description": "Bánh Tiramisu Ý truyền thống",
+        "shortDescription": null,
+        "price": "45000",
+        "comparePrice": null,
+        "costPrice": null,
+        "sku": null,
+        "barcode": null,
+        "stock": 97,
+        "trackStock": true,
+        "weight": null,
+        "isActive": true,
+        "isFeatured": false,
+        "createdAt": "2026-03-02T09:32:46.829Z",
+        "updatedAt": "2026-09-30T09:57:44.358Z",
+        "images": [
+          {
+            "id": "cmmnb0get0006uyek0lh7k1mc",
+            "productId": "cmm8zdhm5000cuy3o5q4128t2",
+            "url": "https://res.cloudinary.com/dj7hjn48w/image/upload/v1773310031/products/vg1ahtjbkzvmhu7mudrt.jpg",
+            "altText": null,
+            "displayOrder": 0,
+            "isPrimary": true
+          },
+          {
+            "id": "cmmnb0get0007uyekfzvebyjl",
+            "productId": "cmm8zdhm5000cuy3o5q4128t2",
+            "url": "https://res.cloudinary.com/dj7hjn48w/image/upload/v1773310035/products/bimm9il6ud30yisa9e44.jpg",
+            "altText": null,
+            "displayOrder": 1,
+            "isPrimary": false
+          }
+        ],
+        "categories": [
+          {
+            "productId": "cmm8zdhm5000cuy3o5q4128t2",
+            "categoryId": "cmmnaym790005uyekxy7udkz9",
+            "category": {
+              "id": "cmmnaym790005uyekxy7udkz9",
+              "name": "Tiramisu",
+              "slug": "tiramisu",
+              "description": "Tiramisu Ý chuẩn vị với kem mascarpone",
+              "imageUrl": "https://res.cloudinary.com/dj7hjn48w/image/upload/v1773309991/categories/u1dteov9dmsei7oueqte.jpg",
+              "parentId": null,
+              "level": 1,
+              "displayOrder": 4,
+              "isActive": true,
+              "showInMenu": true,
+              "createdAt": "2026-03-12T10:05:54.789Z",
+              "updatedAt": "2026-10-03T04:53:38.830Z"
+            }
+          }
+        ],
+        "variants": []
+      }
+    },
+    "isFavorite": true
+  }
+}
