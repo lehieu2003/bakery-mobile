@@ -11,6 +11,9 @@ import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/search_view_model.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/search_product_tile.dart';
 import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/empty_state_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
+import 'package:bakery_mobile/src/features/catalog/presentation/catalog_keys.dart';
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
@@ -89,6 +92,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
     return Scaffold(
       appBar: AppBar(title: const Text('Search products')),
       body: ListView(
+        key: SearchKeys.list,
         controller: _scrollController,
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: EdgeInsets.fromLTRB(
@@ -99,6 +103,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
         ),
         children: [
           AppTextInputWidget(
+            key: SearchKeys.input,
             controller: _controller,
             textInputAction: TextInputAction.search,
             hintText: 'What are you looking for?',
@@ -116,6 +121,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
               _sortChip(context, vm, SearchSortOption.priceAsc, 'Price asc'),
               _sortChip(context, vm, SearchSortOption.priceDesc, 'Price desc'),
               ActionChip(
+                key: SearchKeys.filters,
                 avatar: Icon(
                   vm.hasActiveFilters
                       ? Icons.filter_alt
@@ -131,44 +137,56 @@ class _SearchViewState extends ConsumerState<_SearchView> {
           Padding(
             padding: const EdgeInsets.only(bottom: AppSpacing.sm),
             child: Text(
+              key: SearchKeys.resultCount,
               vm.query.isEmpty
                   ? 'All products (${vm.sortedProducts.length})'
                   : 'Found ${vm.sortedProducts.length} products for "${vm.query}"',
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
-          if (vm.isLoading && vm.sortedProducts.isEmpty) ...[
-            const SkeletonTileWidget(),
-            const SkeletonTileWidget(),
-            const SkeletonTileWidget(),
-            const SkeletonTileWidget(),
-            const SkeletonTileWidget(),
-            const SkeletonTileWidget(),
-          ],
-          if (!vm.isLoading && vm.error != null)
+          if (vm.isLoading && vm.sortedProducts.isEmpty)
+            const Column(
+              key: SearchKeys.loading,
+              children: [
+                SkeletonTileWidget(),
+                SkeletonTileWidget(),
+                SkeletonTileWidget(),
+                SkeletonTileWidget(),
+                SkeletonTileWidget(),
+                SkeletonTileWidget(),
+              ],
+            ),
+          if (!vm.isLoading && vm.error != null && vm.sortedProducts.isEmpty)
+            ErrorRetryWidget(
+              key: SearchKeys.error,
+              message: vm.error!,
+              onRetry: () =>
+                  ref.read(searchViewModelProvider.notifier).search(vm.query),
+            ),
+          if (!vm.isLoading && vm.error != null && vm.sortedProducts.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(top: AppSpacing.xl),
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
               child: Text(
                 vm.error!,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
-          if (!vm.isLoading && vm.sortedProducts.isEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: AppSpacing.xxl),
-              child: Center(
-                child: Text(
-                  vm.query.isEmpty
-                      ? 'No products available.'
-                      : 'No products found.',
-                ),
-              ),
+          if (!vm.isLoading && vm.error == null && vm.sortedProducts.isEmpty)
+            EmptyStateWidget(
+              key: SearchKeys.empty,
+              message: vm.query.isEmpty
+                  ? 'No products available.'
+                  : 'No products found.',
             ),
           ...vm.sortedProducts.map(
-            (product) => SearchProductTile(product: product),
+            (product) => SearchProductTile(
+              key: SearchKeys.product(product.id),
+              product: product,
+            ),
           ),
           if (vm.isLoadingMore)
             const Padding(
+              key: SearchKeys.loadingMore,
               padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
               child: LoadingWidget(),
             ),
@@ -176,6 +194,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
               child: OutlinedButton(
+                key: SearchKeys.loadMore,
                 onPressed: ref.read(searchViewModelProvider.notifier).loadMore,
                 child: const Text('Load more'),
               ),
@@ -192,6 +211,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
     String label,
   ) {
     return ChoiceChip(
+      key: SearchKeys.sort(option),
       label: Text(label),
       selected: vm.sort == option,
       onSelected: (_) =>

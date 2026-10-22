@@ -9,6 +9,9 @@ import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/shared/widgets/skeleton_banner_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/skeleton_category_rail_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/skeleton_product_grid_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/empty_state_widget.dart';
+import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
+import 'package:bakery_mobile/src/features/catalog/presentation/catalog_keys.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/screens/cart_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/home_view_model.dart';
@@ -55,6 +58,8 @@ class _HomeViewState extends ConsumerState<_HomeView> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(homeViewModelProvider.notifier).loadInitial();
+      // Both endpoints require a session; guests would only get a 401.
+      if (!ref.read(authViewModelProvider).isAuthenticated) return;
       ref.read(notificationsViewModelProvider.notifier).load();
       ref.read(wishlistViewModelProvider.notifier).load();
     });
@@ -97,6 +102,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
       body: RefreshIndicator(
         onRefresh: ref.read(homeViewModelProvider.notifier).loadInitial,
         child: ListView(
+          key: HomeKeys.list,
           padding: const EdgeInsets.only(bottom: _navBarClearance),
           children: [
             HomeHeader(
@@ -122,6 +128,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
               const Gap(AppSpacing.md),
             ] else if (vm.banners.isNotEmpty) ...[
               Padding(
+                key: HomeKeys.banners,
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 child: SizedBox(
                   height: 190,
@@ -156,6 +163,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
               const SkeletonCategoryRailWidget()
             else
               HomeCategoryRail(
+                key: HomeKeys.categoryRail,
                 categories: vm.categories,
                 selectedCategoryId: vm.selectedCategoryId,
                 onSelect: (id) =>
@@ -181,6 +189,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
               ),
               if (_personalizedMessage(vm) != null)
                 Padding(
+                  key: HomeKeys.personalizedMessage,
                   padding: const EdgeInsets.fromLTRB(
                     AppSpacing.lg,
                     AppSpacing.sm,
@@ -195,6 +204,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                   ),
                 ),
               Padding(
+                key: HomeKeys.personalized,
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 child: GridView.builder(
                   shrinkWrap: true,
@@ -206,8 +216,12 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                     crossAxisSpacing: AppSpacing.lg,
                     childAspectRatio: 0.72,
                   ),
-                  itemBuilder: (context, index) =>
-                      HomeProductCard(product: vm.personalizedProducts[index]),
+                  itemBuilder: (context, index) => HomeProductCard(
+                    key: HomeKeys.personalizedItem(
+                      vm.personalizedProducts[index].id,
+                    ),
+                    product: vm.personalizedProducts[index],
+                  ),
                 ),
               ),
               const Gap(AppSpacing.md),
@@ -219,9 +233,19 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                 icon: Icons.auto_awesome_rounded,
               ),
             ),
-            if (showInitialSkeleton) const SkeletonProductGridWidget(),
-            if (vm.errorMessage != null)
+            if (showInitialSkeleton)
+              const SkeletonProductGridWidget(key: HomeKeys.loading),
+            if (vm.errorMessage != null &&
+                vm.bestSellers.isEmpty &&
+                !vm.isLoading)
+              ErrorRetryWidget(
+                key: HomeKeys.error,
+                message: vm.errorMessage!,
+                onRetry: ref.read(homeViewModelProvider.notifier).loadInitial,
+              ),
+            if (vm.errorMessage != null && vm.bestSellers.isNotEmpty)
               Padding(
+                key: HomeKeys.errorBanner,
                 padding: const EdgeInsets.fromLTRB(
                   AppSpacing.lg,
                   0,
@@ -233,8 +257,16 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ),
+            if (!vm.isLoading &&
+                vm.errorMessage == null &&
+                vm.bestSellers.isEmpty)
+              const EmptyStateWidget(
+                key: HomeKeys.empty,
+                message: 'Chưa có sản phẩm nổi bật.',
+              ),
             if (vm.bestSellers.isNotEmpty)
               Padding(
+                key: HomeKeys.bestSellers,
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.lg,
                   vertical: 0,
@@ -249,8 +281,10 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                     crossAxisSpacing: AppSpacing.lg,
                     childAspectRatio: 0.72,
                   ),
-                  itemBuilder: (context, index) =>
-                      HomeProductCard(product: vm.bestSellers[index]),
+                  itemBuilder: (context, index) => HomeProductCard(
+                    key: HomeKeys.bestSeller(vm.bestSellers[index].id),
+                    product: vm.bestSellers[index],
+                  ),
                 ),
               ),
           ],
