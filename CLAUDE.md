@@ -62,10 +62,10 @@ shader `ink_sparkle` và `pub get` sửa lung tung file ios/android.
   `.claude/hooks/guard-git.sh` chặn commit trên master/dev, push thẳng, force push, `--no-verify`, `gh pr merge`.
 - **Xong task** = `bash scripts/validate.sh` xanh (skill `validate`) → skill `open-pr`. Không báo "xong" khi
   chưa chạy gate; bỏ bước nào thì nói rõ.
-- **Commit**: chỉ stage file thuộc task. KHÔNG stage `ios|macos/Flutter/*.xcconfig`, `ios|macos/Podfile`
-  do `pub get`/`test` tự sinh, và các thay đổi có sẵn của người dùng (`.gitignore`, `analysis_options.yaml`,
-  `android/gradle.properties`, `.vscode/`…) trừ khi được yêu cầu. Message theo Conventional Commits,
-  kết thúc bằng dòng `Co-Authored-By` theo cấu hình của phiên.
+- **Commit**: chỉ stage file thuộc task, không stage thay đổi có sẵn của người dùng trừ khi được yêu cầu.
+  `ios|macos/Podfile` và dòng `#include? "Pods/…"` trong `*.xcconfig` đã được track — nếu `pub get` đổi chúng
+  ngoài ý muốn thì hỏi trước khi commit. Message theo Conventional Commits, kết thúc bằng dòng `Co-Authored-By`
+  theo cấu hình của phiên.
 - **Format**: chỉ `fvm dart format` các file mình sửa — không format cả thư mục.
 - **API**: cần endpoint/field mới → kiểm tra route trong `../bakery-web/app/api/**` thay vì đoán; ghi phụ
   thuộc vào PR. Không sửa code bakery-web từ repo này.

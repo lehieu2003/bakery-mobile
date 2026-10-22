@@ -79,7 +79,7 @@ Ngoài ra, theo loại thay đổi:
 - Thay đổi luồng chính (đăng nhập, giỏ hàng, checkout) → chạy integration test trên emulator:
   `fvm flutter test integration_test/app_e2e_test.dart -d <device> --flavor dev --dart-define-from-file=config/dev.json` (thêm `--dart-define=E2E_WRITE=true` để chạy cả bước tạo dữ liệu thật: lưu địa chỉ, đặt đơn, gửi chatbot).
 - Thay đổi UI → chạy app kiểm tra thủ công, đính kèm ảnh chụp.
-- Không stage file do công cụ tự sinh/sửa (`ios|macos/Flutter/*.xcconfig`, `Podfile`, `.env`).
+- Không commit `.env`, `android/key.properties`, keystore. `Podfile` và các dòng `#include? "Pods/…"` trong xcconfig đã được track.
 
 ## Môi trường (dev / prod)
 
