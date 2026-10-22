@@ -63,7 +63,10 @@ const Map<String, dynamic> _dashboardPayload = {
 class _FakeDashboardApiService extends DashboardApiService {
   _FakeDashboardApiService()
     : super(
-        ApiClient(baseUrl: 'http://localhost:1', tokenProvider: () async => null),
+        ApiClient(
+          baseUrl: 'http://localhost:1',
+          tokenProvider: () async => null,
+        ),
       );
 
   /// Total number of getDashboard calls — the polling tests assert on this.

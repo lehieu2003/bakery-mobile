@@ -17,7 +17,10 @@ import 'package:flutter_test/flutter_test.dart';
 class _FakeReviewsApiService extends ReviewsApiService {
   _FakeReviewsApiService()
     : super(
-        ApiClient(baseUrl: 'http://localhost:1', tokenProvider: () async => null),
+        ApiClient(
+          baseUrl: 'http://localhost:1',
+          tokenProvider: () async => null,
+        ),
       );
 
   final Map<String, List<Map<String, dynamic>>> _reviews = {
@@ -62,7 +65,9 @@ class _FakeReviewsApiService extends ReviewsApiService {
     getCalls[productId] = (getCalls[productId] ?? 0) + 1;
     final reviews = _reviews[productId] ?? const <Map<String, dynamic>>[];
     return {
-      'reviews': reviews.map((entry) => Map<String, dynamic>.from(entry)).toList(),
+      'reviews': reviews
+          .map((entry) => Map<String, dynamic>.from(entry))
+          .toList(),
       'pagination': {'page': 1, 'limit': limit, 'total': reviews.length},
     };
   }
@@ -73,7 +78,11 @@ class _FakeReviewsApiService extends ReviewsApiService {
     required int rating,
     String? comment,
   }) async {
-    submitCalls.add({'productId': productId, 'rating': rating, 'comment': comment});
+    submitCalls.add({
+      'productId': productId,
+      'rating': rating,
+      'comment': comment,
+    });
     final error = submitErrors.remove(productId);
     if (error != null) throw error;
 
@@ -115,30 +124,32 @@ void main() {
       addTearDown(container.dispose);
     });
 
-    test('stacked products keep independent state and load exactly once each',
-        () async {
-      final notifierA = container.read(
-        reviewsViewModelProvider('p-1').notifier,
-      );
-      final notifierB = container.read(
-        reviewsViewModelProvider('p-2').notifier,
-      );
+    test(
+      'stacked products keep independent state and load exactly once each',
+      () async {
+        final notifierA = container.read(
+          reviewsViewModelProvider('p-1').notifier,
+        );
+        final notifierB = container.read(
+          reviewsViewModelProvider('p-2').notifier,
+        );
 
-      await notifierA.load();
-      await notifierB.load();
+        await notifierA.load();
+        await notifierB.load();
 
-      final stateA = container.read(reviewsViewModelProvider('p-1'));
-      final stateB = container.read(reviewsViewModelProvider('p-2'));
+        final stateA = container.read(reviewsViewModelProvider('p-1'));
+        final stateB = container.read(reviewsViewModelProvider('p-2'));
 
-      expect(stateA.reviews.single.comment, 'Ngon');
-      expect(stateA.reviewCount, 1);
-      expect(stateB.reviews.single.comment, 'Bánh tươi');
-      expect(stateB.reviewCount, 1);
+        expect(stateA.reviews.single.comment, 'Ngon');
+        expect(stateA.reviewCount, 1);
+        expect(stateB.reviews.single.comment, 'Bánh tươi');
+        expect(stateB.reviewCount, 1);
 
-      // Each product fetched exactly once — a second screen loading must
-      // not trigger reloads on the first one (no ping-pong).
-      expect(datasource.getCalls, {'p-1': 1, 'p-2': 1});
-    });
+        // Each product fetched exactly once — a second screen loading must
+        // not trigger reloads on the first one (no ping-pong).
+        expect(datasource.getCalls, {'p-1': 1, 'p-2': 1});
+      },
+    );
 
     test('load failure is isolated to that product only', () async {
       final failing = _FailingGetService();
@@ -165,10 +176,7 @@ void main() {
       // Another family instance (main container, healthy datasource)
       // is untouched and still loads normally.
       await container.read(reviewsViewModelProvider('p-1').notifier).load();
-      expect(
-        container.read(reviewsViewModelProvider('p-1')).error,
-        isNull,
-      );
+      expect(container.read(reviewsViewModelProvider('p-1')).error, isNull);
     });
 
     test('submit adds the review and reloads only that product', () async {
@@ -188,7 +196,11 @@ void main() {
         'comment': 'Rất ngon',
       });
       expect(
-        container.read(reviewsViewModelProvider('p-empty')).reviews.single.comment,
+        container
+            .read(reviewsViewModelProvider('p-empty'))
+            .reviews
+            .single
+            .comment,
         'Rất ngon',
       );
       // Exactly one silent reload after the submit.
@@ -202,9 +214,7 @@ void main() {
         'Duplicate review',
         statusCode: 409,
       );
-      final notifier = container.read(
-        reviewsViewModelProvider('p-1').notifier,
-      );
+      final notifier = container.read(reviewsViewModelProvider('p-1').notifier);
 
       final submitted = await notifier.submit(rating: 4);
 
@@ -220,9 +230,7 @@ void main() {
         'Unauthorized',
         statusCode: 401,
       );
-      final notifier = container.read(
-        reviewsViewModelProvider('p-1').notifier,
-      );
+      final notifier = container.read(reviewsViewModelProvider('p-1').notifier);
 
       await notifier.submit(rating: 4);
 
@@ -234,8 +242,9 @@ void main() {
   });
 
   group('ProductReviewsSection (two PDPs stacked)', () {
-    testWidgets('renders both products without reload ping-pong',
-        (tester) async {
+    testWidgets('renders both products without reload ping-pong', (
+      tester,
+    ) async {
       final datasource = _FakeReviewsApiService();
 
       await tester.pumpWidget(
@@ -286,10 +295,7 @@ void main() {
         EnginePhase.sendSemanticsUpdate,
         const Duration(seconds: 3),
       );
-      expect(
-        datasource.getCalls,
-        {'p-1': 1, 'p-2': 1, 'p-empty': 1},
-      );
+      expect(datasource.getCalls, {'p-1': 1, 'p-2': 1, 'p-empty': 1});
 
       // Each section shows its own product's data.
       expect(find.text('Ngon'), findsOneWidget);
@@ -333,7 +339,10 @@ class _FakePdpState extends ConsumerState<_FakePdp> {
 class _FailingGetService extends ReviewsApiService {
   _FailingGetService()
     : super(
-        ApiClient(baseUrl: 'http://localhost:1', tokenProvider: () async => null),
+        ApiClient(
+          baseUrl: 'http://localhost:1',
+          tokenProvider: () async => null,
+        ),
       );
 
   @override

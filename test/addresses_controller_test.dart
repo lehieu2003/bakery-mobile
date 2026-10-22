@@ -26,7 +26,10 @@ import 'package:bakery_mobile/src/features/cart/presentation/screens/checkout_sc
 class _FakeAddressApiService extends AddressApiService {
   _FakeAddressApiService([List<Map<String, dynamic>>? seed])
     : super(
-        ApiClient(baseUrl: 'http://localhost:1', tokenProvider: () async => null),
+        ApiClient(
+          baseUrl: 'http://localhost:1',
+          tokenProvider: () async => null,
+        ),
       ) {
     _nextId = _records.length + 1;
     if (seed != null) {
@@ -173,9 +176,7 @@ void main() {
       );
       addTearDown(failingContainer.dispose);
 
-      await failingContainer
-          .read(addressesViewModelProvider.notifier)
-          .load();
+      await failingContainer.read(addressesViewModelProvider.notifier).load();
 
       final state = failingContainer.read(addressesViewModelProvider);
       expect(state.isLoading, isFalse);
@@ -195,10 +196,7 @@ void main() {
         province: 'TP. Hồ Chí Minh',
       );
       expect(first, isNotNull);
-      expect(
-        container.read(addressesViewModelProvider).items,
-        hasLength(1),
-      );
+      expect(container.read(addressesViewModelProvider).items, hasLength(1));
       expect(
         container.read(addressesViewModelProvider).items.first.isDefault,
         isTrue,
@@ -306,11 +304,7 @@ void main() {
         province: 'TP. Hồ Chí Minh',
       );
 
-      await vm.update(
-        first!.id,
-        fullName: 'Nguyễn Văn B',
-        phone: '0909999999',
-      );
+      await vm.update(first!.id, fullName: 'Nguyễn Văn B', phone: '0909999999');
 
       final updated = container
           .read(addressesViewModelProvider)
@@ -336,7 +330,10 @@ void main() {
             (ref) => AddressRepository(addressDatasource),
           ),
         ],
-        child: MaterialApp(theme: AppTheme.light(), home: const CheckoutScreen()),
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          home: const CheckoutScreen(),
+        ),
       );
     }
 
@@ -344,70 +341,72 @@ void main() {
       orderRepository = _CapturingOrderRepository();
     });
 
-    testWidgets(
-      'saved address pick sends addressId and joined address line',
-      (tester) async {
-        SharedPreferences.setMockInitialValues({});
-        addressDatasource = _FakeAddressApiService();
-        await addressDatasource.createAddress(
-          fullName: 'Nguyễn Văn A',
-          phone: '0901234567',
-          street: '12 Nguyễn Trãi',
-          ward: 'Phường Bến Nghé',
-          district: 'Quận 1',
-          province: 'TP. Hồ Chí Minh',
-        );
-        await addressDatasource.createAddress(
-          fullName: 'Trần Thị B',
-          phone: '0987654321',
-          street: '9 Lê Lợi',
-          ward: 'Phường Bến Thành',
-          district: 'Quận 1',
-          province: 'TP. Hồ Chí Minh',
-        );
+    testWidgets('saved address pick sends addressId and joined address line', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
+      addressDatasource = _FakeAddressApiService();
+      await addressDatasource.createAddress(
+        fullName: 'Nguyễn Văn A',
+        phone: '0901234567',
+        street: '12 Nguyễn Trãi',
+        ward: 'Phường Bến Nghé',
+        district: 'Quận 1',
+        province: 'TP. Hồ Chí Minh',
+      );
+      await addressDatasource.createAddress(
+        fullName: 'Trần Thị B',
+        phone: '0987654321',
+        street: '9 Lê Lợi',
+        ward: 'Phường Bến Thành',
+        district: 'Quận 1',
+        province: 'TP. Hồ Chí Minh',
+      );
 
-        await tester.pumpWidget(buildHost());
-        await tester.pumpAndSettle();
+      await tester.pumpWidget(buildHost());
+      await tester.pumpAndSettle();
 
-        // Both saved addresses appear in the radio list; the default is
-        // pre-selected ("Nguyễn Văn A" first). Match Text widgets only —
-        // the auto-selected address also fills the name/phone fields, so
-        // find.text would hit the EditableText too.
-        Finder radioTitle(String name) => find.byWidgetPredicate(
-          (widget) => widget is Text && widget.data == name,
-        );
-        expect(find.text('Địa chỉ đã lưu'), findsOneWidget);
-        expect(radioTitle('Nguyễn Văn A'), findsOneWidget);
-        expect(radioTitle('Trần Thị B'), findsOneWidget);
+      // Both saved addresses appear in the radio list; the default is
+      // pre-selected ("Nguyễn Văn A" first). Match Text widgets only —
+      // the auto-selected address also fills the name/phone fields, so
+      // find.text would hit the EditableText too.
+      Finder radioTitle(String name) => find.byWidgetPredicate(
+        (widget) => widget is Text && widget.data == name,
+      );
+      expect(find.text('Địa chỉ đã lưu'), findsOneWidget);
+      expect(radioTitle('Nguyễn Văn A'), findsOneWidget);
+      expect(radioTitle('Trần Thị B'), findsOneWidget);
 
-        // Pick the second (non-default) saved address.
-        await tester.tap(radioTitle('Trần Thị B'));
-        await tester.pump();
+      // Pick the second (non-default) saved address.
+      await tester.tap(radioTitle('Trần Thị B'));
+      await tester.pump();
 
-        expect(
-          tester.widget<TextFormField>(
-            find.widgetWithText(TextFormField, 'Customer name').first,
-          ).controller!.text,
-          'Trần Thị B',
-        );
+      expect(
+        tester
+            .widget<TextFormField>(
+              find.widgetWithText(TextFormField, 'Customer name').first,
+            )
+            .controller!
+            .text,
+        'Trần Thị B',
+      );
 
-        await tester.scrollUntilVisible(
-          find.text('Place order'),
-          200,
-          scrollable: find.byType(Scrollable).first,
-        );
-        await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.text('Place order'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
 
-        await tester.tap(find.text('Place order'));
-        await tester.pumpAndSettle();
+      await tester.tap(find.text('Place order'));
+      await tester.pumpAndSettle();
 
-        expect(orderRepository.capturedAddressId, 'addr-2');
-        expect(
-          orderRepository.capturedAddress,
-          '9 Lê Lợi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh',
-        );
-      },
-    );
+      expect(orderRepository.capturedAddressId, 'addr-2');
+      expect(
+        orderRepository.capturedAddress,
+        '9 Lê Lợi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh',
+      );
+    });
 
     testWidgets('manual entry sends no addressId', (tester) async {
       SharedPreferences.setMockInitialValues({
@@ -551,7 +550,10 @@ void main() {
 class _FailingAddressApiService extends AddressApiService {
   _FailingAddressApiService()
     : super(
-        ApiClient(baseUrl: 'http://localhost:1', tokenProvider: () async => null),
+        ApiClient(
+          baseUrl: 'http://localhost:1',
+          tokenProvider: () async => null,
+        ),
       );
 
   @override
