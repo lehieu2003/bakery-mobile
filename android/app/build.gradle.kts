@@ -20,8 +20,10 @@ if (hasReleaseKeystore) {
 
 android {
     namespace = "vn.phuongloan.bakery"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // Plugins need SDK 36 / NDK >= 27 (flutter_secure_storage, printing…);
+    // Flutter 3.32 defaults to 35 / 26. Both are backward compatible.
+    compileSdk = 36
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
