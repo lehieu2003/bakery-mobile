@@ -52,9 +52,15 @@ case "$cmd" in
     ;;
   commits)
     base="${2:?base ref required}"
+    # Commits already on a protected branch can't be rewritten and were gated
+    # on the way in (or predate the rule) — e.g. master's copies after a sync.
+    shipped=()
+    for ref in origin/master origin/dev; do
+      git rev-parse -q --verify "$ref" >/dev/null && shipped+=("^$ref")
+    done
     while IFS= read -r subject; do
       check_header "$subject"
-    done < <(git log --no-merges --format=%s "$base..HEAD")
+    done < <(git log --no-merges --format=%s "$base..HEAD" "${shipped[@]}")
     ;;
   *)
     fail "Usage: $0 {branch <name>|message <file>|title <text>|commits <base-ref>}"
