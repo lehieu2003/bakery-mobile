@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/membership/domain/models/membership_benefits.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 class MembershipState {
   const MembershipState({
@@ -42,7 +43,7 @@ class MembershipViewModel extends Notifier<MembershipState> {
     } catch (error) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: error.toString().replaceFirst('Exception: ', ''),
+        errorMessage: userErrorMessage(error),
       );
     }
   }

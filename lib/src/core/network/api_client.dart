@@ -15,6 +15,17 @@ const int _tokenPreviewLength = 12;
 /// successful checkout is not cut off client-side.
 const Duration defaultRequestTimeout = Duration(seconds: 30);
 
+/// Marks a body that was not JSON (kept for 2xx callers, never shown).
+const String _rawBodyKey = '_raw';
+
+/// User-facing messages for failures the server did not explain itself.
+const String networkErrorMessage =
+    'Không có kết nối mạng. Vui lòng kiểm tra Wi‑Fi/4G rồi thử lại.';
+const String timeoutErrorMessage =
+    'Máy chủ phản hồi quá lâu. Vui lòng kiểm tra kết nối và thử lại.';
+const String serverErrorMessage =
+    'Máy chủ đang gặp sự cố. Vui lòng thử lại sau ít phút.';
+
 typedef TokenProvider = Future<String?> Function();
 
 class ApiClient {
@@ -84,10 +95,7 @@ class ApiClient {
     }
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw ApiException(
-        _extractError(decoded),
-        statusCode: response.statusCode,
-      );
+      throw _errorFor(response.statusCode, decoded);
     }
 
     if (decoded is Map<String, dynamic>) {
@@ -139,14 +147,35 @@ class ApiClient {
     try {
       return await request.timeout(requestTimeout);
     } on TimeoutException {
-      throw ApiException(
-        'Máy chủ phản hồi quá lâu. Vui lòng kiểm tra kết nối và thử lại.',
-      );
-    } on http.ClientException {
-      throw ApiException(
-        'Không kết nối được máy chủ. Vui lòng kiểm tra kết nối mạng.',
+      throw ApiException(timeoutErrorMessage, kind: ApiErrorKind.timeout);
+    } catch (error) {
+      // ClientException covers sockets and DNS; TLS handshake failures (e.g.
+      // a captive Wi‑Fi portal) arrive as other exception types. Programming
+      // errors are not transport failures.
+      if (error is Error) rethrow;
+      throw ApiException(networkErrorMessage, kind: ApiErrorKind.network);
+    }
+  }
+
+  /// Error for a non-2xx answer. A 5xx — or any body that is not the API's
+  /// JSON, like a proxy's HTML 502 page — gets a generic message: neither
+  /// raw markup nor the server's English internals reach the user. A 4xx
+  /// keeps the server's message, which is written for users.
+  ApiException _errorFor(int statusCode, dynamic decoded) {
+    if (statusCode >= 500) {
+      return ApiException(serverErrorMessage, statusCode: statusCode);
+    }
+    final isApiJson =
+        decoded is Map<String, dynamic> && !decoded.containsKey(_rawBodyKey);
+    if (!isApiJson) {
+      // A non-JSON 4xx comes from infrastructure (proxy, CDN), not the API.
+      return ApiException(
+        serverErrorMessage,
+        statusCode: statusCode,
+        kind: ApiErrorKind.server,
       );
     }
+    return ApiException(_extractError(decoded), statusCode: statusCode);
   }
 
   Uri _buildUri(String path, {Map<String, dynamic>? query}) {
@@ -190,7 +219,7 @@ class ApiClient {
     try {
       return jsonDecode(body);
     } catch (_) {
-      return <String, dynamic>{'message': body};
+      return <String, dynamic>{_rawBodyKey: body};
     }
   }
 

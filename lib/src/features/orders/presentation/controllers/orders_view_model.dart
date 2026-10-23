@@ -4,6 +4,7 @@ import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/core/network/api_exception.dart';
 import 'package:bakery_mobile/src/core/utils/idempotency_key.dart';
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 class OrdersState {
   const OrdersState({
@@ -81,7 +82,7 @@ class OrdersViewModel extends Notifier<OrdersState> {
     } catch (error) {
       state = state.copyWith(
         isLoadingOrders: false,
-        errorMessage: error.toString().replaceFirst('Exception: ', ''),
+        errorMessage: userErrorMessage(error),
       );
     }
   }
@@ -108,7 +109,7 @@ class OrdersViewModel extends Notifier<OrdersState> {
     } catch (error) {
       state = state.copyWith(
         isLoadingMoreOrders: false,
-        errorMessage: error.toString().replaceFirst('Exception: ', ''),
+        errorMessage: userErrorMessage(error),
       );
     }
   }
@@ -161,14 +162,16 @@ class OrdersViewModel extends Notifier<OrdersState> {
       );
       return created;
     } catch (error) {
-      // A status code means the server answered (and created nothing);
-      // without one the request may have landed, so the key is kept.
-      if (error is! ApiException || error.statusCode != null) {
-        _checkoutKey = null;
-      }
+      // Only a 4xx proves no order was created. Without an answer, or with
+      // a 5xx (e.g. a 504 after the handler ran), it may exist: keep the key
+      // so the retry returns it instead of a duplicate.
+      final mayHaveLanded =
+          error is ApiException &&
+          (error.isConnectivityIssue || error.kind == ApiErrorKind.server);
+      if (!mayHaveLanded) _checkoutKey = null;
       state = state.copyWith(
         isCreatingOrder: false,
-        errorMessage: error.toString().replaceFirst('Exception: ', ''),
+        errorMessage: userErrorMessage(error),
       );
       return null;
     }
@@ -185,7 +188,7 @@ class OrdersViewModel extends Notifier<OrdersState> {
     } catch (error) {
       state = state.copyWith(
         clearPreparingReorder: true,
-        errorMessage: error.toString().replaceFirst('Exception: ', ''),
+        errorMessage: userErrorMessage(error),
       );
       return null;
     }

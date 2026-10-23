@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 enum SearchSortOption { popular, newest, priceAsc, priceDesc }
 
@@ -137,7 +138,7 @@ class SearchViewModel extends Notifier<SearchState> {
     } catch (error) {
       state = state.copyWith(
         isLoading: false,
-        error: error.toString().replaceFirst('Exception: ', ''),
+        error: userErrorMessage(error),
         products: const [],
         total: 0,
       );
@@ -172,7 +173,7 @@ class SearchViewModel extends Notifier<SearchState> {
     } catch (error) {
       state = state.copyWith(
         isLoadingMore: false,
-        error: error.toString().replaceFirst('Exception: ', ''),
+        error: userErrorMessage(error),
       );
     }
   }

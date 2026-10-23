@@ -5,6 +5,7 @@ import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/core/network/api_exception.dart';
 import 'package:bakery_mobile/src/features/admin/orders/domain/models/admin_order.dart';
 import 'package:bakery_mobile/src/features/admin/orders/domain/models/order_audit.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 /// Immutable UI state for one admin order detail screen.
 class OrderDetailState {
@@ -186,7 +187,5 @@ class OrderDetailViewModel extends FamilyNotifier<OrderDetailState, String> {
     return false;
   }
 
-  String _message(Object error) => error is ApiException
-      ? error.message
-      : error.toString().replaceFirst('Exception: ', '');
+  String _message(Object error) => userErrorMessage(error);
 }

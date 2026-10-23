@@ -16,6 +16,7 @@ import 'package:bakery_mobile/src/shared/widgets/info_row_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/summary_row_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 class OrderDetailScreen extends ConsumerStatefulWidget {
   const OrderDetailScreen({super.key, required this.orderNumber});
@@ -65,7 +66,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _errorMessage = error.toString().replaceFirst('Exception: ', '');
+        _errorMessage = userErrorMessage(error);
       });
     }
   }

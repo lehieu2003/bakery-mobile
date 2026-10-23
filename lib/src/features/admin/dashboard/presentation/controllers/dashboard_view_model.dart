@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/core/network/api_exception.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/domain/models/dashboard_stats.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 /// Immutable UI state for the admin dashboard screen.
 class DashboardState {
@@ -79,10 +80,7 @@ class DashboardViewModel extends Notifier<DashboardState> {
       // background refresh never blanks an already-loaded dashboard.
       state = state.copyWith(error: error.message, isLoading: false);
     } catch (error) {
-      state = state.copyWith(
-        error: error.toString().replaceFirst('Exception: ', ''),
-        isLoading: false,
-      );
+      state = state.copyWith(error: userErrorMessage(error), isLoading: false);
     }
   }
 

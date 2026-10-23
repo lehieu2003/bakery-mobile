@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/notifications/domain/models/app_notification.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 class NotificationsState {
   const NotificationsState({
@@ -62,10 +63,7 @@ class NotificationsViewModel extends Notifier<NotificationsState> {
         page: 1,
       );
     } catch (error) {
-      state = state.copyWith(
-        isLoading: false,
-        error: error.toString().replaceFirst('Exception: ', ''),
-      );
+      state = state.copyWith(isLoading: false, error: userErrorMessage(error));
     }
   }
 
@@ -87,7 +85,7 @@ class NotificationsViewModel extends Notifier<NotificationsState> {
     } catch (error) {
       state = state.copyWith(
         isLoadingMore: false,
-        error: error.toString().replaceFirst('Exception: ', ''),
+        error: userErrorMessage(error),
       );
     }
   }

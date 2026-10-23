@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
+import 'package:bakery_mobile/src/core/network/connectivity.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
 import 'package:bakery_mobile/src/features/addresses/domain/models/address.dart';
@@ -16,6 +17,7 @@ import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 import 'package:bakery_mobile/src/shared/widgets/summary_row_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 /// Mirrors the per-order limit in bakery-web app/api/incentives/preview.
 const int _maxIncentiveCodes = 5;
@@ -213,7 +215,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         _isLoadingIncentives ||
         _isApplyingIncentive ||
         (isDelivery && pricing == null);
-    final canPlaceOrder = !orders.isCreatingOrder && !isPricingPending;
+    final isOnline = ref.watch(isOnlineProvider);
+    final canPlaceOrder =
+        !orders.isCreatingOrder && !isPricingPending && isOnline;
 
     if (cart.items.isEmpty) {
       return const Scaffold(body: Center(child: Text('Giỏ hàng trống')));
@@ -483,6 +487,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     )
                   : const Text('Đặt hàng'),
             ),
+            if (!isOnline) ...[
+              const Gap(AppSpacing.sm),
+              Text(
+                'Đang mất kết nối mạng — kết nối lại để đặt hàng.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ],
             if (orders.errorMessage != null) ...[
               const Gap(AppSpacing.md),
               Text(
@@ -678,7 +690,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       if (!mounted) return;
       setState(() {
         _isLoadingIncentives = false;
-        _incentiveError = error.toString().replaceFirst('Exception: ', '');
+        _incentiveError = userErrorMessage(error);
       });
     }
   }
@@ -759,7 +771,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       if (!mounted) return;
       setState(() {
         _isApplyingIncentive = false;
-        _incentiveError = error.toString().replaceFirst('Exception: ', '');
+        _incentiveError = userErrorMessage(error);
       });
     }
   }

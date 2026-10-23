@@ -96,4 +96,12 @@ void main() {
     expect(newIdempotencyKey(), matches(RegExp(r'^[0-9a-f]{32}$')));
     expect(newIdempotencyKey(), isNot(newIdempotencyKey()));
   });
+
+  test('a 5xx keeps the key: the order may exist (e.g. a 504)', () async {
+    final keys = await placeOrders([
+      ApiException('Máy chủ đang gặp sự cố.', statusCode: 504),
+      null,
+    ]);
+    expect(keys[1], keys[0]);
+  });
 }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:async';
 
 import 'package:bakery_mobile/src/core/network/api_client.dart';
@@ -66,4 +67,74 @@ void main() {
       expect(seen!.headers['Content-Type'], startsWith('application/json'));
     },
   );
+
+  Future<ApiException> failure(MockClient server) async {
+    try {
+      await http.runWithClient(
+        () => _client().get('/api/orders'),
+        () => server,
+      );
+    } on ApiException catch (error) {
+      return error;
+    }
+    fail('expected an ApiException');
+  }
+
+  test('a proxy HTML 502 page never becomes the message', () async {
+    final error = await failure(
+      MockClient(
+        (_) async =>
+            http.Response('<html><body>502 Bad Gateway</body></html>', 502),
+      ),
+    );
+    expect(error.kind, ApiErrorKind.server);
+    expect(error.statusCode, 502);
+    expect(error.message, serverErrorMessage);
+  });
+
+  test('a 500 hides the server English internals', () async {
+    final error = await failure(
+      MockClient(
+        (_) async => http.Response(
+          '{"success":false,"error":"Failed to fetch orders"}',
+          500,
+        ),
+      ),
+    );
+    expect(error.kind, ApiErrorKind.server);
+    expect(error.message, serverErrorMessage);
+  });
+
+  test('a 4xx keeps the server message, written for users', () async {
+    final error = await failure(
+      MockClient(
+        (_) async => http.Response.bytes(
+          utf8.encode('{"success":false,"error":"Mã giảm giá đã hết hạn"}'),
+          400,
+          headers: {'content-type': 'application/json; charset=utf-8'},
+        ),
+      ),
+    );
+    expect(error.kind, ApiErrorKind.client);
+    expect(error.message, 'Mã giảm giá đã hết hạn');
+  });
+
+  test('a TLS-style transport failure is a network error', () async {
+    final error = await failure(
+      MockClient((_) async => throw const FormatException('handshake failed')),
+    );
+    expect(error.kind, ApiErrorKind.network);
+    expect(error.isConnectivityIssue, isTrue);
+    expect(error.message, networkErrorMessage);
+  });
+
+  test('a programming error is not disguised as a network error', () async {
+    await expectLater(
+      http.runWithClient(
+        () => _client().get('/api/orders'),
+        () => MockClient((_) async => throw StateError('bug')),
+      ),
+      throwsA(isA<StateError>()),
+    );
+  });
 }

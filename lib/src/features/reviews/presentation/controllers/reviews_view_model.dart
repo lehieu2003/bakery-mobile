@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/core/network/api_exception.dart';
 import 'package:bakery_mobile/src/features/reviews/domain/models/product_review.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 class ReviewsState {
   const ReviewsState({
@@ -76,10 +77,7 @@ class ReviewsViewModel extends FamilyNotifier<ReviewsState, String> {
         reviewCount: page.reviewCount,
       );
     } catch (error) {
-      state = state.copyWith(
-        isLoading: false,
-        error: error.toString().replaceFirst('Exception: ', ''),
-      );
+      state = state.copyWith(isLoading: false, error: userErrorMessage(error));
     }
   }
 
@@ -126,6 +124,6 @@ class ReviewsViewModel extends FamilyNotifier<ReviewsState, String> {
           return 'Bạn đã đánh giá sản phẩm này';
       }
     }
-    return error.toString().replaceFirst('Exception: ', '');
+    return userErrorMessage(error);
   }
 }

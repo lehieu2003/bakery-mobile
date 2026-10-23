@@ -29,8 +29,10 @@ shader `ink_sparkle` và `pub get` sửa lung tung file ios/android.
   - `widgets/` — UI tái sử dụng: ảnh mạng (`AppNetworkImageWidget`), loading/lỗi/rỗng (`LoadingWidget`,
     `ErrorRetryWidget`, `EmptyStateWidget`), giá + badge giảm giá (`PriceWidget`, `DiscountBadgeWidget`),
     card/dòng thông tin (`SectionCardWidget`, `InfoRowWidget`, `SummaryRowWidget`), `OrderStatusPillWidget`,
-    `InitialAvatarWidget`, `FavoriteIconWidget`, `AppTextInputWidget`, các `Skeleton*Widget`.
-  - `utils/` — `format_utils.dart` (`formatVnd`, `formatDateVi`, `formatDateTimeVi`), `order_status_display.dart`.
+    `InitialAvatarWidget`, `FavoriteIconWidget`, `AppTextInputWidget`, các `Skeleton*Widget`,
+    `OfflineBannerWidget` (gắn ở `main.dart`).
+  - `utils/` — `format_utils.dart` (`formatVnd`, `formatDateVi`, `formatDateTimeVi`), `order_status_display.dart`,
+    `error_message.dart` (`userErrorMessage(error)` — luôn dùng thay vì `error.toString()`).
 - Khu admin: `lib/src/features/admin/{shell,shared,dashboard,orders,…}`; `AdminShell` chọn màn theo `AdminSection`.
 - State: Riverpod 2 `Notifier` + state class immutable có `copyWith`; provider khai báo tập trung ở `core/di/`.
 
@@ -40,6 +42,9 @@ shader `ink_sparkle` và `pub get` sửa lung tung file ios/android.
   (`"900000.00"`) → coerce bằng helper (`admin/shared/utils/json_num.dart`).
 - Chuỗi UI tiếng Việt viết trực tiếp.
 - Lỗi 401 ở khu admin → `authViewModelProvider.notifier.logout()` (AppGate tự về màn login).
+- Lỗi request: `ApiException.kind` (`network`/`timeout`/`server`/`unauthorized`/`client`) — quyết định theo loại,
+  không theo chuỗi; hiển thị bằng `userErrorMessage`. Trạng thái mạng: `isOnlineProvider` (`core/network/connectivity.dart`);
+  `ErrorRetryWidget` tự hiện "Mất kết nối" và tự thử lại khi có mạng.
 - Test: fake repository/service (subclass + override) + `ProviderContainer(overrides: …)`; DTO test bằng
   payload giống server thật. Mỗi thay đổi hành vi đi kèm test.
 - **Trước khi viết UI mới, xem `lib/src/shared/widgets/`** — dùng widget có sẵn (chọn đúng `variant`) thay vì
