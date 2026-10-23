@@ -35,11 +35,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     'COD',
     'BANK_TRANSFER',
     'MOMO',
-    'ZALOPAY',
     'VNPAY',
   ];
   static const _paymentMethodLabels = <String, String>{
     'VNPAY': 'VNPAY (QR/ATM/Visa)',
+  };
+  static const _deliveryMethodLabels = <DeliveryMethod, String>{
+    DeliveryMethod.pickup: 'Nhận tại tiệm',
+    DeliveryMethod.delivery: 'Giao tận nơi',
   };
   static final _vnPhoneRegex = RegExp(r'^(0|\+84)(3|5|7|8|9)\d{8}$');
   static const _nameDraftKey = 'checkout_draft_name';
@@ -52,6 +55,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   final _addressCtrl = TextEditingController();
   final _incentiveCtrl = TextEditingController();
   String _paymentMethod = 'COD';
+  DeliveryMethod _deliveryMethod = DeliveryMethod.pickup;
   List<String> _selectedIncentiveCodes = const [];
   List<AvailableIncentive> _availableIncentives = const [];
   PreviewIncentiveResult? _previewPricing;
@@ -187,6 +191,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final membershipDiscount = pricing?.membershipDiscount ?? 0;
     final couponDiscount = pricing?.couponDiscount ?? 0;
     final total = pricing?.total ?? subtotal;
+    final isDelivery = _deliveryMethod == DeliveryMethod.delivery;
+    // The charged total must never exceed the displayed one: a delivery order
+    // waits for the fee-aware preview before it can be placed.
+    final isPricingPending =
+        _isLoadingIncentives ||
+        _isApplyingIncentive ||
+        (isDelivery && pricing == null);
+    final canPlaceOrder = !orders.isCreatingOrder && !isPricingPending;
 
     if (cart.items.isEmpty) {
       return const Scaffold(body: Center(child: Text('Cart is empty')));
@@ -232,7 +244,30 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       validator: _validatePhone,
                     ),
                     const Gap(AppSpacing.md),
-                    if (auth.user != null && addresses.items.isNotEmpty) ...[
+                    Text(
+                      'Hình thức nhận hàng',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const Gap(AppSpacing.sm),
+                    Wrap(
+                      spacing: AppSpacing.sm,
+                      children: [
+                        for (final method in DeliveryMethod.values)
+                          ChoiceChip(
+                            label: Text(_deliveryMethodLabels[method]!),
+                            selected: _deliveryMethod == method,
+                            onSelected: orders.isCreatingOrder
+                                ? null
+                                : (_) => _changeDeliveryMethod(method),
+                          ),
+                      ],
+                    ),
+                    const Gap(AppSpacing.md),
+                    if (isDelivery &&
+                        auth.user != null &&
+                        addresses.items.isNotEmpty) ...[
                       Text(
                         'Địa chỉ đã lưu',
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -263,12 +298,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       ),
                       const Gap(AppSpacing.sm),
                     ],
-                    AppTextInputWidget(
-                      controller: _addressCtrl,
-                      minLines: 2,
-                      maxLines: 3,
-                      labelText: 'Customer address (optional)',
-                    ),
+                    if (isDelivery)
+                      AppTextInputWidget(
+                        controller: _addressCtrl,
+                        minLines: 2,
+                        maxLines: 3,
+                        labelText: 'Địa chỉ giao hàng',
+                        validator: (value) => (value ?? '').trim().isEmpty
+                            ? 'Vui lòng nhập địa chỉ giao hàng'
+                            : null,
+                      ),
                   ],
                 ),
               ),
@@ -368,6 +407,28 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         value: '-${_formatMoney(couponDiscount)}',
                         valueColor: AppTheme.warmBrown,
                       ),
+                    if (isDelivery)
+                      SummaryRowWidget(
+                        label: 'Phí giao hàng',
+                        value: pricing == null
+                            ? '—'
+                            : pricing.deliveryFee > 0
+                            ? _formatMoney(pricing.deliveryFee)
+                            : 'Miễn phí',
+                      ),
+                    if (isDelivery &&
+                        pricing == null &&
+                        !_isLoadingIncentives &&
+                        !_isApplyingIncentive)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: _loadIncentivesAndPricing,
+                          child: const Text(
+                            'Không tải được phí giao hàng · Thử lại',
+                          ),
+                        ),
+                      ),
                     Row(
                       children: [
                         const Expanded(
@@ -388,7 +449,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             ),
             const Gap(AppSpacing.lg),
             FilledButton(
-              onPressed: orders.isCreatingOrder
+              onPressed: !canPlaceOrder
                   ? null
                   : () =>
                         _placeOrder(items: cart.items, email: auth.user?.email),
@@ -439,8 +500,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     }
 
     // Only signed-in users can reference a saved address; the server resolves
-    // the addressId against the current user's address book.
+    // the addressId against the current user's address book. Pick-up orders
+    // carry no address at all.
     final isLoggedIn = ref.read(authViewModelProvider).user != null;
+    final isDelivery = _deliveryMethod == DeliveryMethod.delivery;
     final result = await ref
         .read(ordersViewModelProvider.notifier)
         .createOrder(
@@ -450,9 +513,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             '',
           ),
           customerEmail: email,
-          customerAddress: _addressCtrl.text.trim(),
-          addressId: isLoggedIn ? _selectedAddressId : null,
+          customerAddress: isDelivery ? _addressCtrl.text.trim() : null,
+          addressId: isDelivery && isLoggedIn ? _selectedAddressId : null,
           paymentMethod: _paymentMethod,
+          deliveryMethod: _deliveryMethod,
           incentiveCodes: _selectedIncentiveCodes,
           items: items.map((item) => item.toOrderItemPayload()).toList(),
         );
@@ -578,6 +642,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       final contextItems = _cartContextPayload(cart.items);
       final results = await Future.wait([
         repository.previewIncentives(
+          deliveryMethod: _deliveryMethod,
           incentiveCodes: _selectedIncentiveCodes,
           items: contextItems,
         ),
@@ -631,9 +696,22 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     await _previewCodes(nextCodes, successMessage: 'Updated incentive codes.');
   }
 
+  /// The fee depends on the method, so the quoted pricing is re-fetched; the
+  /// stale one is dropped first so it can never be shown or ordered against.
+  Future<void> _changeDeliveryMethod(DeliveryMethod method) async {
+    if (method == _deliveryMethod) return;
+    setState(() {
+      _deliveryMethod = method;
+      _previewPricing = null;
+    });
+    await _previewCodes(_selectedIncentiveCodes);
+  }
+
+  /// Re-prices the cart for [codes]; [successMessage] is shown only for an
+  /// explicit coupon change.
   Future<void> _previewCodes(
     List<String> codes, {
-    required String successMessage,
+    String? successMessage,
   }) async {
     final cart = ref.read(cartViewModelProvider);
     setState(() {
@@ -646,6 +724,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       final preview = await ref
           .read(orderRepositoryProvider)
           .previewIncentives(
+            deliveryMethod: _deliveryMethod,
             incentiveCodes: codes,
             items: _cartContextPayload(cart.items),
           );
@@ -654,7 +733,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         _selectedIncentiveCodes = codes;
         _previewPricing = preview;
         _isApplyingIncentive = false;
-        _incentiveMessage = codes.isEmpty
+        _incentiveMessage = successMessage == null
+            ? null
+            : codes.isEmpty
             ? 'Removed all incentive codes.'
             : '$successMessage Coupon saving: -${_formatMoney(preview.couponDiscount)}';
       });

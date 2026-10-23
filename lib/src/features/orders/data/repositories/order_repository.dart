@@ -26,6 +26,7 @@ class OrderRepository {
     String? customerAddress,
     String? addressId,
     required String paymentMethod,
+    required DeliveryMethod deliveryMethod,
     List<String> incentiveCodes = const [],
     required List<Map<String, dynamic>> items,
   }) async {
@@ -36,6 +37,7 @@ class OrderRepository {
       customerAddress: customerAddress,
       addressId: addressId,
       paymentMethod: paymentMethod,
+      deliveryMethod: deliveryMethod,
       incentiveCodes: incentiveCodes,
       items: items,
     );
@@ -43,10 +45,12 @@ class OrderRepository {
   }
 
   Future<PreviewIncentiveResult> previewIncentives({
+    required DeliveryMethod deliveryMethod,
     required List<String> incentiveCodes,
     required List<Map<String, dynamic>> items,
   }) async {
     final result = await _orderApiService.previewIncentives(
+      deliveryMethod: deliveryMethod,
       incentiveCodes: incentiveCodes,
       items: items,
     );

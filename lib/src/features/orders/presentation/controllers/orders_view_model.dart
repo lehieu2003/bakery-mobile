@@ -67,6 +67,7 @@ class OrdersViewModel extends Notifier<OrdersState> {
     String? customerAddress,
     String? addressId,
     required String paymentMethod,
+    required DeliveryMethod deliveryMethod,
     List<String> incentiveCodes = const [],
     required List<Map<String, dynamic>> items,
   }) async {
@@ -81,6 +82,7 @@ class OrdersViewModel extends Notifier<OrdersState> {
             customerAddress: customerAddress,
             addressId: addressId,
             paymentMethod: paymentMethod,
+            deliveryMethod: deliveryMethod,
             incentiveCodes: incentiveCodes,
             items: items,
           );

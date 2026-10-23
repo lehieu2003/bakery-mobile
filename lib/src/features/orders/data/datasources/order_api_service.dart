@@ -1,5 +1,6 @@
 import 'package:bakery_mobile/src/core/network/api_client.dart';
 import 'package:bakery_mobile/src/features/orders/data/dtos/order_dto.dart';
+import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
 
 class OrderApiService {
   OrderApiService(this._client);
@@ -35,6 +36,7 @@ class OrderApiService {
     String? customerAddress,
     String? addressId,
     required String paymentMethod,
+    required DeliveryMethod deliveryMethod,
     List<String> incentiveCodes = const [],
     required List<Map<String, dynamic>> items,
   }) async {
@@ -49,6 +51,7 @@ class OrderApiService {
           'customerAddress': customerAddress,
         if (addressId != null && addressId.isNotEmpty) 'addressId': addressId,
         'paymentMethod': paymentMethod,
+        'deliveryMethod': deliveryMethod.name,
         if (incentiveCodes.isNotEmpty) 'incentiveCodes': incentiveCodes,
         'items': items,
       },
@@ -58,12 +61,14 @@ class OrderApiService {
   }
 
   Future<PreviewIncentiveResultDto> previewIncentives({
+    required DeliveryMethod deliveryMethod,
     required List<String> incentiveCodes,
     required List<Map<String, dynamic>> items,
   }) async {
     final response = await _client.post(
       '/api/incentives/preview',
       body: {
+        'deliveryMethod': deliveryMethod.name,
         if (incentiveCodes.isNotEmpty) 'incentiveCodes': incentiveCodes,
         'items': items,
       },

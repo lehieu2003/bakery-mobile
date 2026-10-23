@@ -240,6 +240,7 @@ class PreviewIncentiveResultDto {
     required this.couponDiscount,
     required this.totalDiscount,
     required this.total,
+    this.deliveryFee = 0,
     this.appliedIncentives = const [],
   });
 
@@ -248,6 +249,7 @@ class PreviewIncentiveResultDto {
   final double couponDiscount;
   final double totalDiscount;
   final double total;
+  final double deliveryFee;
   final List<AppliedIncentiveSummaryDto> appliedIncentives;
 
   factory PreviewIncentiveResultDto.fromJson(Map<String, dynamic> json) {
@@ -272,6 +274,11 @@ class PreviewIncentiveResultDto {
         json['total'],
         field: 'PreviewIncentiveResultDto.total',
       ),
+      // Present only when the request carried a deliveryMethod.
+      deliveryFee: ParseUtils.toDouble(
+        json['deliveryFee'],
+        field: 'PreviewIncentiveResultDto.deliveryFee',
+      ),
       appliedIncentives:
           (json['appliedIncentives'] as List<dynamic>? ?? const [])
               .whereType<Map<String, dynamic>>()
@@ -287,6 +294,7 @@ class PreviewIncentiveResultDto {
       couponDiscount: couponDiscount,
       totalDiscount: totalDiscount,
       total: total,
+      deliveryFee: deliveryFee,
       appliedIncentives: appliedIncentives.map((e) => e.toDomain()).toList(),
     );
   }
