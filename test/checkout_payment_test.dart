@@ -48,6 +48,9 @@ class _CapturingOrderRepository extends OrderRepository {
   String? capturedAddress;
   final previewDeliveryMethods = <DeliveryMethod>[];
 
+  /// Set to simulate bakery-web cancelling the order on payment-init failure.
+  String? paymentError;
+
   @override
   Future<CreateOrderResult> createOrder({
     required String customerName,
@@ -64,6 +67,7 @@ class _CapturingOrderRepository extends OrderRepository {
     capturedAddress = customerAddress;
     capturedPaymentMethod = paymentMethod;
     return CreateOrderResult(
+      paymentError: paymentError,
       order: Order(
         id: 'order-1',
         orderNumber: 'ORD-1',
@@ -237,4 +241,31 @@ void main() {
     expect(repository.capturedDeliveryMethod, DeliveryMethod.delivery);
     expect(repository.capturedAddress, '12 Nguyễn Trãi, Quận 1');
   });
+
+  testWidgets(
+    'payment-init failure keeps the cart and is not shown as success',
+    (tester) async {
+      final repository = await pumpCheckout(tester);
+      repository.paymentError = 'MoMo payment is not configured';
+
+      await fillCustomer(tester);
+      await tester.ensureVisible(find.text('MOMO'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('MOMO'));
+      await tester.pump();
+      await placeOrder(tester);
+
+      expect(repository.capturedPaymentMethod, 'MOMO');
+      expect(find.text('Order created successfully'), findsNothing);
+      expect(find.text('Order created - payment required'), findsNothing);
+      expect(
+        find.textContaining('Không khởi tạo được thanh toán'),
+        findsOneWidget,
+      );
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(CheckoutScreen)),
+      );
+      expect(container.read(cartViewModelProvider).items, hasLength(1));
+    },
+  );
 }
