@@ -1,15 +1,23 @@
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
 import 'package:bakery_mobile/src/features/orders/data/datasources/order_api_service.dart';
 
+/// Orders per page of the customer's history; bakery-web caps it at 50.
+const int myOrdersPageSize = 20;
+
 class OrderRepository {
   OrderRepository(this._orderApiService);
 
   final OrderApiService _orderApiService;
 
-  Future<List<Order>> getMyOrders() async {
-    return (await _orderApiService.getMyOrders())
-        .map((e) => e.toDomain())
-        .toList();
+  Future<({List<Order> orders, bool hasMore})> getMyOrders({
+    int page = 1,
+    int limit = myOrdersPageSize,
+  }) async {
+    final result = await _orderApiService.getMyOrders(page: page, limit: limit);
+    return (
+      orders: result.orders.map((e) => e.toDomain()).toList(),
+      hasMore: result.hasMore,
+    );
   }
 
   /// Fetches a single order by its order number.

@@ -153,6 +153,31 @@ class OrderDetailViewModel extends FamilyNotifier<OrderDetailState, String> {
     }
   }
 
+  /// Records that the order's payment was refunded on the gateway portal.
+  /// Returns true on success; on failure [OrderDetailState.updateError] is set.
+  Future<bool> markRefunded({String? note}) async {
+    final order = state.order;
+    if (state.isUpdating || order == null) return false;
+    state = state.copyWith(isUpdating: true, clearUpdateError: true);
+    final repo = ref.read(ordersAdminRepositoryProvider);
+    try {
+      final updated = await repo.markRefunded(order.id, note: note);
+      state = state.copyWith(order: updated, isUpdating: false);
+    } catch (error) {
+      if (await _logoutOn401(error)) {
+        state = state.copyWith(isUpdating: false);
+        return false;
+      }
+      state = state.copyWith(isUpdating: false, updateError: _message(error));
+      return false;
+    }
+    try {
+      final audit = await repo.getOrderAudit(order.id);
+      state = state.copyWith(audit: audit.logs);
+    } catch (_) {}
+    return true;
+  }
+
   Future<bool> _logoutOn401(Object error) async {
     if (error is ApiException && error.statusCode == 401) {
       await ref.read(authViewModelProvider.notifier).logout();

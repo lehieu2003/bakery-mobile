@@ -64,10 +64,16 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   Future<void> _changeStatus(String next) async {
     String? notes;
     if (next == 'CANCELLED') {
+      final order = ref
+          .read(orderDetailViewModelProvider(widget.orderNumber))
+          .order;
+      final payment = order?.payment;
       notes = await showModalBottomSheet<String>(
         context: context,
         isScrollControlled: true,
-        builder: (_) => const _CancelReasonSheet(),
+        builder: (_) => _CancelReasonSheet(
+          paidVia: payment?.status == 'PAID' ? payment!.provider : null,
+        ),
       );
       if (notes == null) return;
     }
@@ -80,6 +86,27 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         ref.read(ordersAdminViewModelProvider.notifier).replaceOrder(updated);
       }
       _snack('Đã chuyển sang "${orderStatusLabel(next)}"');
+    } else if (state.updateError != null) {
+      _snack(state.updateError!);
+    }
+  }
+
+  Future<void> _markRefunded() async {
+    final note = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => const _RefundSheet(),
+    );
+    if (note == null) return;
+    final ok = await _vm.markRefunded(note: note.isEmpty ? null : note);
+    if (!mounted) return;
+    final state = ref.read(orderDetailViewModelProvider(widget.orderNumber));
+    if (ok) {
+      final updated = state.order;
+      if (updated != null) {
+        ref.read(ordersAdminViewModelProvider.notifier).replaceOrder(updated);
+      }
+      _snack('Đã ghi nhận hoàn tiền');
     } else if (state.updateError != null) {
       _snack(state.updateError!);
     }
@@ -176,7 +203,11 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             onSelect: _changeStatus,
           ),
           _CustomerCard(order: order),
-          _PaymentCard(order: order),
+          _PaymentCard(
+            order: order,
+            isUpdating: state.isUpdating,
+            onMarkRefunded: _markRefunded,
+          ),
           _ItemsCard(order: order),
           _TotalsCard(order: order),
           SectionCardWidget(
@@ -351,9 +382,15 @@ class _CustomerCard extends StatelessWidget {
 }
 
 class _PaymentCard extends StatelessWidget {
-  const _PaymentCard({required this.order});
+  const _PaymentCard({
+    required this.order,
+    required this.isUpdating,
+    required this.onMarkRefunded,
+  });
 
   final AdminOrder order;
+  final bool isUpdating;
+  final VoidCallback onMarkRefunded;
 
   @override
   Widget build(BuildContext context) {
@@ -380,6 +417,41 @@ class _PaymentCard extends StatelessWidget {
                 label: 'Mã giao dịch',
                 value: payment.transactionId!,
               ),
+          ],
+          if (order.isAwaitingRefund) ...[
+            const Gap(AppSpacing.sm),
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.errorContainer,
+                borderRadius: BorderRadius.circular(AppRadius.md),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Cần hoàn tiền',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).colorScheme.onErrorContainer,
+                    ),
+                  ),
+                  const Gap(AppSpacing.xs),
+                  Text(
+                    'Đơn đã huỷ sau khi khách thanh toán. Hoàn tiền trên cổng '
+                    '${payment?.provider ?? 'thanh toán'} rồi ghi nhận tại đây.',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onErrorContainer,
+                    ),
+                  ),
+                  const Gap(AppSpacing.sm),
+                  OutlinedButton(
+                    onPressed: isUpdating ? null : onMarkRefunded,
+                    child: const Text('Đã hoàn tiền'),
+                  ),
+                ],
+              ),
+            ),
           ],
         ],
       ),
@@ -619,7 +691,11 @@ class _InvestigationCard extends StatelessWidget {
 /// Bottom sheet asking for the (mandatory) cancellation reason; pops with the
 /// trimmed reason, or null when dismissed.
 class _CancelReasonSheet extends StatefulWidget {
-  const _CancelReasonSheet();
+  const _CancelReasonSheet({this.paidVia});
+
+  /// Gateway the customer already paid through, if any: cancelling does not
+  /// refund them, so the sheet warns about the manual refund.
+  final String? paidVia;
 
   @override
   State<_CancelReasonSheet> createState() => _CancelReasonSheetState();
@@ -659,6 +735,15 @@ class _CancelReasonSheetState extends State<_CancelReasonSheet> {
             'Lý do huỷ sẽ được lưu vào nhật ký đơn.',
             style: TextStyle(color: AppTheme.warmBrown),
           ),
+          if (widget.paidVia != null) ...[
+            const Gap(AppSpacing.sm),
+            Text(
+              'Khách đã thanh toán qua ${widget.paidVia}. Huỷ đơn không tự '
+              'hoàn tiền: đơn sẽ được đánh dấu "Cần hoàn tiền" cho tới khi '
+              'bạn hoàn trên cổng thanh toán và ghi nhận.',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ],
           const Gap(AppSpacing.md),
           TextField(
             controller: _controller,
@@ -674,6 +759,69 @@ class _CancelReasonSheetState extends State<_CancelReasonSheet> {
                 ? null
                 : () => Navigator.pop(context, reason),
             child: const Text('Xác nhận huỷ'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Bottom sheet confirming a manual gateway refund, with an optional
+/// reference for the audit log; pops with the trimmed note ('' when none),
+/// or null when dismissed.
+class _RefundSheet extends StatefulWidget {
+  const _RefundSheet();
+
+  @override
+  State<_RefundSheet> createState() => _RefundSheetState();
+}
+
+class _RefundSheetState extends State<_RefundSheet> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg + MediaQuery.viewInsetsOf(context).bottom,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Ghi nhận đã hoàn tiền',
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const Gap(AppSpacing.xs),
+          const Text(
+            'Chỉ xác nhận sau khi đã hoàn tiền thành công trên cổng thanh toán.',
+            style: TextStyle(color: AppTheme.warmBrown),
+          ),
+          const Gap(AppSpacing.md),
+          TextField(
+            controller: _controller,
+            maxLines: 3,
+            minLines: 2,
+            decoration: const InputDecoration(
+              hintText: 'Mã hoàn tiền / ghi chú (không bắt buộc)',
+            ),
+          ),
+          const Gap(AppSpacing.md),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, _controller.text.trim()),
+            child: const Text('Xác nhận đã hoàn tiền'),
           ),
         ],
       ),

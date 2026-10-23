@@ -38,6 +38,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     'VNPAY',
   ];
   static const _paymentMethodLabels = <String, String>{
+    'COD': 'Tiền mặt (COD)',
+    'BANK_TRANSFER': 'Chuyển khoản',
+    'MOMO': 'Ví MoMo',
     'VNPAY': 'VNPAY (QR/ATM/Visa)',
   };
   static const _deliveryMethodLabels = <DeliveryMethod, String>{
@@ -132,6 +135,18 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     prefs.setString(_addressDraftKey, _addressCtrl.text.trim());
   }
 
+  /// The draft only exists to survive leaving checkout mid-way; once the
+  /// order is placed, the name, phone and address must not linger on the
+  /// device.
+  Future<void> _clearDraft() async {
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    await Future.wait([
+      prefs.remove(_nameDraftKey),
+      prefs.remove(_phoneDraftKey),
+      prefs.remove(_addressDraftKey),
+    ]);
+  }
+
   /// Mirrors the web behavior: any hand edit that no longer matches the
   /// selected saved address line drops the addressId.
   void _onAddressTextChanged() {
@@ -201,11 +216,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final canPlaceOrder = !orders.isCreatingOrder && !isPricingPending;
 
     if (cart.items.isEmpty) {
-      return const Scaffold(body: Center(child: Text('Cart is empty')));
+      return const Scaffold(body: Center(child: Text('Giỏ hàng trống')));
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Checkout')),
+      appBar: AppBar(title: const Text('Thanh toán')),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -218,7 +233,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Customer information',
+                      'Thông tin khách hàng',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
@@ -227,10 +242,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     AppTextInputWidget(
                       controller: _nameCtrl,
                       textInputAction: TextInputAction.next,
-                      labelText: 'Customer name',
+                      labelText: 'Họ tên',
                       validator: (value) {
                         if ((value ?? '').trim().isEmpty) {
-                          return 'Customer name is required';
+                          return 'Vui lòng nhập họ tên';
                         }
                         return null;
                       },
@@ -240,7 +255,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       controller: _phoneCtrl,
                       keyboardType: TextInputType.phone,
                       textInputAction: TextInputAction.next,
-                      labelText: 'Customer phone',
+                      labelText: 'Số điện thoại',
                       validator: _validatePhone,
                     ),
                     const Gap(AppSpacing.md),
@@ -333,7 +348,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Payment method',
+                      'Phương thức thanh toán',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
@@ -369,7 +384,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Order summary',
+                      'Tóm tắt đơn hàng',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
@@ -396,14 +411,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     if (membershipDiscount > 0)
                       SummaryRowWidget(
                         variant: SummaryRowVariant.emphasis,
-                        label: 'Membership saving',
+                        label: 'Ưu đãi hội viên',
                         value: '-${_formatMoney(membershipDiscount)}',
                         valueColor: AppTheme.warmBrown,
                       ),
                     if (couponDiscount > 0)
                       SummaryRowWidget(
                         variant: SummaryRowVariant.emphasis,
-                        label: 'Coupon saving',
+                        label: 'Mã giảm giá',
                         value: '-${_formatMoney(couponDiscount)}',
                         valueColor: AppTheme.warmBrown,
                       ),
@@ -433,7 +448,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       children: [
                         const Expanded(
                           child: Text(
-                            'Total',
+                            'Tổng cộng',
                             style: TextStyle(fontWeight: FontWeight.w700),
                           ),
                         ),
@@ -463,10 +478,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
                         Gap(AppSpacing.md),
-                        Text('Creating order...'),
+                        Text('Đang tạo đơn…'),
                       ],
                     )
-                  : const Text('Place order'),
+                  : const Text('Đặt hàng'),
             ),
             if (orders.errorMessage != null) ...[
               const Gap(AppSpacing.md),
@@ -483,10 +498,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
   String? _validatePhone(String? value) {
     final text = (value ?? '').trim();
-    if (text.isEmpty) return 'Customer phone is required';
+    if (text.isEmpty) return 'Vui lòng nhập số điện thoại';
     final normalized = text.replaceAll(RegExp(r'[\s.-]'), '');
     if (!_vnPhoneRegex.hasMatch(normalized)) {
-      return 'Please enter a valid Vietnamese phone number';
+      return 'Số điện thoại không hợp lệ';
     }
     return null;
   }
@@ -524,6 +539,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     if (!mounted || result == null) return;
 
     ref.read(cartViewModelProvider.notifier).clear();
+    await _clearDraft();
 
     await _showOrderResultDialog(result);
     if (mounted) Navigator.of(context).pop();
@@ -531,14 +547,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
   Future<void> _showOrderResultDialog(CreateOrderResult result) async {
     final title = result.paymentUrl != null
-        ? 'Order created - payment required'
-        : 'Order created successfully';
+        ? 'Đã tạo đơn — cần thanh toán'
+        : 'Đặt hàng thành công';
     // No status line: the create response carries none (a new order is
     // always PENDING), and a payment-init failure never reaches this dialog.
     final detailLines = <String>[
-      'Order number: ${result.order.orderNumber}',
+      'Mã đơn: ${result.order.orderNumber}',
       if (result.appliedIncentives.isNotEmpty)
-        'Savings: ${result.appliedIncentives.map((item) => '${item.code} -${_formatMoney(item.discount)}').join(', ')}',
+        'Tiết kiệm: ${result.appliedIncentives.map((item) => '${item.code} -${_formatMoney(item.discount)}').join(', ')}',
     ];
 
     await showDialog<void>(
@@ -559,7 +575,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               if (result.paymentUrl != null) ...[
                 const Gap(AppSpacing.sm),
                 const Text(
-                  'Payment URL',
+                  'Liên kết thanh toán',
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const Gap(AppSpacing.xs),
@@ -576,22 +592,24 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   );
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Payment URL copied')),
+                      const SnackBar(
+                        content: Text('Đã sao chép liên kết thanh toán'),
+                      ),
                     );
                   }
                 },
-                child: const Text('Copy payment URL'),
+                child: const Text('Sao chép liên kết'),
               ),
             if (result.paymentUrl != null)
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Later'),
+                child: const Text('Để sau'),
               ),
             if (result.paymentUrl != null)
               FilledButton.icon(
                 onPressed: () => _openPaymentUrl(context, result.paymentUrl!),
                 icon: const Icon(Icons.open_in_new_rounded),
-                label: const Text('Pay now'),
+                label: const Text('Thanh toán ngay'),
               )
             else
               FilledButton(
@@ -607,9 +625,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   Future<void> _openPaymentUrl(BuildContext context, String rawUrl) async {
     final uri = Uri.tryParse(rawUrl);
     if (uri == null || !uri.hasScheme) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Payment URL is invalid')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Liên kết thanh toán không hợp lệ')),
+      );
       return;
     }
 
@@ -621,9 +639,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Could not open payment URL')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Không mở được liên kết thanh toán')),
+    );
   }
 
   Future<void> _loadIncentivesAndPricing() async {
@@ -669,7 +687,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final code = rawCode.trim().toUpperCase();
     if (code.isEmpty) {
       setState(() {
-        _incentiveError = 'Please enter an incentive code.';
+        _incentiveError = 'Vui lòng nhập mã giảm giá.';
         _incentiveMessage = null;
       });
       return;
@@ -678,13 +696,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final nextCodes = {..._selectedIncentiveCodes, code}.toList();
     if (nextCodes.length > _maxIncentiveCodes) {
       setState(
-        () =>
-            _incentiveError = 'You can apply up to $_maxIncentiveCodes codes.',
+        () => _incentiveError = 'Chỉ áp dụng tối đa $_maxIncentiveCodes mã.',
       );
       return;
     }
 
-    await _previewCodes(nextCodes, successMessage: 'Applied $code.');
+    await _previewCodes(nextCodes, successMessage: 'Đã áp dụng $code.');
     if (mounted) _incentiveCtrl.clear();
   }
 
@@ -692,7 +709,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final nextCodes = _selectedIncentiveCodes
         .where((item) => item != code)
         .toList();
-    await _previewCodes(nextCodes, successMessage: 'Updated incentive codes.');
+    await _previewCodes(nextCodes, successMessage: 'Đã cập nhật mã giảm giá.');
   }
 
   /// The fee depends on the method, so the quoted pricing is re-fetched; the
@@ -735,8 +752,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         _incentiveMessage = successMessage == null
             ? null
             : codes.isEmpty
-            ? 'Removed all incentive codes.'
-            : '$successMessage Coupon saving: -${_formatMoney(preview.couponDiscount)}';
+            ? 'Đã bỏ tất cả mã giảm giá.'
+            : '$successMessage Giảm: -${_formatMoney(preview.couponDiscount)}';
       });
     } catch (error) {
       if (!mounted) return;
@@ -800,7 +817,7 @@ class _IncentivesCard extends StatelessWidget {
                 ),
                 const Gap(AppSpacing.sm),
                 Text(
-                  'Savings',
+                  'Ưu đãi',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -821,7 +838,7 @@ class _IncentivesCard extends StatelessWidget {
                   child: AppTextInputWidget(
                     controller: controller,
                     textInputAction: TextInputAction.done,
-                    labelText: 'Incentive code',
+                    labelText: 'Mã giảm giá',
                     prefixIcon: const Icon(Icons.confirmation_num_outlined),
                     enabled: !isApplying,
                     onSubmitted: (_) => onApply(),
@@ -836,7 +853,7 @@ class _IncentivesCard extends StatelessWidget {
                           height: 16,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Apply'),
+                      : const Text('Áp dụng'),
                 ),
               ],
             ),
@@ -858,7 +875,7 @@ class _IncentivesCard extends StatelessWidget {
             if (availableIncentives.isNotEmpty) ...[
               const Gap(AppSpacing.md),
               Text(
-                'Available now',
+                'Mã đang có',
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   color: AppTheme.inkBrown,
                   fontWeight: FontWeight.w700,
