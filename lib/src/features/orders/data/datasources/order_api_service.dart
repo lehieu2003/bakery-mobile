@@ -39,9 +39,11 @@ class OrderApiService {
     required DeliveryMethod deliveryMethod,
     List<String> incentiveCodes = const [],
     required List<Map<String, dynamic>> items,
+    required String idempotencyKey,
   }) async {
     final response = await _client.post(
       '/api/orders',
+      headers: {'Idempotency-Key': idempotencyKey},
       body: {
         'customerName': customerName,
         'customerPhone': customerPhone,

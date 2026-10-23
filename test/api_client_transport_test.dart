@@ -46,4 +46,24 @@ void main() {
       ),
     );
   });
+
+  test(
+    'extra headers such as Idempotency-Key are sent with the request',
+    () async {
+      http.Request? seen;
+      await http.runWithClient(
+        () => _client().post(
+          '/api/orders',
+          body: const {},
+          headers: const {'Idempotency-Key': 'abc123def456'},
+        ),
+        () => MockClient((request) async {
+          seen = request;
+          return http.Response('{"success":true,"data":{}}', 200);
+        }),
+      );
+      expect(seen!.headers['Idempotency-Key'], 'abc123def456');
+      expect(seen!.headers['Content-Type'], startsWith('application/json'));
+    },
+  );
 }

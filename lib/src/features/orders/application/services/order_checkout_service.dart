@@ -16,6 +16,7 @@ class OrderCheckoutService {
     required DeliveryMethod deliveryMethod,
     List<String> incentiveCodes = const [],
     required List<Map<String, dynamic>> items,
+    required String idempotencyKey,
   }) {
     return _orderRepository.createOrder(
       customerName: customerName,
@@ -27,6 +28,7 @@ class OrderCheckoutService {
       deliveryMethod: deliveryMethod,
       incentiveCodes: incentiveCodes,
       items: items,
+      idempotencyKey: idempotencyKey,
     );
   }
 }

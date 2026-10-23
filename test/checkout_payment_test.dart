@@ -62,6 +62,7 @@ class _CapturingOrderRepository extends OrderRepository {
     required DeliveryMethod deliveryMethod,
     List<String> incentiveCodes = const [],
     required List<Map<String, dynamic>> items,
+    required String idempotencyKey,
   }) async {
     capturedDeliveryMethod = deliveryMethod;
     capturedAddress = customerAddress;

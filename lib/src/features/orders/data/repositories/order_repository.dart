@@ -29,6 +29,7 @@ class OrderRepository {
     required DeliveryMethod deliveryMethod,
     List<String> incentiveCodes = const [],
     required List<Map<String, dynamic>> items,
+    required String idempotencyKey,
   }) async {
     final result = await _orderApiService.createOrder(
       customerName: customerName,
@@ -40,6 +41,7 @@ class OrderRepository {
       deliveryMethod: deliveryMethod,
       incentiveCodes: incentiveCodes,
       items: items,
+      idempotencyKey: idempotencyKey,
     );
     return result.toDomain();
   }
