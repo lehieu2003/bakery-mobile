@@ -533,11 +533,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final title = result.paymentUrl != null
         ? 'Order created - payment required'
         : 'Order created successfully';
+    // No status line: the create response carries none (a new order is
+    // always PENDING), and a payment-init failure never reaches this dialog.
     final detailLines = <String>[
       'Order number: ${result.order.orderNumber}',
-      'Status: ${result.order.status}',
-      if (result.paymentError != null && result.paymentError!.isNotEmpty)
-        'Payment warning: ${result.paymentError}',
       if (result.appliedIncentives.isNotEmpty)
         'Savings: ${result.appliedIncentives.map((item) => '${item.code} -${_formatMoney(item.discount)}').join(', ')}',
     ];

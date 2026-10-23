@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -10,13 +11,22 @@ import 'package:bakery_mobile/src/core/network/api_exception.dart';
 const int _bodyPreviewLength = 220;
 const int _tokenPreviewLength = 12;
 
+/// Longer than bakery-web's own payment-gateway timeout (15s) so a slow but
+/// successful checkout is not cut off client-side.
+const Duration defaultRequestTimeout = Duration(seconds: 30);
+
 typedef TokenProvider = Future<String?> Function();
 
 class ApiClient {
-  ApiClient({required this.baseUrl, required this.tokenProvider});
+  ApiClient({
+    required this.baseUrl,
+    required this.tokenProvider,
+    this.requestTimeout = defaultRequestTimeout,
+  });
 
   final String baseUrl;
   final TokenProvider tokenProvider;
+  final Duration requestTimeout;
 
   Future<dynamic> get(String path, {Map<String, dynamic>? query}) async {
     return _request('GET', path, query: query);
@@ -108,7 +118,7 @@ class ApiClient {
         '[API] $method ${uri.path}${uri.hasQuery ? '?${uri.query}' : ''} token=$tokenPreview',
       );
     }
-    return switch (method) {
+    final request = switch (method) {
       'GET' => http.get(uri, headers: headers),
       'POST' => http.post(uri, headers: headers, body: payload),
       'PUT' => http.put(uri, headers: headers, body: payload),
@@ -116,6 +126,20 @@ class ApiClient {
       'DELETE' => http.delete(uri, headers: headers, body: payload),
       _ => throw ApiException('Unsupported HTTP method: $method'),
     };
+    // Transport failures surface as ApiException like server errors, so
+    // callers show a readable message instead of a raw exception and never
+    // wait on a hung request forever.
+    try {
+      return await request.timeout(requestTimeout);
+    } on TimeoutException {
+      throw ApiException(
+        'Máy chủ phản hồi quá lâu. Vui lòng kiểm tra kết nối và thử lại.',
+      );
+    } on http.ClientException {
+      throw ApiException(
+        'Không kết nối được máy chủ. Vui lòng kiểm tra kết nối mạng.',
+      );
+    }
   }
 
   Uri _buildUri(String path, {Map<String, dynamic>? query}) {

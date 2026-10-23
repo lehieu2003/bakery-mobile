@@ -86,6 +86,19 @@ class OrdersViewModel extends Notifier<OrdersState> {
             incentiveCodes: incentiveCodes,
             items: items,
           );
+      final paymentError = created.paymentError;
+      if (paymentError != null && paymentError.isNotEmpty) {
+        // bakery-web has already cancelled this order (and released its
+        // stock and coupons), so it is a failed checkout, not a success.
+        state = state.copyWith(
+          isCreatingOrder: false,
+          errorMessage:
+              'Không khởi tạo được thanh toán: $paymentError. '
+              'Đơn ${created.order.orderNumber} đã bị huỷ, giỏ hàng vẫn được '
+              'giữ — vui lòng thử lại hoặc chọn phương thức khác.',
+        );
+        return null;
+      }
       state = state.copyWith(
         orders: [created.order, ...state.orders],
         isCreatingOrder: false,
