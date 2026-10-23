@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
+import 'package:bakery_mobile/src/core/network/api_exception.dart';
+import 'package:bakery_mobile/src/core/utils/idempotency_key.dart';
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
 
 class OrdersState {
@@ -44,6 +46,12 @@ class OrdersState {
 }
 
 class OrdersViewModel extends Notifier<OrdersState> {
+  /// Key of the checkout attempt in flight. Kept when a request fails in
+  /// transit — the server may have created the order anyway, and resending
+  /// the same key returns that order instead of a duplicate. Dropped once
+  /// the server has answered, so the next checkout is a new order.
+  String? _checkoutKey;
+
   @override
   OrdersState build() => const OrdersState();
 
@@ -72,6 +80,7 @@ class OrdersViewModel extends Notifier<OrdersState> {
     required List<Map<String, dynamic>> items,
   }) async {
     state = state.copyWith(isCreatingOrder: true, clearError: true);
+    final checkoutKey = _checkoutKey ??= newIdempotencyKey();
     try {
       final created = await ref
           .read(orderCheckoutServiceProvider)
@@ -85,7 +94,9 @@ class OrdersViewModel extends Notifier<OrdersState> {
             deliveryMethod: deliveryMethod,
             incentiveCodes: incentiveCodes,
             items: items,
+            idempotencyKey: checkoutKey,
           );
+      _checkoutKey = null;
       final paymentError = created.paymentError;
       if (paymentError != null && paymentError.isNotEmpty) {
         // bakery-web has already cancelled this order (and released its
@@ -105,6 +116,11 @@ class OrdersViewModel extends Notifier<OrdersState> {
       );
       return created;
     } catch (error) {
+      // A status code means the server answered (and created nothing);
+      // without one the request may have landed, so the key is kept.
+      if (error is! ApiException || error.statusCode != null) {
+        _checkoutKey = null;
+      }
       state = state.copyWith(
         isCreatingOrder: false,
         errorMessage: error.toString().replaceFirst('Exception: ', ''),

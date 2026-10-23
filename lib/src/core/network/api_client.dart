@@ -32,8 +32,12 @@ class ApiClient {
     return _request('GET', path, query: query);
   }
 
-  Future<dynamic> post(String path, {Object? body}) async {
-    return _request('POST', path, body: body);
+  Future<dynamic> post(
+    String path, {
+    Object? body,
+    Map<String, String>? headers,
+  }) async {
+    return _request('POST', path, body: body, headers: headers);
   }
 
   Future<dynamic> put(String path, {Object? body}) async {
@@ -53,12 +57,13 @@ class ApiClient {
     String path, {
     Map<String, dynamic>? query,
     Object? body,
+    Map<String, String>? headers,
   }) async {
     final uri = _buildUri(path, query: query);
     final payload = body == null ? null : jsonEncode(body);
 
     final token = await tokenProvider();
-    var response = await _send(method, uri, token, payload);
+    var response = await _send(method, uri, token, payload, headers);
     if (response.statusCode == 401 && token != null && token.isNotEmpty) {
       // The session may have been rotated while this request was in flight
       // (the server revokes the old token immediately). Retry once with the
@@ -66,7 +71,7 @@ class ApiClient {
       // writes too: a 401 is decided before the handler runs.
       final current = await tokenProvider();
       if (current != null && current.isNotEmpty && current != token) {
-        response = await _send(method, uri, current, payload);
+        response = await _send(method, uri, current, payload, headers);
       }
     }
 
@@ -105,8 +110,10 @@ class ApiClient {
     Uri uri,
     String? token,
     String? payload,
+    Map<String, String>? extraHeaders,
   ) async {
     final headers = <String, String>{
+      ...?extraHeaders,
       'Content-Type': 'application/json',
       if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
     };
