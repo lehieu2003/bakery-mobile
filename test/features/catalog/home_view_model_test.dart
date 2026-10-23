@@ -20,7 +20,6 @@ void main() {
     expect(state.categories, isEmpty);
     expect(state.bestSellers, isEmpty);
     expect(state.personalizedProducts, isEmpty);
-    expect(state.selectedCategoryId, isNull);
     expect(api.calls, isEmpty);
   });
 
@@ -104,33 +103,5 @@ void main() {
     expect(state.errorMessage, isNull);
     expect(state.bestSellers, isNotEmpty);
     expect(api.callsTo('GET', bestSellersPath), hasLength(2));
-  });
-
-  test('selectCategory sets and clears the selection', () async {
-    final container = makeContainer(api);
-    final vm = container.read(homeViewModelProvider.notifier);
-
-    await vm.selectCategory('cat-1');
-    expect(container.read(homeViewModelProvider).selectedCategoryId, 'cat-1');
-
-    await vm.selectCategory(null);
-    expect(container.read(homeViewModelProvider).selectedCategoryId, isNull);
-  });
-
-  test('search queries products in the selected category', () async {
-    api.stubFixture('GET', productsPath, productsSuccess);
-    final container = makeContainer(api);
-    final vm = container.read(homeViewModelProvider.notifier);
-    await vm.selectCategory('cat-1');
-
-    await vm.search('  tiramisu ');
-
-    final query = api.callsTo('GET', productsPath).single.query!;
-    expect(query['search'], 'tiramisu');
-    expect(query['categoryId'], 'cat-1');
-    expect(
-      container.read(homeViewModelProvider).products.map((p) => p.id),
-      idsOf(productsSuccess, 'products'),
-    );
   });
 }

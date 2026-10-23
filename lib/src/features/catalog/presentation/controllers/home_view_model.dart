@@ -20,9 +20,6 @@ class HomeState {
     this.personalizedProducts = const [],
     this.personalizedSource,
     this.personalizedReason,
-    this.products = const [],
-    this.selectedCategoryId,
-    this.search = '',
   });
 
   final bool isLoading;
@@ -33,9 +30,6 @@ class HomeState {
   final List<Product> personalizedProducts;
   final String? personalizedSource;
   final String? personalizedReason;
-  final List<Product> products;
-  final String? selectedCategoryId;
-  final String search;
 
   HomeState copyWith({
     bool? isLoading,
@@ -47,10 +41,6 @@ class HomeState {
     List<Product>? personalizedProducts,
     String? personalizedSource,
     String? personalizedReason,
-    List<Product>? products,
-    String? selectedCategoryId,
-    bool clearCategory = false,
-    String? search,
   }) {
     return HomeState(
       isLoading: isLoading ?? this.isLoading,
@@ -61,11 +51,6 @@ class HomeState {
       personalizedProducts: personalizedProducts ?? this.personalizedProducts,
       personalizedSource: personalizedSource ?? this.personalizedSource,
       personalizedReason: personalizedReason ?? this.personalizedReason,
-      products: products ?? this.products,
-      selectedCategoryId: clearCategory
-          ? null
-          : (selectedCategoryId ?? this.selectedCategoryId),
-      search: search ?? this.search,
     );
   }
 }
@@ -96,38 +81,7 @@ class HomeViewModel extends Notifier<HomeState> {
         personalizedProducts: personalized.products,
         personalizedSource: personalized.source,
         personalizedReason: personalized.reason,
-        products: bestSellers,
       );
-    } catch (error) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: userErrorMessage(error),
-      );
-    }
-  }
-
-  Future<void> search(String value) async {
-    state = state.copyWith(search: value.trim());
-    await _reloadProducts();
-  }
-
-  Future<void> selectCategory(String? categoryId) async {
-    state = state.copyWith(
-      selectedCategoryId: categoryId,
-      clearCategory: categoryId == null,
-    );
-  }
-
-  Future<void> _reloadProducts() async {
-    state = state.copyWith(isLoading: true, clearError: true);
-    try {
-      final products = await ref
-          .read(catalogRepositoryProvider)
-          .getProducts(
-            categoryId: state.selectedCategoryId,
-            search: state.search,
-          );
-      state = state.copyWith(isLoading: false, products: products);
     } catch (error) {
       state = state.copyWith(
         isLoading: false,
