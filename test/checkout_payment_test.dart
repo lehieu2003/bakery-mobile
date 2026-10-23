@@ -1,6 +1,7 @@
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/core/network/api_client.dart';
+import 'package:bakery_mobile/src/core/network/connectivity.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/auth/domain/models/user.dart';
 import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_view_model.dart';
@@ -289,5 +290,21 @@ void main() {
     expect(prefs.getString('checkout_draft_name'), isNull);
     expect(prefs.getString('checkout_draft_phone'), isNull);
     expect(prefs.getString('checkout_draft_address'), isNull);
+  });
+
+  testWidgets('placing an order is blocked while offline', (tester) async {
+    final repository = await pumpCheckout(tester);
+    await fillCustomer(tester);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(CheckoutScreen)),
+    );
+    container.read(isOnlineProvider.notifier).state = false;
+    await placeOrder(tester);
+
+    expect(repository.capturedPaymentMethod, isNull);
+    expect(
+      find.text('Đang mất kết nối mạng — kết nối lại để đặt hàng.'),
+      findsOneWidget,
+    );
   });
 }

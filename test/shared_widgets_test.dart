@@ -12,11 +12,14 @@ import 'package:bakery_mobile/src/shared/widgets/summary_row_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Widget _host(Widget child) => MaterialApp(
-  theme: AppTheme.light(),
-  home: Scaffold(body: child),
+Widget _host(Widget child) => ProviderScope(
+  child: MaterialApp(
+    theme: AppTheme.light(),
+    home: Scaffold(body: child),
+  ),
 );
 
 void main() {

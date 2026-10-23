@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 import 'package:bakery_mobile/src/features/wishlist/domain/models/wishlist_item.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 class WishlistState {
   const WishlistState({
@@ -48,10 +49,7 @@ class WishlistViewModel extends Notifier<WishlistState> {
       final items = await ref.read(wishlistRepositoryProvider).getWishlist();
       state = state.copyWith(isLoading: false, items: items);
     } catch (error) {
-      state = state.copyWith(
-        isLoading: false,
-        error: error.toString().replaceFirst('Exception: ', ''),
-      );
+      state = state.copyWith(isLoading: false, error: userErrorMessage(error));
     }
   }
 
@@ -106,7 +104,7 @@ class WishlistViewModel extends Notifier<WishlistState> {
     } catch (error) {
       state = state.copyWith(
         items: previousItems,
-        error: error.toString().replaceFirst('Exception: ', ''),
+        error: userErrorMessage(error),
       );
     } finally {
       final nextPending = <String>{...state.pendingProductIds}

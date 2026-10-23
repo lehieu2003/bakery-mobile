@@ -1,13 +1,16 @@
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/admin/shared/presentation/widgets/admin_paged_list.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Host với MaterialApp + theme thật, widget chiếm toàn màn hình test
 /// (800x600) để ListView có viewport đủ lớn cho kịch bản cuộn.
-Widget _host(Widget child) => MaterialApp(
-  theme: AppTheme.light(),
-  home: Scaffold(body: child),
+Widget _host(Widget child) => ProviderScope(
+  child: MaterialApp(
+    theme: AppTheme.light(),
+    home: Scaffold(body: child),
+  ),
 );
 
 AdminPagedList<String> _list({

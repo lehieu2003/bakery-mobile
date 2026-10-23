@@ -350,6 +350,7 @@ class _FailingGetService extends ReviewsApiService {
     String productId, {
     int limit = 50,
   }) async {
-    throw Exception('Network error');
+    // What the real ApiClient throws when the connection drops.
+    throw ApiException('Network error', kind: ApiErrorKind.network);
   }
 }

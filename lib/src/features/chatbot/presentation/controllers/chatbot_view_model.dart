@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/chatbot/domain/models/chat.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 class ChatbotState {
   const ChatbotState({
@@ -83,7 +84,7 @@ class ChatbotViewModel extends Notifier<ChatbotState> {
           ),
         ],
         isSending: false,
-        error: error.toString().replaceFirst('Exception: ', ''),
+        error: userErrorMessage(error),
       );
     }
   }

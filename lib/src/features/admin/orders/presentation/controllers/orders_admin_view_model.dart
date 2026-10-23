@@ -4,6 +4,7 @@ import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/core/network/api_exception.dart';
 import 'package:bakery_mobile/src/features/admin/orders/domain/models/admin_order.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 /// Immutable UI state for the admin orders list.
 class OrdersAdminState {
@@ -193,9 +194,7 @@ class OrdersAdminViewModel extends Notifier<OrdersAdminState> {
     state = state.copyWith(
       isLoading: false,
       isLoadingMore: false,
-      error: error is ApiException
-          ? error.message
-          : error.toString().replaceFirst('Exception: ', ''),
+      error: userErrorMessage(error),
     );
   }
 }

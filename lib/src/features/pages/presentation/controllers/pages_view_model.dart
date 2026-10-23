@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/pages/domain/models/app_page.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 class PagesState {
   const PagesState({this.isLoading = false, this.error, this.pages = const []});
@@ -34,10 +35,7 @@ class PagesViewModel extends Notifier<PagesState> {
       final pages = await ref.read(pageRepositoryProvider).getPages();
       state = state.copyWith(isLoading: false, pages: pages);
     } catch (error) {
-      state = state.copyWith(
-        isLoading: false,
-        error: error.toString().replaceFirst('Exception: ', ''),
-      );
+      state = state.copyWith(isLoading: false, error: userErrorMessage(error));
     }
   }
 }

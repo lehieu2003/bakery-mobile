@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+
+import 'package:bakery_mobile/src/core/network/connectivity.dart';
 
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
@@ -11,7 +14,12 @@ import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 /// section that has nothing else to show. [compact]: the message in the
 /// error color and a text button, for a failure inline below existing
 /// content (e.g. a list footer).
-class ErrorRetryWidget extends StatelessWidget {
+///
+/// Connectivity-aware: while the device is offline the default layout shows
+/// a wifi-off icon and "Mất kết nối" title, and when the connection comes
+/// back [onRetry] runs by itself — every screen using this widget reloads
+/// without the user tapping.
+class ErrorRetryWidget extends ConsumerWidget {
   const ErrorRetryWidget({
     super.key,
     required this.message,
@@ -35,9 +43,13 @@ class ErrorRetryWidget extends StatelessWidget {
   final bool compact;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final retry = onRetry;
+    final isOnline = ref.watch(isOnlineProvider);
+    ref.listen<bool>(isOnlineProvider, (wasOnline, nowOnline) {
+      if (wasOnline == false && nowOnline) retry?.call();
+    });
 
     if (compact) {
       return Padding(
@@ -64,7 +76,7 @@ class ErrorRetryWidget extends StatelessWidget {
       );
     }
 
-    final heading = title;
+    final heading = title ?? (isOnline ? null : 'Mất kết nối');
     final secondary = secondaryAction;
     return Center(
       child: Padding(
@@ -72,7 +84,11 @@ class ErrorRetryWidget extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 44, color: AppTheme.warmBrown),
+            Icon(
+              isOnline ? icon : Icons.wifi_off_rounded,
+              size: 44,
+              color: AppTheme.warmBrown,
+            ),
             const Gap(AppSpacing.md),
             if (heading != null) ...[
               Text(

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/blog/domain/models/blog.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 class BlogState {
   const BlogState({
@@ -88,10 +89,7 @@ class BlogViewModel extends Notifier<BlogState> {
         totalPages: listResult.totalPages,
       );
     } catch (error) {
-      state = state.copyWith(
-        isLoading: false,
-        error: error.toString().replaceFirst('Exception: ', ''),
-      );
+      state = state.copyWith(isLoading: false, error: userErrorMessage(error));
     }
   }
 
@@ -127,10 +125,7 @@ class BlogViewModel extends Notifier<BlogState> {
         totalPages: result.totalPages,
       );
     } catch (error) {
-      state = state.copyWith(
-        isLoading: false,
-        error: error.toString().replaceFirst('Exception: ', ''),
-      );
+      state = state.copyWith(isLoading: false, error: userErrorMessage(error));
     }
   }
 
@@ -160,7 +155,7 @@ class BlogViewModel extends Notifier<BlogState> {
     } catch (error) {
       state = state.copyWith(
         isLoadingMore: false,
-        error: error.toString().replaceFirst('Exception: ', ''),
+        error: userErrorMessage(error),
       );
     }
   }
