@@ -63,6 +63,9 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
               isLabelVisible: cart.totalItems > 0,
               label: Text('${cart.totalItems}'),
               child: FloatingActionButton(
+                tooltip: cart.totalItems > 0
+                    ? 'Giỏ hàng, ${cart.totalItems} sản phẩm'
+                    : 'Giỏ hàng',
                 shape: const StadiumBorder(),
                 heroTag: 'cart_fab',
                 backgroundColor: AppTheme.primaryPink,
@@ -116,7 +119,6 @@ class _BottomNavigator extends StatelessWidget {
                     currentIndex: currentIndex,
                     icon: Icons.home_outlined,
                     selectedIcon: Icons.home,
-                    label: 'Home',
                     onTap: onTap,
                   ),
                   _NavButton(
@@ -124,7 +126,6 @@ class _BottomNavigator extends StatelessWidget {
                     currentIndex: currentIndex,
                     icon: Icons.search_outlined,
                     selectedIcon: Icons.search,
-                    label: 'Search',
                     onTap: onTap,
                   ),
                 ],
@@ -138,7 +139,6 @@ class _BottomNavigator extends StatelessWidget {
                     currentIndex: currentIndex,
                     icon: Icons.chat_bubble_outline,
                     selectedIcon: Icons.chat_bubble,
-                    label: 'Chatbot',
                     onTap: onTap,
                   ),
                   _NavButton(
@@ -146,7 +146,6 @@ class _BottomNavigator extends StatelessWidget {
                     currentIndex: currentIndex,
                     icon: Icons.person_outline,
                     selectedIcon: Icons.person,
-                    label: 'Profile',
                     onTap: onTap,
                   ),
                 ],
@@ -165,7 +164,6 @@ class _NavButton extends StatelessWidget {
     required this.currentIndex,
     required this.icon,
     required this.selectedIcon,
-    required this.label,
     required this.onTap,
   });
 
@@ -173,13 +171,13 @@ class _NavButton extends StatelessWidget {
   final int currentIndex;
   final IconData icon;
   final IconData selectedIcon;
-  final String label;
   final ValueChanged<int> onTap;
 
   @override
   Widget build(BuildContext context) {
     final selected = currentIndex == index;
 
+    // Icon-only by design: no labels or tooltips on the tabs.
     return InkWell(
       borderRadius: BorderRadius.circular(AppRadius.pill),
       onTap: () => onTap(index),
@@ -194,13 +192,10 @@ class _NavButton extends StatelessWidget {
           horizontal: AppSpacing.lg,
           vertical: AppSpacing.sm,
         ),
-        child: Tooltip(
-          message: label,
-          child: Icon(
-            selected ? selectedIcon : icon,
-            size: 24,
-            color: Colors.white,
-          ),
+        child: Icon(
+          selected ? selectedIcon : icon,
+          size: 24,
+          color: Colors.white,
         ),
       ),
     );
@@ -247,31 +242,31 @@ class _AppDrawer extends StatelessWidget {
           ),
           _DrawerNavItem(
             icon: Icons.home_outlined,
-            label: 'Home',
+            label: 'Trang chủ',
             selected: currentIndex == 0,
             onTap: () => onNavigate(0),
           ),
           _DrawerNavItem(
             icon: Icons.search_outlined,
-            label: 'Search',
+            label: 'Tìm kiếm',
             selected: currentIndex == 1,
             onTap: () => onNavigate(1),
           ),
           _DrawerNavItem(
             icon: Icons.shopping_cart_outlined,
-            label: 'Cart',
+            label: 'Giỏ hàng',
             selected: currentIndex == 2,
             onTap: () => onNavigate(2),
           ),
           _DrawerNavItem(
             icon: Icons.chat_bubble_outline,
-            label: 'Chatbot',
+            label: 'Trợ lý',
             selected: currentIndex == 3,
             onTap: () => onNavigate(3),
           ),
           _DrawerNavItem(
             icon: Icons.person_outline,
-            label: 'Profile',
+            label: 'Tài khoản',
             selected: currentIndex == 4,
             onTap: () => onNavigate(4),
           ),
@@ -279,7 +274,7 @@ class _AppDrawer extends StatelessWidget {
           const Divider(height: 1),
           ListTile(
             leading: const Icon(Icons.logout),
-            title: const Text('Logout'),
+            title: const Text('Đăng xuất'),
             onTap: onLogout == null
                 ? null
                 : () {

@@ -23,6 +23,7 @@ import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 import 'package:bakery_mobile/src/shared/utils/error_message.dart';
+import 'package:bakery_mobile/src/shared/utils/motion.dart';
 
 /// Bottom space so content clears the pinned price/"Add to Cart" bar.
 const double _bottomBarClearance = 120;
@@ -57,6 +58,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     super.initState();
     _load();
     _imageTimer = Timer.periodic(AppDurations.carouselAutoplay, (_) {
+      if (!mounted || !allowsAutoplay(context)) return;
       final product = _product;
       if (product == null) return;
       final images = _productImages(product);
@@ -173,11 +175,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.transparent,
             leading: IconButton(
+              tooltip: 'Quay lại',
               onPressed: () => Navigator.of(context).maybePop(),
               icon: const Icon(Icons.arrow_back),
             ),
             actions: [
               IconButton(
+                tooltip: isFavorite ? 'Bỏ yêu thích' : 'Thêm vào yêu thích',
                 onPressed: isPendingFavorite
                     ? null
                     : () => wishlistNotifier.toggle(product),
@@ -191,21 +195,28 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  PageView.builder(
-                    controller: _imageController,
-                    itemCount: images.length,
-                    onPageChanged: (index) =>
-                        setState(() => _activeImageIndex = index),
-                    itemBuilder: (context, index) => GestureDetector(
-                      onTap: () => _openImageViewer(
-                        context: context,
-                        images: images,
-                        initialIndex: index,
-                      ),
-                      child: AppNetworkImageWidget(
-                        url: images[index],
-                        backgroundColor: AppTheme.placeholderBeige,
-                        iconSize: 40,
+                  // A swipe hands the gallery to the user: autoplay stops.
+                  NotificationListener<UserScrollNotification>(
+                    onNotification: (_) {
+                      _imageTimer?.cancel();
+                      return false;
+                    },
+                    child: PageView.builder(
+                      controller: _imageController,
+                      itemCount: images.length,
+                      onPageChanged: (index) =>
+                          setState(() => _activeImageIndex = index),
+                      itemBuilder: (context, index) => GestureDetector(
+                        onTap: () => _openImageViewer(
+                          context: context,
+                          images: images,
+                          initialIndex: index,
+                        ),
+                        child: AppNetworkImageWidget(
+                          url: images[index],
+                          backgroundColor: AppTheme.placeholderBeige,
+                          iconSize: 40,
+                        ),
                       ),
                     ),
                   ),
@@ -567,6 +578,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       top: 8,
                       right: 8,
                       child: IconButton(
+                        tooltip: 'Đóng',
                         onPressed: () => Navigator.of(context).pop(),
                         icon: const Icon(Icons.close),
                         color: Colors.white,

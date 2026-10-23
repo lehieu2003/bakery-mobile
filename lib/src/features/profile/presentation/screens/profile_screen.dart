@@ -67,6 +67,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         title: const Text('Profile'),
         actions: [
           IconButton(
+            tooltip: 'Đăng xuất',
             onPressed: auth.isSubmitting
                 ? null
                 : ref.read(authViewModelProvider.notifier).logout,

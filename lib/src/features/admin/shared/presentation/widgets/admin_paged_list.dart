@@ -193,6 +193,7 @@ class _AdminSearchFieldState extends State<_AdminSearchField> {
         prefixIcon: const Icon(Icons.search),
         suffixIcon: hasText
             ? IconButton(
+                tooltip: 'Xoá tìm kiếm',
                 visualDensity: VisualDensity.compact,
                 icon: const Icon(Icons.close),
                 onPressed: () {

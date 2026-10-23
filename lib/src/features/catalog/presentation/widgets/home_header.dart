@@ -65,6 +65,7 @@ class HomeHeader extends StatelessWidget {
           Row(
             children: [
               IconButton(
+                tooltip: 'Mở menu',
                 onPressed: onMenuTap,
                 icon: const Icon(
                   Icons.menu_rounded,
@@ -75,6 +76,7 @@ class HomeHeader extends StatelessWidget {
               const Spacer(),
               _HeaderSquareButton(
                 icon: Icons.shopping_cart_outlined,
+                label: 'Giỏ hàng',
                 onTap: onCartTap,
               ),
               const Gap(AppSpacing.md),
@@ -83,6 +85,9 @@ class HomeHeader extends StatelessWidget {
                 label: Text('$favoriteCount'),
                 child: _HeaderSquareButton(
                   icon: Icons.favorite_border_rounded,
+                  label: favoriteCount > 0
+                      ? 'Yêu thích, $favoriteCount sản phẩm'
+                      : 'Yêu thích',
                   onTap: onFavoriteTap,
                 ),
               ),
@@ -92,6 +97,9 @@ class HomeHeader extends StatelessWidget {
                 label: Text('$unreadCount'),
                 child: _HeaderSquareButton(
                   icon: Icons.notifications_none_rounded,
+                  label: unreadCount > 0
+                      ? 'Thông báo, $unreadCount chưa đọc'
+                      : 'Thông báo',
                   onTap: onNotificationTap,
                 ),
               ),
@@ -143,24 +151,45 @@ class HomeHeader extends StatelessWidget {
   }
 }
 
+/// Material's minimum touch target.
+const double _minTapSize = 48;
+
 class _HeaderSquareButton extends StatelessWidget {
-  const _HeaderSquareButton({required this.icon, required this.onTap});
+  const _HeaderSquareButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   final IconData icon;
+
+  /// Spoken by screen readers and shown on long press; includes any count
+  /// the badge shows, since the badge itself is not announced.
+  final String label;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white.withValues(alpha: 0.52),
-      borderRadius: BorderRadius.circular(AppRadius.md),
-      child: InkWell(
+    return Tooltip(
+      message: label,
+      excludeFromSemantics: true,
+      child: Semantics(
+        button: true,
+        label: label,
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        child: SizedBox(
-          width: 38,
-          height: 38,
-          child: Icon(icon, color: AppTheme.warmBrown, size: 21),
+        excludeSemantics: true,
+        child: Material(
+          color: Colors.white.withValues(alpha: 0.52),
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            child: SizedBox(
+              width: _minTapSize,
+              height: _minTapSize,
+              child: Icon(icon, color: AppTheme.warmBrown, size: 22),
+            ),
+          ),
         ),
       ),
     );

@@ -18,6 +18,7 @@ class AppTextInputWidget extends StatelessWidget {
     this.validator,
     this.onChanged,
     this.onSubmitted,
+    this.autofillHints,
   });
 
   final TextEditingController? controller;
@@ -36,6 +37,10 @@ class AppTextInputWidget extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
 
+  /// Lets password managers fill the field (e.g. [AutofillHints.email]);
+  /// wrap related fields in an [AutofillGroup].
+  final Iterable<String>? autofillHints;
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
@@ -50,6 +55,7 @@ class AppTextInputWidget extends StatelessWidget {
       validator: validator,
       onChanged: onChanged,
       onFieldSubmitted: onSubmitted,
+      autofillHints: autofillHints,
       onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       decoration: InputDecoration(
         hintText: hintText,
