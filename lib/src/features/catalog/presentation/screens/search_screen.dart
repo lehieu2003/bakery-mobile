@@ -134,16 +134,17 @@ class _SearchViewState extends ConsumerState<_SearchView> {
             ],
           ),
           const Gap(AppSpacing.lg),
-          Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-            child: Text(
-              key: SearchKeys.resultCount,
-              vm.query.isEmpty
-                  ? 'All products (${vm.sortedProducts.length})'
-                  : 'Found ${vm.sortedProducts.length} products for "${vm.query}"',
-              style: Theme.of(context).textTheme.bodySmall,
+          if (vm.error == null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Text(
+                key: SearchKeys.resultCount,
+                vm.query.isEmpty
+                    ? 'All products (${vm.sortedProducts.length})'
+                    : 'Found ${vm.sortedProducts.length} products for "${vm.query}"',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
             ),
-          ),
           if (vm.isLoading && vm.sortedProducts.isEmpty)
             const Column(
               key: SearchKeys.loading,
