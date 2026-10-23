@@ -13,6 +13,7 @@ class OrderCheckoutService {
     String? customerAddress,
     String? addressId,
     required String paymentMethod,
+    required DeliveryMethod deliveryMethod,
     List<String> incentiveCodes = const [],
     required List<Map<String, dynamic>> items,
   }) {
@@ -23,6 +24,7 @@ class OrderCheckoutService {
       customerAddress: customerAddress,
       addressId: addressId,
       paymentMethod: paymentMethod,
+      deliveryMethod: deliveryMethod,
       incentiveCodes: incentiveCodes,
       items: items,
     );

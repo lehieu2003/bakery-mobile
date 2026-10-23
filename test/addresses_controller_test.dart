@@ -365,6 +365,8 @@ void main() {
 
       await tester.pumpWidget(buildHost());
       await tester.pumpAndSettle();
+      await tester.tap(find.text('Giao tận nơi'));
+      await tester.pumpAndSettle();
 
       // Both saved addresses appear in the radio list; the default is
       // pre-selected ("Nguyễn Văn A" first). Match Text widgets only —
@@ -401,6 +403,7 @@ void main() {
       await tester.tap(find.text('Place order'));
       await tester.pumpAndSettle();
 
+      expect(orderRepository.capturedDeliveryMethod, DeliveryMethod.delivery);
       expect(orderRepository.capturedAddressId, 'addr-2');
       expect(
         orderRepository.capturedAddress,
@@ -425,6 +428,8 @@ void main() {
       );
 
       await tester.pumpWidget(buildHost());
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Giao tận nơi'));
       await tester.pumpAndSettle();
 
       // A draft address is restored, so no saved address gets auto-selected
@@ -459,12 +464,14 @@ void main() {
 
       await tester.pumpWidget(buildHost());
       await tester.pumpAndSettle();
+      await tester.tap(find.text('Giao tận nơi'));
+      await tester.pumpAndSettle();
 
       // The default saved address is auto-selected and fills the fields.
       expect(
         tester
             .widget<TextFormField>(
-              find.widgetWithText(TextFormField, 'Customer address (optional)'),
+              find.widgetWithText(TextFormField, 'Địa chỉ giao hàng'),
             )
             .controller!
             .text,
@@ -472,7 +479,7 @@ void main() {
       );
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Customer address (optional)'),
+        find.widgetWithText(TextFormField, 'Địa chỉ giao hàng'),
         '12 Nguyễn Trãi, thêm ghi chú',
       );
       await tester.pump();
@@ -517,6 +524,9 @@ void main() {
 
       expect(find.text('Địa chỉ đã lưu'), findsNothing);
 
+      await tester.tap(find.text('Giao tận nơi'));
+      await tester.pumpAndSettle();
+
       await tester.enterText(
         find.widgetWithText(TextFormField, 'Customer name'),
         'Khách vãng lai',
@@ -526,7 +536,7 @@ void main() {
         '0901234567',
       );
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Customer address (optional)'),
+        find.widgetWithText(TextFormField, 'Địa chỉ giao hàng'),
         'Số 1 đường Ếch',
       );
       await tester.pump();
@@ -596,6 +606,7 @@ class _CapturingOrderRepository extends OrderRepository {
 
   String? capturedAddressId;
   String? capturedAddress;
+  DeliveryMethod? capturedDeliveryMethod;
 
   @override
   Future<CreateOrderResult> createOrder({
@@ -605,9 +616,11 @@ class _CapturingOrderRepository extends OrderRepository {
     String? customerAddress,
     String? addressId,
     required String paymentMethod,
+    required DeliveryMethod deliveryMethod,
     List<String> incentiveCodes = const [],
     required List<Map<String, dynamic>> items,
   }) async {
+    capturedDeliveryMethod = deliveryMethod;
     capturedAddressId = addressId;
     capturedAddress = customerAddress;
     return CreateOrderResult(
@@ -624,6 +637,7 @@ class _CapturingOrderRepository extends OrderRepository {
 
   @override
   Future<PreviewIncentiveResult> previewIncentives({
+    required DeliveryMethod deliveryMethod,
     required List<String> incentiveCodes,
     required List<Map<String, dynamic>> items,
   }) async {
