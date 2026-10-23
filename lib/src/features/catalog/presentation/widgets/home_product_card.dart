@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -13,12 +11,18 @@ import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/discount_badge_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/price_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/favorite_icon_widget.dart';
-import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Outlined heart over product photos.
 const Color _favoriteOutline = Color(0xFF555555);
+
+/// Material's minimum touch target.
+const double _minTapSize = 48;
+
+/// Favorite toggle on the card image: as large as the corner allows while
+/// keeping the image visible (the heart itself stays small).
+const double _favoriteTapSize = 44;
 
 class HomeProductCard extends ConsumerStatefulWidget {
   const HomeProductCard({super.key, required this.product});
@@ -31,19 +35,18 @@ class HomeProductCard extends ConsumerStatefulWidget {
 
 class _HomeProductCardState extends ConsumerState<HomeProductCard> {
   late final PageController _imageController;
-  Timer? _imageTimer;
   int _activeIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    // No autoplay: a grid of cards all cycling images at once is constant
+    // motion with no way to stop it. The images stay swipeable.
     _imageController = PageController();
-    _startAutoSlide();
   }
 
   @override
   void dispose() {
-    _imageTimer?.cancel();
     _imageController.dispose();
     super.dispose();
   }
@@ -52,32 +55,21 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
   void didUpdateWidget(covariant HomeProductCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.product.id == widget.product.id) return;
-    _imageTimer?.cancel();
     _activeIndex = 0;
     if (_imageController.hasClients) {
       _imageController.jumpToPage(0);
     }
-    _startAutoSlide();
   }
 
-  void _startAutoSlide() {
-    final images = _productImages(widget.product);
-    if (images.length <= 1) return;
-
-    _imageTimer = Timer.periodic(AppDurations.carouselAutoplay, (_) {
-      if (!_imageController.hasClients) return;
-      final next = (_activeIndex + 1) % images.length;
-      _imageController.animateToPage(
-        next,
-        duration: AppDurations.medium,
-        curve: Curves.easeInOut,
-      );
-    });
+  void _addToCart() {
+    ref.read(cartViewModelProvider.notifier).addProduct(widget.product);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Đã thêm vào giỏ hàng')));
   }
 
   @override
   Widget build(BuildContext context) {
-    final cart = ref.read(cartViewModelProvider.notifier);
     final wishlist = ref.watch(wishlistViewModelProvider);
     final wishlistNotifier = ref.read(wishlistViewModelProvider.notifier);
     final product = widget.product;
@@ -190,27 +182,42 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                             ),
                           ),
                         Positioned(
-                          left: 8,
-                          top: 8,
-                          child: Material(
-                            color: Colors.white.withValues(alpha: 0.92),
-                            borderRadius: BorderRadius.circular(AppRadius.pill),
-                            child: InkWell(
-                              onTap: isPendingFavorite
-                                  ? null
-                                  : () => wishlistNotifier.toggle(product),
+                          left: AppSpacing.xs,
+                          top: AppSpacing.xs,
+                          child: Semantics(
+                            button: true,
+                            toggled: isFavorite,
+                            label: isFavorite
+                                ? 'Bỏ ${product.name} khỏi yêu thích'
+                                : 'Thêm ${product.name} vào yêu thích',
+                            // Excluding the child drops the InkWell's tap
+                            // action, so it is restated here.
+                            onTap: isPendingFavorite
+                                ? null
+                                : () => wishlistNotifier.toggle(product),
+                            excludeSemantics: true,
+                            child: Material(
+                              color: Colors.white.withValues(alpha: 0.92),
                               borderRadius: BorderRadius.circular(
                                 AppRadius.pill,
                               ),
-                              child: SizedBox(
-                                width: 32,
-                                height: 32,
-                                child: Center(
-                                  child: FavoriteIconWidget(
-                                    isFavorite: isFavorite,
-                                    isPending: isPendingFavorite,
-                                    size: 18,
-                                    outlineColor: _favoriteOutline,
+                              child: InkWell(
+                                onTap: isPendingFavorite
+                                    ? null
+                                    : () => wishlistNotifier.toggle(product),
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.pill,
+                                ),
+                                child: SizedBox(
+                                  width: _favoriteTapSize,
+                                  height: _favoriteTapSize,
+                                  child: Center(
+                                    child: FavoriteIconWidget(
+                                      isFavorite: isFavorite,
+                                      isPending: isPendingFavorite,
+                                      size: 18,
+                                      outlineColor: _favoriteOutline,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -270,22 +277,24 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(AppRadius.lg),
                   ),
-                  child: InkWell(
-                    onTap: widget.product.stock <= 0
-                        ? null
-                        : () {
-                            cart.addProduct(widget.product);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Added to cart')),
-                            );
-                          },
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(AppRadius.lg),
-                    ),
-                    child: const SizedBox(
-                      width: 38,
-                      height: 38,
-                      child: Icon(Icons.add, color: Colors.white, size: 22),
+                  child: Semantics(
+                    button: true,
+                    enabled: widget.product.stock > 0,
+                    onTap: widget.product.stock <= 0 ? null : _addToCart,
+                    label: widget.product.stock > 0
+                        ? 'Thêm ${widget.product.name} vào giỏ'
+                        : '${widget.product.name} đã hết hàng',
+                    excludeSemantics: true,
+                    child: InkWell(
+                      onTap: widget.product.stock <= 0 ? null : _addToCart,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(AppRadius.lg),
+                      ),
+                      child: const SizedBox(
+                        width: _minTapSize,
+                        height: _minTapSize,
+                        child: Icon(Icons.add, color: Colors.white, size: 22),
+                      ),
                     ),
                   ),
                 ),

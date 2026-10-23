@@ -55,6 +55,7 @@ class SearchProductTile extends ConsumerWidget {
           comparePrice: product.hasDiscount ? product.comparePrice : null,
         ),
         trailing: IconButton(
+          tooltip: 'Thêm vào giỏ',
           icon: const Icon(Icons.add_shopping_cart),
           onPressed: product.stock <= 0
               ? null

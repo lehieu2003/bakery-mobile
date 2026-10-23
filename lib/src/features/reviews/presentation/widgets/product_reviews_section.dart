@@ -263,6 +263,7 @@ class _ReviewFormSheetState extends ConsumerState<_ReviewFormSheet> {
             children: List.generate(5, (index) {
               final value = index + 1;
               return IconButton(
+                tooltip: '$value sao',
                 onPressed: () => setState(() => _rating = value),
                 icon: Icon(
                   index < _rating ? Icons.star : Icons.star_border,

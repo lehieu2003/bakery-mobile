@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
@@ -149,149 +150,165 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }
 
   Widget _buildForm(BuildContext context, AuthState viewModel) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        AppTextInputWidget(
-          controller: _emailCtrl,
-          keyboardType: TextInputType.emailAddress,
-          labelText: 'Email',
-          prefixIcon: const Icon(Icons.mail_outline),
-        ),
-        const Gap(AppSpacing.md),
-        if (_isRegister && _otpSent) ...[
+    // One autofill group so password managers fill email + password
+    // together and offer to save them after a successful sign-in.
+    return AutofillGroup(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           AppTextInputWidget(
-            controller: _nameCtrl,
-            labelText: 'Name (optional)',
-            prefixIcon: const Icon(Icons.person_outline),
+            controller: _emailCtrl,
+            keyboardType: TextInputType.emailAddress,
+            autofillHints: const [AutofillHints.email, AutofillHints.username],
+            labelText: 'Email',
+            prefixIcon: const Icon(Icons.mail_outline),
           ),
           const Gap(AppSpacing.md),
-          AppTextInputWidget(
-            controller: _otpCtrl,
-            labelText: 'OTP',
-            prefixIcon: const Icon(Icons.pin_outlined),
-          ),
-          const Gap(AppSpacing.md),
-        ],
-        if (_isReset && _otpSent) ...[
-          AppTextInputWidget(
-            controller: _otpCtrl,
-            labelText: 'OTP',
-            prefixIcon: const Icon(Icons.pin_outlined),
-          ),
-          const Gap(AppSpacing.md),
-          AppTextInputWidget(
-            controller: _newPasswordCtrl,
-            obscureText: _hideNewPassword,
-            labelText: 'New password',
-            prefixIcon: const Icon(Icons.lock_reset_outlined),
-            suffixIcon: IconButton(
-              onPressed: () =>
-                  setState(() => _hideNewPassword = !_hideNewPassword),
-              icon: Icon(
-                _hideNewPassword
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined,
-              ),
+          if (_isRegister && _otpSent) ...[
+            AppTextInputWidget(
+              controller: _nameCtrl,
+              autofillHints: const [AutofillHints.name],
+              labelText: 'Name (optional)',
+              prefixIcon: const Icon(Icons.person_outline),
             ),
-          ),
-          const Gap(AppSpacing.md),
-        ],
-        if (!_isReset && (!_isRegister || _otpSent)) ...[
-          AppTextInputWidget(
-            controller: _passwordCtrl,
-            obscureText: _hidePassword,
-            labelText: 'Password',
-            prefixIcon: const Icon(Icons.lock_outline),
-            suffixIcon: IconButton(
-              onPressed: () => setState(() => _hidePassword = !_hidePassword),
-              icon: Icon(
-                _hidePassword
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined,
-              ),
+            const Gap(AppSpacing.md),
+            AppTextInputWidget(
+              controller: _otpCtrl,
+              autofillHints: const [AutofillHints.oneTimeCode],
+              labelText: 'OTP',
+              prefixIcon: const Icon(Icons.pin_outlined),
             ),
-          ),
-          const Gap(AppSpacing.md),
-        ],
-        if (viewModel.errorMessage != null) ...[
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.errorContainer,
-              borderRadius: BorderRadius.circular(AppRadius.lg),
+            const Gap(AppSpacing.md),
+          ],
+          if (_isReset && _otpSent) ...[
+            AppTextInputWidget(
+              controller: _otpCtrl,
+              autofillHints: const [AutofillHints.oneTimeCode],
+              labelText: 'OTP',
+              prefixIcon: const Icon(Icons.pin_outlined),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Text(
-                viewModel.errorMessage!,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onErrorContainer,
+            const Gap(AppSpacing.md),
+            AppTextInputWidget(
+              controller: _newPasswordCtrl,
+              obscureText: _hideNewPassword,
+              autofillHints: const [AutofillHints.newPassword],
+              labelText: 'New password',
+              prefixIcon: const Icon(Icons.lock_reset_outlined),
+              suffixIcon: IconButton(
+                tooltip: _hideNewPassword ? 'Hiện mật khẩu' : 'Ẩn mật khẩu',
+                onPressed: () =>
+                    setState(() => _hideNewPassword = !_hideNewPassword),
+                icon: Icon(
+                  _hideNewPassword
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
                 ),
               ),
             ),
+            const Gap(AppSpacing.md),
+          ],
+          if (!_isReset && (!_isRegister || _otpSent)) ...[
+            AppTextInputWidget(
+              controller: _passwordCtrl,
+              obscureText: _hidePassword,
+              autofillHints: [
+                _isRegister
+                    ? AutofillHints.newPassword
+                    : AutofillHints.password,
+              ],
+              labelText: 'Password',
+              prefixIcon: const Icon(Icons.lock_outline),
+              suffixIcon: IconButton(
+                tooltip: _hidePassword ? 'Hiện mật khẩu' : 'Ẩn mật khẩu',
+                onPressed: () => setState(() => _hidePassword = !_hidePassword),
+                icon: Icon(
+                  _hidePassword
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                ),
+              ),
+            ),
+            const Gap(AppSpacing.md),
+          ],
+          if (viewModel.errorMessage != null) ...[
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.errorContainer,
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Text(
+                  viewModel.errorMessage!,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                ),
+              ),
+            ),
+            const Gap(AppSpacing.md),
+          ],
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: _primaryButton,
+              foregroundColor: Colors.white,
+              minimumSize: const Size.fromHeight(50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadius.xl),
+              ),
+            ),
+            onPressed: viewModel.isSubmitting ? null : _submit,
+            child: viewModel.isSubmitting
+                ? const SizedBox(
+                    height: 18,
+                    width: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : Text(_primaryCta()),
           ),
           const Gap(AppSpacing.md),
-        ],
-        FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: _primaryButton,
-            foregroundColor: Colors.white,
-            minimumSize: const Size.fromHeight(50),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.xl),
+          if (!_isReset && !_isRegister)
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _isReset = true;
+                  _otpSent = false;
+                  _otpCtrl.clear();
+                  _newPasswordCtrl.clear();
+                });
+              },
+              child: const Text('Forgot password?'),
             ),
-          ),
-          onPressed: viewModel.isSubmitting ? null : _submit,
-          child: viewModel.isSubmitting
-              ? const SizedBox(
-                  height: 18,
-                  width: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                )
-              : Text(_primaryCta()),
-        ),
-        const Gap(AppSpacing.md),
-        if (!_isReset && !_isRegister)
           TextButton(
             onPressed: () {
               setState(() {
-                _isReset = true;
-                _otpSent = false;
-                _otpCtrl.clear();
-                _newPasswordCtrl.clear();
-              });
-            },
-            child: const Text('Forgot password?'),
-          ),
-        TextButton(
-          onPressed: () {
-            setState(() {
-              _isRegister = !_isRegister;
-              _isReset = false;
-              _otpSent = false;
-              _otpCtrl.clear();
-            });
-          },
-          child: Text(
-            _isRegister ? 'Have an account? Sign in' : 'No account? Register',
-          ),
-        ),
-        if (_isReset)
-          TextButton(
-            onPressed: () {
-              setState(() {
+                _isRegister = !_isRegister;
                 _isReset = false;
                 _otpSent = false;
                 _otpCtrl.clear();
-                _newPasswordCtrl.clear();
               });
             },
-            child: const Text('Back to sign in'),
+            child: Text(
+              _isRegister ? 'Have an account? Sign in' : 'No account? Register',
+            ),
           ),
-      ],
+          if (_isReset)
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _isReset = false;
+                  _otpSent = false;
+                  _otpCtrl.clear();
+                  _newPasswordCtrl.clear();
+                });
+              },
+              child: const Text('Back to sign in'),
+            ),
+        ],
+      ),
     );
   }
 
@@ -364,6 +381,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           password: _passwordCtrl.text,
           name: _nameCtrl.text.trim(),
         );
+        if (ok) TextInput.finishAutofillContext();
         if (ok && mounted) {
           _showSnack(context, 'Signed in as CUSTOMER.');
         }
@@ -375,6 +393,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       email: _emailCtrl.text.trim(),
       password: _passwordCtrl.text,
     );
+    // Prompts the password manager to save the credentials just used.
+    if (ok) TextInput.finishAutofillContext();
   }
 
   void _showSnack(BuildContext context, String message) {

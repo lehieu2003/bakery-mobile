@@ -133,6 +133,7 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
                       : null,
                 ),
                 trailing: IconButton(
+                  tooltip: 'Bỏ khỏi yêu thích',
                   key: WishlistKeys.toggle(product.id),
                   onPressed: vm.isPending(product.id)
                       ? null

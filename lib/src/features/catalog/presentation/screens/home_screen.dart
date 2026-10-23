@@ -26,6 +26,7 @@ import 'package:bakery_mobile/src/features/wishlist/presentation/screens/wishlis
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
+import 'package:bakery_mobile/src/shared/utils/motion.dart';
 
 /// Bottom space so the last content clears the floating navigation bar.
 const double _navBarClearance = 96;
@@ -63,6 +64,7 @@ class _HomeViewState extends ConsumerState<_HomeView> {
       ref.read(wishlistViewModelProvider.notifier).load();
     });
     _bannerTimer = Timer.periodic(AppDurations.carouselAutoplay, (_) {
+      if (!mounted || !allowsAutoplay(context)) return;
       if (!_bannerController.hasClients || _bannerCount <= 1) return;
       final next = (_bannerIndex + 1) % _bannerCount;
       _bannerController.animateToPage(
@@ -126,14 +128,22 @@ class _HomeViewState extends ConsumerState<_HomeView> {
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 child: SizedBox(
                   height: 190,
-                  child: PageView.builder(
-                    controller: _bannerController,
-                    itemCount: vm.banners.length,
-                    onPageChanged: (value) =>
-                        setState(() => _bannerIndex = value),
-                    itemBuilder: (context, index) => HomeHeroBanner(
-                      title: vm.banners[index].title,
-                      imageUrl: vm.banners[index].imageUrl,
+                  // A swipe hands the banners to the user: autoplay stops
+                  // for good instead of moving them on again.
+                  child: NotificationListener<UserScrollNotification>(
+                    onNotification: (_) {
+                      _bannerTimer?.cancel();
+                      return false;
+                    },
+                    child: PageView.builder(
+                      controller: _bannerController,
+                      itemCount: vm.banners.length,
+                      onPageChanged: (value) =>
+                          setState(() => _bannerIndex = value),
+                      itemBuilder: (context, index) => HomeHeroBanner(
+                        title: vm.banners[index].title,
+                        imageUrl: vm.banners[index].imageUrl,
+                      ),
                     ),
                   ),
                 ),
