@@ -330,6 +330,7 @@ class _OrderPaymentCard extends StatelessWidget {
             value: _paymentStatusLabel(
               order.paymentStatus,
               order.paymentMethod,
+              order.status,
             ),
           ),
         ],
@@ -354,7 +355,17 @@ class _OrderPaymentCard extends StatelessWidget {
     }
   }
 
-  static String _paymentStatusLabel(String? status, String method) {
+  static String _paymentStatusLabel(
+    String? status,
+    String method,
+    String orderStatus,
+  ) {
+    // Cancelled after paying: the shop still holds the money until an admin
+    // refunds it (bakery-web marks the payment REFUNDED).
+    if (orderStatus.trim().toUpperCase() == 'CANCELLED' &&
+        status?.trim().toUpperCase() == 'PAID') {
+      return 'Chờ hoàn tiền';
+    }
     if (status == null || status.trim().isEmpty) {
       return method.trim().toUpperCase() == 'COD'
           ? 'Thanh toán khi nhận hàng'
@@ -367,6 +378,8 @@ class _OrderPaymentCard extends StatelessWidget {
         return 'Chờ thanh toán';
       case 'FAILED':
         return 'Thanh toán thất bại';
+      case 'REFUNDED':
+        return 'Đã hoàn tiền';
       default:
         return status;
     }

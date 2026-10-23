@@ -74,7 +74,8 @@ shader `ink_sparkle` và `pub get` sửa lung tung file ios/android.
 ## Tài nguyên agent trong repo
 
 - `.claude/skills/` — `start-task`, `validate`, `open-pr`, `release` (chỉ khi người dùng yêu cầu).
-- `.claude/agents/code-reviewer.md` — review diff so với `origin/dev`.
+  `code-review-and-quality` — tiêu chí review 5 trục (vendored từ addyosmani/agent-skills).
+- `.claude/agents/code-reviewer.md` — review diff so với `origin/dev`, áp dụng skill `code-review-and-quality`.
 - `docs/superpowers/{specs,plans}/` — spec/plan theo ngày; `.superpowers/sdd/<plan>/progress.md` —
   sổ theo dõi khi thực thi plan theo từng task (đọc trước khi "tiếp tục" một plan).
 - `.agents/skills/flutter-*` — hướng dẫn Flutter (kiến trúc, state, HTTP/JSON, testing).

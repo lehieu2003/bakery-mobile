@@ -15,7 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// Detail payload (GET /api/admin/orders/{id} returns the order directly);
 /// money as numeric strings like the server.
-Map<String, dynamic> _orderJson(String status) => {
+Map<String, dynamic> _orderJson(String status, {String? paymentStatus}) => {
   'id': 'ord-1',
   'orderNumber': 'PL-1042',
   'customerName': 'Trần Thị B',
@@ -31,6 +31,14 @@ Map<String, dynamic> _orderJson(String status) => {
   'createdAt': '2026-10-07T09:30:00.000Z',
   'updatedAt': '2026-10-07T09:45:00.000Z',
   'user': {'id': 'u-1', 'name': 'Trần Thị B', 'memberLevel': 'GOLD'},
+  if (paymentStatus != null)
+    'payment': {
+      'provider': 'MOMO',
+      'transactionId': 'momo-77',
+      'amount': '850000.00',
+      'status': paymentStatus,
+      'createdAt': '2026-10-07T09:31:00.000Z',
+    },
   'orderItems': [
     {
       'id': 'oi-1',
@@ -69,7 +77,9 @@ class _FakeOrderAdminApiService extends OrderAdminApiService {
       );
 
   String status = 'PENDING';
+  String? paymentStatus;
   Object? error;
+  final List<String?> refundNotes = [];
   final List<Map<String, dynamic>> patchBodies = [];
   int auditCalls = 0;
   int investigationCalls = 0;
@@ -82,7 +92,14 @@ class _FakeOrderAdminApiService extends OrderAdminApiService {
   @override
   Future<Map<String, dynamic>> getOrder(String idOrOrderNumber) async {
     _maybeThrow();
-    return _orderJson(status);
+    return _orderJson(status, paymentStatus: paymentStatus);
+  }
+
+  @override
+  Future<void> markRefunded(String orderId, {String? note}) async {
+    _maybeThrow();
+    refundNotes.add(note);
+    paymentStatus = 'REFUNDED';
   }
 
   @override
@@ -306,5 +323,46 @@ void main() {
     expect(service.patchBodies, [
       {'status': 'CANCELLED', 'notes': 'Khách đổi ý'},
     ]);
+  });
+
+  group('refund of a cancelled, paid order', () {
+    setUp(() {
+      service
+        ..status = 'CANCELLED'
+        ..paymentStatus = 'PAID';
+    });
+
+    test('is flagged, recorded with the note, then cleared', () async {
+      await vm().load();
+      expect(state().order?.isAwaitingRefund, isTrue);
+
+      final ok = await vm().markRefunded(note: 'Hoàn MoMo GD 991');
+
+      expect(ok, isTrue);
+      expect(service.refundNotes, ['Hoàn MoMo GD 991']);
+      expect(state().order?.payment?.status, 'REFUNDED');
+      expect(state().order?.isAwaitingRefund, isFalse);
+      expect(service.auditCalls, 2);
+    });
+
+    test('a refused refund (409) keeps the flag and reports it', () async {
+      await vm().load();
+      service.error = ApiException(
+        'Order is not awaiting a refund',
+        statusCode: 409,
+      );
+
+      final ok = await vm().markRefunded();
+
+      expect(ok, isFalse);
+      expect(state().order?.isAwaitingRefund, isTrue);
+      expect(state().updateError, 'Order is not awaiting a refund');
+    });
+  });
+
+  test('a paid order that is not cancelled does not await a refund', () async {
+    service.paymentStatus = 'PAID';
+    await vm().load();
+    expect(state().order?.isAwaitingRefund, isFalse);
   });
 }

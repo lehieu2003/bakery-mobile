@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -10,20 +11,33 @@ import 'package:bakery_mobile/src/core/network/api_exception.dart';
 const int _bodyPreviewLength = 220;
 const int _tokenPreviewLength = 12;
 
+/// Longer than bakery-web's own payment-gateway timeout (15s) so a slow but
+/// successful checkout is not cut off client-side.
+const Duration defaultRequestTimeout = Duration(seconds: 30);
+
 typedef TokenProvider = Future<String?> Function();
 
 class ApiClient {
-  ApiClient({required this.baseUrl, required this.tokenProvider});
+  ApiClient({
+    required this.baseUrl,
+    required this.tokenProvider,
+    this.requestTimeout = defaultRequestTimeout,
+  });
 
   final String baseUrl;
   final TokenProvider tokenProvider;
+  final Duration requestTimeout;
 
   Future<dynamic> get(String path, {Map<String, dynamic>? query}) async {
     return _request('GET', path, query: query);
   }
 
-  Future<dynamic> post(String path, {Object? body}) async {
-    return _request('POST', path, body: body);
+  Future<dynamic> post(
+    String path, {
+    Object? body,
+    Map<String, String>? headers,
+  }) async {
+    return _request('POST', path, body: body, headers: headers);
   }
 
   Future<dynamic> put(String path, {Object? body}) async {
@@ -43,12 +57,13 @@ class ApiClient {
     String path, {
     Map<String, dynamic>? query,
     Object? body,
+    Map<String, String>? headers,
   }) async {
     final uri = _buildUri(path, query: query);
     final payload = body == null ? null : jsonEncode(body);
 
     final token = await tokenProvider();
-    var response = await _send(method, uri, token, payload);
+    var response = await _send(method, uri, token, payload, headers);
     if (response.statusCode == 401 && token != null && token.isNotEmpty) {
       // The session may have been rotated while this request was in flight
       // (the server revokes the old token immediately). Retry once with the
@@ -56,7 +71,7 @@ class ApiClient {
       // writes too: a 401 is decided before the handler runs.
       final current = await tokenProvider();
       if (current != null && current.isNotEmpty && current != token) {
-        response = await _send(method, uri, current, payload);
+        response = await _send(method, uri, current, payload, headers);
       }
     }
 
@@ -95,8 +110,10 @@ class ApiClient {
     Uri uri,
     String? token,
     String? payload,
+    Map<String, String>? extraHeaders,
   ) async {
     final headers = <String, String>{
+      ...?extraHeaders,
       'Content-Type': 'application/json',
       if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
     };
@@ -108,7 +125,7 @@ class ApiClient {
         '[API] $method ${uri.path}${uri.hasQuery ? '?${uri.query}' : ''} token=$tokenPreview',
       );
     }
-    return switch (method) {
+    final request = switch (method) {
       'GET' => http.get(uri, headers: headers),
       'POST' => http.post(uri, headers: headers, body: payload),
       'PUT' => http.put(uri, headers: headers, body: payload),
@@ -116,6 +133,20 @@ class ApiClient {
       'DELETE' => http.delete(uri, headers: headers, body: payload),
       _ => throw ApiException('Unsupported HTTP method: $method'),
     };
+    // Transport failures surface as ApiException like server errors, so
+    // callers show a readable message instead of a raw exception and never
+    // wait on a hung request forever.
+    try {
+      return await request.timeout(requestTimeout);
+    } on TimeoutException {
+      throw ApiException(
+        'Máy chủ phản hồi quá lâu. Vui lòng kiểm tra kết nối và thử lại.',
+      );
+    } on http.ClientException {
+      throw ApiException(
+        'Không kết nối được máy chủ. Vui lòng kiểm tra kết nối mạng.',
+      );
+    }
   }
 
   Uri _buildUri(String path, {Map<String, dynamic>? query}) {

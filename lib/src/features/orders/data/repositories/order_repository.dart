@@ -1,15 +1,23 @@
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
 import 'package:bakery_mobile/src/features/orders/data/datasources/order_api_service.dart';
 
+/// Orders per page of the customer's history; bakery-web caps it at 50.
+const int myOrdersPageSize = 20;
+
 class OrderRepository {
   OrderRepository(this._orderApiService);
 
   final OrderApiService _orderApiService;
 
-  Future<List<Order>> getMyOrders() async {
-    return (await _orderApiService.getMyOrders())
-        .map((e) => e.toDomain())
-        .toList();
+  Future<({List<Order> orders, bool hasMore})> getMyOrders({
+    int page = 1,
+    int limit = myOrdersPageSize,
+  }) async {
+    final result = await _orderApiService.getMyOrders(page: page, limit: limit);
+    return (
+      orders: result.orders.map((e) => e.toDomain()).toList(),
+      hasMore: result.hasMore,
+    );
   }
 
   /// Fetches a single order by its order number.
@@ -26,8 +34,10 @@ class OrderRepository {
     String? customerAddress,
     String? addressId,
     required String paymentMethod,
+    required DeliveryMethod deliveryMethod,
     List<String> incentiveCodes = const [],
     required List<Map<String, dynamic>> items,
+    required String idempotencyKey,
   }) async {
     final result = await _orderApiService.createOrder(
       customerName: customerName,
@@ -36,17 +46,21 @@ class OrderRepository {
       customerAddress: customerAddress,
       addressId: addressId,
       paymentMethod: paymentMethod,
+      deliveryMethod: deliveryMethod,
       incentiveCodes: incentiveCodes,
       items: items,
+      idempotencyKey: idempotencyKey,
     );
     return result.toDomain();
   }
 
   Future<PreviewIncentiveResult> previewIncentives({
+    required DeliveryMethod deliveryMethod,
     required List<String> incentiveCodes,
     required List<Map<String, dynamic>> items,
   }) async {
     final result = await _orderApiService.previewIncentives(
+      deliveryMethod: deliveryMethod,
       incentiveCodes: incentiveCodes,
       items: items,
     );

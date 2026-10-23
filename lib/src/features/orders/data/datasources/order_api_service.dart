@@ -1,20 +1,37 @@
 import 'package:bakery_mobile/src/core/network/api_client.dart';
+import 'package:bakery_mobile/src/core/utils/parse_utils.dart';
 import 'package:bakery_mobile/src/features/orders/data/dtos/order_dto.dart';
+import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
 
 class OrderApiService {
   OrderApiService(this._client);
 
   final ApiClient _client;
 
-  Future<List<OrderDto>> getMyOrders() async {
-    final response = await _client.get('/api/orders');
-    final raw =
-        (response as Map<String, dynamic>)['orders'] as List<dynamic>? ??
-        const [];
-    return raw
-        .whereType<Map<String, dynamic>>()
-        .map(OrderDto.fromJson)
-        .toList();
+  /// One page of the customer's orders, newest first, and whether older
+  /// ones remain. A server without paging (no `pagination`) has no more.
+  Future<({List<OrderDto> orders, bool hasMore})> getMyOrders({
+    required int page,
+    required int limit,
+  }) async {
+    final response =
+        await _client.get('/api/orders', query: {'page': page, 'limit': limit})
+            as Map<String, dynamic>;
+    final raw = response['orders'] as List<dynamic>? ?? const [];
+    final pagination = response['pagination'];
+    final totalPages = pagination is Map<String, dynamic>
+        ? ParseUtils.toInt(
+            pagination['totalPages'],
+            field: 'OrderApiService.pagination.totalPages',
+          )
+        : 0;
+    return (
+      orders: raw
+          .whereType<Map<String, dynamic>>()
+          .map(OrderDto.fromJson)
+          .toList(),
+      hasMore: page < totalPages,
+    );
   }
 
   /// GET /api/orders/[orderNumber] — same `serializeOrder` payload as the
@@ -35,11 +52,14 @@ class OrderApiService {
     String? customerAddress,
     String? addressId,
     required String paymentMethod,
+    required DeliveryMethod deliveryMethod,
     List<String> incentiveCodes = const [],
     required List<Map<String, dynamic>> items,
+    required String idempotencyKey,
   }) async {
     final response = await _client.post(
       '/api/orders',
+      headers: {'Idempotency-Key': idempotencyKey},
       body: {
         'customerName': customerName,
         'customerPhone': customerPhone,
@@ -49,6 +69,7 @@ class OrderApiService {
           'customerAddress': customerAddress,
         if (addressId != null && addressId.isNotEmpty) 'addressId': addressId,
         'paymentMethod': paymentMethod,
+        'deliveryMethod': deliveryMethod.name,
         if (incentiveCodes.isNotEmpty) 'incentiveCodes': incentiveCodes,
         'items': items,
       },
@@ -58,12 +79,14 @@ class OrderApiService {
   }
 
   Future<PreviewIncentiveResultDto> previewIncentives({
+    required DeliveryMethod deliveryMethod,
     required List<String> incentiveCodes,
     required List<Map<String, dynamic>> items,
   }) async {
     final response = await _client.post(
       '/api/incentives/preview',
       body: {
+        'deliveryMethod': deliveryMethod.name,
         if (incentiveCodes.isNotEmpty) 'incentiveCodes': incentiveCodes,
         'items': items,
       },

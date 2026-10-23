@@ -297,12 +297,12 @@ void main() {
     await _tap(tester, find.text('Proceed to checkout'));
     await _waitFor(tester, find.byType(CheckoutScreen));
     await _scrollTo(tester, find.text('VNPAY (QR/ATM/Visa)'));
-    expect(find.text('COD'), findsOneWidget);
-    await _scrollTo(tester, find.text('Place order'));
+    expect(find.text('Tiền mặt (COD)'), findsOneWidget);
+    await _scrollTo(tester, find.text('Đặt hàng'));
 
     if (_write) {
-      await _tap(tester, find.text('Place order'));
-      await _waitFor(tester, find.text('Order created successfully'));
+      await _tap(tester, find.text('Đặt hàng'));
+      await _waitFor(tester, find.text('Đặt hàng thành công'));
       return; // the order consumed the cart
     }
 

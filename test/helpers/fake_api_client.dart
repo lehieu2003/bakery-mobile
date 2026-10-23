@@ -89,8 +89,11 @@ class FakeApiClient extends ApiClient {
       _handle('GET', path, query: query);
 
   @override
-  Future<dynamic> post(String path, {Object? body}) =>
-      _handle('POST', path, body: body);
+  Future<dynamic> post(
+    String path, {
+    Object? body,
+    Map<String, String>? headers,
+  }) => _handle('POST', path, body: body);
 
   @override
   Future<dynamic> put(String path, {Object? body}) =>

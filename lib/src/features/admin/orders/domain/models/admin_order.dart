@@ -58,6 +58,11 @@ class AdminOrder {
   /// Recorded payment, if one exists yet.
   final AdminPayment? payment;
 
+  /// Cancelled after the customer paid: the money is still with the shop
+  /// until it is refunded on the gateway portal and marked REFUNDED.
+  bool get isAwaitingRefund =>
+      status == 'CANCELLED' && payment?.status == 'PAID';
+
   /// Placing account; the list endpoint omits `email`, the detail includes it.
   final AdminOrderUser? user;
 }

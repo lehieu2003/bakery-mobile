@@ -40,7 +40,11 @@ class _CapturingApiClient extends ApiClient {
   }
 
   @override
-  Future<dynamic> post(String path, {Object? body}) async {
+  Future<dynamic> post(
+    String path, {
+    Object? body,
+    Map<String, String>? headers,
+  }) async {
     lastPath = path;
     lastBody = body;
     return {'review': Map<String, dynamic>.from(_fullReview)..['rating'] = 4};

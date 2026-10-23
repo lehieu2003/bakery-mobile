@@ -215,6 +215,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
             ),
           ),
+          if (orders.hasMoreOrders)
+            Center(
+              child: TextButton(
+                onPressed: orders.isLoadingMoreOrders
+                    ? null
+                    : ref.read(ordersViewModelProvider.notifier).loadMoreOrders,
+                child: Text(
+                  orders.isLoadingMoreOrders
+                      ? 'Đang tải…'
+                      : 'Xem thêm đơn hàng',
+                ),
+              ),
+            ),
         ],
       ),
     );

@@ -23,7 +23,10 @@ class OrderCard extends StatelessWidget {
     );
     final payment = [
       order.paymentMethod ?? 'Chưa chọn',
-      if (order.payment != null) order.payment!.status,
+      if (order.isAwaitingRefund)
+        'CẦN HOÀN TIỀN'
+      else if (order.payment != null)
+        order.payment!.status,
     ].join(' · ');
 
     return Card(

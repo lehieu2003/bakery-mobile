@@ -179,6 +179,10 @@ class AppliedIncentiveSummary {
   }
 }
 
+/// How the customer receives the order; [name] is bakery-web's
+/// `deliveryMethod` wire value. Only [delivery] pays the delivery fee.
+enum DeliveryMethod { pickup, delivery }
+
 class PreviewIncentiveResult {
   const PreviewIncentiveResult({
     required this.subtotal,
@@ -186,6 +190,7 @@ class PreviewIncentiveResult {
     required this.couponDiscount,
     required this.totalDiscount,
     required this.total,
+    this.deliveryFee = 0,
     this.appliedIncentives = const [],
   });
 
@@ -193,7 +198,10 @@ class PreviewIncentiveResult {
   final double membershipDiscount;
   final double couponDiscount;
   final double totalDiscount;
+
+  /// Already included in [total].
   final double total;
+  final double deliveryFee;
   final List<AppliedIncentiveSummary> appliedIncentives;
 }
 

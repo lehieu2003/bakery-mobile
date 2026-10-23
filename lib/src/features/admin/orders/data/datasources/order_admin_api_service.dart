@@ -80,4 +80,13 @@ class OrderAdminApiService {
     );
     return response as Map<String, dynamic>? ?? const {};
   }
+
+  /// POST /api/admin/orders/{id}/refund — records a refund already made on
+  /// the gateway portal for a cancelled, paid order (409 otherwise).
+  Future<void> markRefunded(String orderId, {String? note}) async {
+    await _client.post(
+      '/api/admin/orders/$orderId/refund',
+      body: {if (note != null) 'note': note},
+    );
+  }
 }
