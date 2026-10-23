@@ -4,7 +4,6 @@ import 'package:gap/gap.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
-import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
@@ -18,13 +17,13 @@ class HomeCategoryRail extends StatelessWidget {
   const HomeCategoryRail({
     super.key,
     required this.categories,
-    required this.selectedCategoryId,
     required this.onSelect,
   });
 
   final List<Category> categories;
-  final String? selectedCategoryId;
-  final ValueChanged<String?> onSelect;
+
+  /// Opens the tapped category (the home screen pushes its product list).
+  final ValueChanged<Category> onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -38,27 +37,12 @@ class HomeCategoryRail extends StatelessWidget {
             (category) => _CategoryCapsule(
               label: _shortCategoryLabel(category.name),
               imageUrl: category.imageUrl,
-              isSelected: _isRootSelected(category, selectedCategoryId),
-              onTap: () => onSelect(category.id),
+              onTap: () => onSelect(category),
             ),
           ),
         ],
       ),
     );
-  }
-
-  bool _isRootSelected(Category root, String? selectedId) {
-    if (selectedId == null) return false;
-    if (root.id == selectedId) return true;
-    return _contains(root.children, selectedId);
-  }
-
-  bool _contains(List<Category> children, String selectedId) {
-    for (final category in children) {
-      if (category.id == selectedId) return true;
-      if (_contains(category.children, selectedId)) return true;
-    }
-    return false;
   }
 
   String _shortCategoryLabel(String name) {
@@ -88,13 +72,11 @@ class _CategoryCapsule extends StatelessWidget {
   const _CategoryCapsule({
     required this.label,
     required this.imageUrl,
-    required this.isSelected,
     required this.onTap,
   });
 
   final String label;
   final String? imageUrl;
-  final bool isSelected;
   final VoidCallback onTap;
 
   @override
@@ -104,9 +86,7 @@ class _CategoryCapsule extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.xxxl),
-        child: AnimatedContainer(
-          duration: AppDurations.fast,
-          curve: Curves.easeOut,
+        child: Container(
           width: 72,
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.sm,
@@ -114,27 +94,18 @@ class _CategoryCapsule extends StatelessWidget {
             AppSpacing.sm,
             AppSpacing.sm,
           ),
-          decoration: BoxDecoration(
-            color: isSelected ? AppTheme.peachTint : Colors.transparent,
-            borderRadius: BorderRadius.circular(AppRadius.xxxl),
-          ),
           child: Column(
             children: [
-              AnimatedContainer(
-                duration: AppDurations.fast,
+              Container(
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppTheme.blushPink.withValues(alpha: 0.55)
-                      : _railIconBackground,
+                  color: _railIconBackground,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.warmBrown.withValues(
-                        alpha: isSelected ? 0.12 : 0.06,
-                      ),
-                      blurRadius: isSelected ? 14 : 10,
+                      color: AppTheme.warmBrown.withValues(alpha: 0.06),
+                      blurRadius: 10,
                       offset: const Offset(0, 7),
                     ),
                   ],
@@ -156,10 +127,10 @@ class _CategoryCapsule extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: isSelected ? AppTheme.warmBrown : AppTheme.textMuted,
+                  color: AppTheme.textMuted,
                   fontSize: 11,
                   height: 1.08,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],

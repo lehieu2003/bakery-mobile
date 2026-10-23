@@ -18,6 +18,19 @@ abstract final class HomeKeys {
   static Key personalizedItem(String id) => Key('home.personalized.$id');
 }
 
+/// Widget keys of the category screen (used by tests and finders).
+abstract final class CategoryKeys {
+  static const list = Key('category.list');
+  static const loading = Key('category.loading');
+  static const empty = Key('category.empty');
+  static const error = Key('category.error');
+  static const resultCount = Key('category.resultCount');
+  static const loadingMore = Key('category.loadingMore');
+
+  static Key chip(String categoryId) => Key('category.chip.$categoryId');
+  static Key product(String id) => Key('category.product.$id');
+}
+
 /// Widget keys of the search screen (used by tests and finders).
 abstract final class SearchKeys {
   static const list = Key('search.list');
