@@ -131,12 +131,18 @@ void main() {
   }
 
   Future<void> fillCustomer(WidgetTester tester) async {
+    // The fields sit at the top; earlier steps may have scrolled past them.
+    await tester.scrollUntilVisible(
+      find.widgetWithText(TextFormField, 'Họ tên'),
+      -200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.enterText(
-      find.widgetWithText(TextFormField, 'Customer name'),
+      find.widgetWithText(TextFormField, 'Họ tên'),
       'Nguyen Van A',
     );
     await tester.enterText(
-      find.widgetWithText(TextFormField, 'Customer phone'),
+      find.widgetWithText(TextFormField, 'Số điện thoại'),
       '0901234567',
     );
     await tester.pump();
@@ -148,12 +154,12 @@ void main() {
     FocusManager.instance.primaryFocus?.unfocus();
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
-      find.text('Place order'),
+      find.text('Đặt hàng'),
       200,
       scrollable: find.byType(Scrollable).first,
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Place order'));
+    await tester.tap(find.text('Đặt hàng'));
     await tester.pumpAndSettle();
   }
 
@@ -162,9 +168,9 @@ void main() {
   ) async {
     final repository = await pumpCheckout(tester);
 
-    expect(find.text('COD'), findsOneWidget);
-    expect(find.text('BANK_TRANSFER'), findsOneWidget);
-    expect(find.text('MOMO'), findsOneWidget);
+    expect(find.text('Tiền mặt (COD)'), findsOneWidget);
+    expect(find.text('Chuyển khoản'), findsOneWidget);
+    expect(find.text('Ví MoMo'), findsOneWidget);
     expect(find.text('VNPAY (QR/ATM/Visa)'), findsOneWidget);
     // bakery-web rejects ZALOPAY with 400 "Invalid payment method".
     expect(find.text('ZALOPAY'), findsNothing);
@@ -180,7 +186,7 @@ void main() {
     await placeOrder(tester);
 
     expect(repository.capturedPaymentMethod, 'VNPAY');
-    expect(find.text('Order created successfully'), findsOneWidget);
+    expect(find.text('Đặt hàng thành công'), findsOneWidget);
   });
 
   testWidgets('pick-up is the default: no address, no fee, sent explicitly', (
@@ -250,15 +256,15 @@ void main() {
       repository.paymentError = 'MoMo payment is not configured';
 
       await fillCustomer(tester);
-      await tester.ensureVisible(find.text('MOMO'));
+      await tester.ensureVisible(find.text('Ví MoMo'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('MOMO'));
+      await tester.tap(find.text('Ví MoMo'));
       await tester.pump();
       await placeOrder(tester);
 
       expect(repository.capturedPaymentMethod, 'MOMO');
-      expect(find.text('Order created successfully'), findsNothing);
-      expect(find.text('Order created - payment required'), findsNothing);
+      expect(find.text('Đặt hàng thành công'), findsNothing);
+      expect(find.text('Đã tạo đơn — cần thanh toán'), findsNothing);
       expect(
         find.textContaining('Không khởi tạo được thanh toán'),
         findsOneWidget,
@@ -269,4 +275,19 @@ void main() {
       expect(container.read(cartViewModelProvider).items, hasLength(1));
     },
   );
+
+  testWidgets('a placed order clears the saved checkout draft', (tester) async {
+    await pumpCheckout(tester);
+    await fillCustomer(tester);
+    final prefs = await SharedPreferences.getInstance();
+    // Typing saved the draft as the user went.
+    expect(prefs.getString('checkout_draft_phone'), '0901234567');
+
+    await placeOrder(tester);
+
+    expect(find.text('Đặt hàng thành công'), findsOneWidget);
+    expect(prefs.getString('checkout_draft_name'), isNull);
+    expect(prefs.getString('checkout_draft_phone'), isNull);
+    expect(prefs.getString('checkout_draft_address'), isNull);
+  });
 }

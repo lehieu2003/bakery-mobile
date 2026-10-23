@@ -1,4 +1,5 @@
 import 'package:bakery_mobile/src/core/network/api_client.dart';
+import 'package:bakery_mobile/src/core/utils/parse_utils.dart';
 import 'package:bakery_mobile/src/features/orders/data/dtos/order_dto.dart';
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
 
@@ -7,15 +8,30 @@ class OrderApiService {
 
   final ApiClient _client;
 
-  Future<List<OrderDto>> getMyOrders() async {
-    final response = await _client.get('/api/orders');
-    final raw =
-        (response as Map<String, dynamic>)['orders'] as List<dynamic>? ??
-        const [];
-    return raw
-        .whereType<Map<String, dynamic>>()
-        .map(OrderDto.fromJson)
-        .toList();
+  /// One page of the customer's orders, newest first, and whether older
+  /// ones remain. A server without paging (no `pagination`) has no more.
+  Future<({List<OrderDto> orders, bool hasMore})> getMyOrders({
+    required int page,
+    required int limit,
+  }) async {
+    final response =
+        await _client.get('/api/orders', query: {'page': page, 'limit': limit})
+            as Map<String, dynamic>;
+    final raw = response['orders'] as List<dynamic>? ?? const [];
+    final pagination = response['pagination'];
+    final totalPages = pagination is Map<String, dynamic>
+        ? ParseUtils.toInt(
+            pagination['totalPages'],
+            field: 'OrderApiService.pagination.totalPages',
+          )
+        : 0;
+    return (
+      orders: raw
+          .whereType<Map<String, dynamic>>()
+          .map(OrderDto.fromJson)
+          .toList(),
+      hasMore: page < totalPages,
+    );
   }
 
   /// GET /api/orders/[orderNumber] — same `serializeOrder` payload as the

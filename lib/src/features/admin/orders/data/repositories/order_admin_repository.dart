@@ -93,4 +93,10 @@ class OrderAdminRepository {
     );
     return AdminOrderPatchResultDto.fromJson(payload).order;
   }
+
+  /// Records a manual gateway refund; returns the order as it now stands.
+  Future<AdminOrder> markRefunded(String orderId, {String? note}) async {
+    await _service.markRefunded(orderId, note: note);
+    return getOrder(orderId);
+  }
 }

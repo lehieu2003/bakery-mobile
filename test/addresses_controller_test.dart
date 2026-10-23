@@ -386,7 +386,7 @@ void main() {
       expect(
         tester
             .widget<TextFormField>(
-              find.widgetWithText(TextFormField, 'Customer name').first,
+              find.widgetWithText(TextFormField, 'Họ tên').first,
             )
             .controller!
             .text,
@@ -394,13 +394,13 @@ void main() {
       );
 
       await tester.scrollUntilVisible(
-        find.text('Place order'),
+        find.text('Đặt hàng'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Place order'));
+      await tester.tap(find.text('Đặt hàng'));
       await tester.pumpAndSettle();
 
       expect(orderRepository.capturedDeliveryMethod, DeliveryMethod.delivery);
@@ -435,13 +435,13 @@ void main() {
       // A draft address is restored, so no saved address gets auto-selected
       // and the manual-entry flow keeps working.
       await tester.scrollUntilVisible(
-        find.text('Place order'),
+        find.text('Đặt hàng'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Place order'));
+      await tester.tap(find.text('Đặt hàng'));
       await tester.pumpAndSettle();
 
       expect(orderRepository.capturedAddressId, isNull);
@@ -485,13 +485,13 @@ void main() {
       await tester.pump();
 
       await tester.scrollUntilVisible(
-        find.text('Place order'),
+        find.text('Đặt hàng'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Place order'));
+      await tester.tap(find.text('Đặt hàng'));
       await tester.pumpAndSettle();
 
       expect(orderRepository.capturedAddressId, isNull);
@@ -528,11 +528,11 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Customer name'),
+        find.widgetWithText(TextFormField, 'Họ tên'),
         'Khách vãng lai',
       );
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Customer phone'),
+        find.widgetWithText(TextFormField, 'Số điện thoại'),
         '0901234567',
       );
       await tester.enterText(
@@ -542,13 +542,13 @@ void main() {
       await tester.pump();
 
       await tester.scrollUntilVisible(
-        find.text('Place order'),
+        find.text('Đặt hàng'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Place order'));
+      await tester.tap(find.text('Đặt hàng'));
       await tester.pumpAndSettle();
 
       expect(orderRepository.capturedAddressId, isNull);

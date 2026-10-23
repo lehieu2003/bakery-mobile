@@ -9,6 +9,8 @@ class OrdersState {
   const OrdersState({
     this.orders = const [],
     this.isLoadingOrders = false,
+    this.hasMoreOrders = false,
+    this.isLoadingMoreOrders = false,
     this.isCreatingOrder = false,
     this.preparingReorderOrderId,
     this.errorMessage,
@@ -16,6 +18,10 @@ class OrdersState {
 
   final List<Order> orders;
   final bool isLoadingOrders;
+
+  /// Older orders remain on the server; see [OrdersViewModel.loadMoreOrders].
+  final bool hasMoreOrders;
+  final bool isLoadingMoreOrders;
   final bool isCreatingOrder;
   final String? preparingReorderOrderId;
   final String? errorMessage;
@@ -27,6 +33,8 @@ class OrdersState {
   OrdersState copyWith({
     List<Order>? orders,
     bool? isLoadingOrders,
+    bool? hasMoreOrders,
+    bool? isLoadingMoreOrders,
     bool? isCreatingOrder,
     String? preparingReorderOrderId,
     bool clearPreparingReorder = false,
@@ -36,6 +44,8 @@ class OrdersState {
     return OrdersState(
       orders: orders ?? this.orders,
       isLoadingOrders: isLoadingOrders ?? this.isLoadingOrders,
+      hasMoreOrders: hasMoreOrders ?? this.hasMoreOrders,
+      isLoadingMoreOrders: isLoadingMoreOrders ?? this.isLoadingMoreOrders,
       isCreatingOrder: isCreatingOrder ?? this.isCreatingOrder,
       preparingReorderOrderId: clearPreparingReorder
           ? null
@@ -52,17 +62,52 @@ class OrdersViewModel extends Notifier<OrdersState> {
   /// the server has answered, so the next checkout is a new order.
   String? _checkoutKey;
 
+  /// Last page of the order history loaded so far.
+  int _ordersPage = 0;
+
   @override
   OrdersState build() => const OrdersState();
 
   Future<void> loadMyOrders() async {
     state = state.copyWith(isLoadingOrders: true, clearError: true);
     try {
-      final orders = await ref.read(orderRepositoryProvider).getMyOrders();
-      state = state.copyWith(orders: orders, isLoadingOrders: false);
+      final page = await ref.read(orderRepositoryProvider).getMyOrders();
+      _ordersPage = 1;
+      state = state.copyWith(
+        orders: page.orders,
+        hasMoreOrders: page.hasMore,
+        isLoadingOrders: false,
+      );
     } catch (error) {
       state = state.copyWith(
         isLoadingOrders: false,
+        errorMessage: error.toString().replaceFirst('Exception: ', ''),
+      );
+    }
+  }
+
+  /// Appends the next (older) page of the history.
+  Future<void> loadMoreOrders() async {
+    if (!state.hasMoreOrders || state.isLoadingMoreOrders) return;
+    state = state.copyWith(isLoadingMoreOrders: true, clearError: true);
+    try {
+      final page = await ref
+          .read(orderRepositoryProvider)
+          .getMyOrders(page: _ordersPage + 1);
+      _ordersPage += 1;
+      // Orders placed since page 1 shift the pages; skip ones already shown.
+      final shown = {for (final order in state.orders) order.id};
+      state = state.copyWith(
+        orders: [
+          ...state.orders,
+          ...page.orders.where((order) => !shown.contains(order.id)),
+        ],
+        hasMoreOrders: page.hasMore,
+        isLoadingMoreOrders: false,
+      );
+    } catch (error) {
+      state = state.copyWith(
+        isLoadingMoreOrders: false,
         errorMessage: error.toString().replaceFirst('Exception: ', ''),
       );
     }
