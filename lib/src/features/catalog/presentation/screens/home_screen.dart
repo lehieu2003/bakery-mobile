@@ -298,9 +298,9 @@ class _HomeViewState extends ConsumerState<_HomeView> {
 
     switch (vm.personalizedReason) {
       case 'no-user':
-        return 'Sign in to unlock personalized suggestions. Showing featured picks for now.';
+        return 'Đăng nhập để nhận gợi ý riêng. Tạm thời hiển thị sản phẩm nổi bật.';
       case 'insufficient-signal':
-        return 'Showing a mix of personalized picks and featured products.';
+        return 'Gợi ý riêng cho bạn cùng sản phẩm nổi bật.';
       default:
         return null;
     }

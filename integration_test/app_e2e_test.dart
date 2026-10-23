@@ -135,10 +135,10 @@ Future<void> _launch(WidgetTester tester) async {
     if (email.evaluate().isNotEmpty) {
       await tester.enterText(email.first, _email);
       await tester.enterText(
-        find.widgetWithText(TextField, 'Password').first,
+        find.widgetWithText(TextField, 'Mật khẩu').first,
         _password,
       );
-      await tester.tap(find.widgetWithText(FilledButton, 'Sign in').first);
+      await tester.tap(find.widgetWithText(FilledButton, 'Đăng nhập').first);
       await _waitFor(tester, home);
       return;
     }
@@ -218,7 +218,7 @@ void main() {
   testWidgets('03 search → product detail with reviews', (tester) async {
     await _launch(tester);
     await _openProduct(tester);
-    expect(find.text('Add to Cart'), findsOneWidget);
+    expect(find.text('Thêm vào giỏ'), findsOneWidget);
     await _scrollTo(tester, find.text('Viết đánh giá'));
   }, timeout: _timeout);
 
@@ -272,7 +272,7 @@ void main() {
   ) async {
     await _launch(tester);
     await _openProduct(tester);
-    await _tap(tester, find.text('Add to Cart'));
+    await _tap(tester, find.text('Thêm vào giỏ'));
     await _back(tester);
     await _tap(tester, find.byIcon(Icons.home_outlined));
     await _tap(tester, find.byIcon(Icons.shopping_cart_outlined));
@@ -294,7 +294,7 @@ void main() {
     );
     await _waitFor(tester, find.descendant(of: cart, matching: find.text('1')));
 
-    await _tap(tester, find.text('Proceed to checkout'));
+    await _tap(tester, find.text('Tiến hành thanh toán'));
     await _waitFor(tester, find.byType(CheckoutScreen));
     await _scrollTo(tester, find.text('VNPAY (QR/ATM/Visa)'));
     expect(find.text('Tiền mặt (COD)'), findsOneWidget);
@@ -322,7 +322,7 @@ void main() {
   testWidgets('07 order history → order detail', (tester) async {
     await _launch(tester);
     await _tap(tester, find.byIcon(Icons.person_outline));
-    await _scrollTo(tester, find.text('Order History'));
+    await _scrollTo(tester, find.text('Lịch sử đơn hàng'));
     await _scrollTo(tester, find.textContaining('#BK'));
     await _tap(tester, find.textContaining('#BK'));
     await _waitFor(tester, find.byType(OrderDetailScreen));
@@ -334,9 +334,9 @@ void main() {
   ) async {
     await _launch(tester);
     await _tap(tester, find.byIcon(Icons.person_outline));
-    await _waitFor(tester, find.text('Level'));
-    await _waitFor(tester, find.text('Points'));
-    await _waitFor(tester, find.textContaining('membership discount'));
+    await _waitFor(tester, find.text('Hạng'));
+    await _waitFor(tester, find.text('Điểm'));
+    await _waitFor(tester, find.textContaining('Giảm giá thành viên'));
   }, timeout: _timeout);
 
   testWidgets('09 address book${_write ? ' + add address' : ''}', (
@@ -366,9 +366,9 @@ void main() {
 
   testWidgets('10 notifications list', (tester) async {
     await _launch(tester);
-    await _openProfileItem(tester, 'Notifications');
+    await _openProfileItem(tester, 'Thông báo');
     await _waitFor(tester, find.byType(NotificationsScreen));
-    await _waitFor(tester, find.textContaining('Notifications ('));
+    await _waitFor(tester, find.textContaining('Thông báo ('));
   }, timeout: _timeout);
 
   testWidgets('11 blog list → article', (tester) async {
@@ -381,7 +381,7 @@ void main() {
 
   testWidgets('12 policy pages list → page', (tester) async {
     await _launch(tester);
-    await _openProfileItem(tester, 'Policy & Pages');
+    await _openProfileItem(tester, 'Chính sách & Trang');
     await _waitFor(tester, find.byType(PagesScreen));
     await _tap(
       tester,

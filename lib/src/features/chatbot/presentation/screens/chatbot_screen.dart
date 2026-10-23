@@ -66,7 +66,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(title: const Text('Chatbot')),
+      appBar: AppBar(title: const Text('Trợ lý')),
       body: Column(
         children: [
           Expanded(

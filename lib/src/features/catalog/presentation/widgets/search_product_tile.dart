@@ -62,7 +62,7 @@ class SearchProductTile extends ConsumerWidget {
               : () {
                   cart.addProduct(product);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Added to cart')),
+                    const SnackBar(content: Text('Đã thêm vào giỏ')),
                   );
                 },
         ),

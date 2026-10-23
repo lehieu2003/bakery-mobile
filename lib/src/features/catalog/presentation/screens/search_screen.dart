@@ -90,7 +90,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
         : MediaQuery.paddingOf(context).bottom + 110;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Search products')),
+      appBar: AppBar(title: const Text('Tìm sản phẩm')),
       body: ListView(
         key: SearchKeys.list,
         controller: _scrollController,
@@ -106,7 +106,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
             key: SearchKeys.input,
             controller: _controller,
             textInputAction: TextInputAction.search,
-            hintText: 'What are you looking for?',
+            hintText: 'Bạn đang tìm gì?',
             prefixIcon: const Icon(Icons.search),
             onSubmitted: (value) =>
                 ref.read(searchViewModelProvider.notifier).search(value),
@@ -116,10 +116,15 @@ class _SearchViewState extends ConsumerState<_SearchView> {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
-              _sortChip(context, vm, SearchSortOption.popular, 'Popular'),
-              _sortChip(context, vm, SearchSortOption.newest, 'Newest'),
-              _sortChip(context, vm, SearchSortOption.priceAsc, 'Price asc'),
-              _sortChip(context, vm, SearchSortOption.priceDesc, 'Price desc'),
+              _sortChip(context, vm, SearchSortOption.popular, 'Phổ biến'),
+              _sortChip(context, vm, SearchSortOption.newest, 'Mới nhất'),
+              _sortChip(context, vm, SearchSortOption.priceAsc, 'Giá tăng dần'),
+              _sortChip(
+                context,
+                vm,
+                SearchSortOption.priceDesc,
+                'Giá giảm dần',
+              ),
               ActionChip(
                 key: SearchKeys.filters,
                 avatar: Icon(
@@ -128,7 +133,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
                       : Icons.filter_alt_outlined,
                   size: 18,
                 ),
-                label: Text(vm.hasActiveFilters ? 'Filters on' : 'Filters'),
+                label: Text(vm.hasActiveFilters ? 'Đang lọc' : 'Bộ lọc'),
                 onPressed: () => _openFilters(context, vm),
               ),
             ],
@@ -140,8 +145,8 @@ class _SearchViewState extends ConsumerState<_SearchView> {
               child: Text(
                 key: SearchKeys.resultCount,
                 vm.query.isEmpty
-                    ? 'All products (${vm.sortedProducts.length})'
-                    : 'Found ${vm.sortedProducts.length} products for "${vm.query}"',
+                    ? 'Tất cả sản phẩm (${vm.sortedProducts.length})'
+                    : 'Tìm thấy ${vm.sortedProducts.length} sản phẩm cho "${vm.query}"',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
@@ -176,8 +181,8 @@ class _SearchViewState extends ConsumerState<_SearchView> {
             EmptyStateWidget(
               key: SearchKeys.empty,
               message: vm.query.isEmpty
-                  ? 'No products available.'
-                  : 'No products found.',
+                  ? 'Chưa có sản phẩm.'
+                  : 'Không tìm thấy sản phẩm.',
             ),
           ...vm.sortedProducts.map(
             (product) => SearchProductTile(
@@ -197,7 +202,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
               child: OutlinedButton(
                 key: SearchKeys.loadMore,
                 onPressed: ref.read(searchViewModelProvider.notifier).loadMore,
-                child: const Text('Load more'),
+                child: const Text('Xem thêm'),
               ),
             ),
         ],
@@ -252,7 +257,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
                 ),
                 children: [
                   Text(
-                    'Filter products',
+                    'Lọc sản phẩm',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -264,7 +269,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
                         child: AppTextInputWidget(
                           controller: minCtrl,
                           keyboardType: TextInputType.number,
-                          labelText: 'Min price',
+                          labelText: 'Giá tối thiểu',
                         ),
                       ),
                       const Gap(AppSpacing.md),
@@ -272,14 +277,14 @@ class _SearchViewState extends ConsumerState<_SearchView> {
                         child: AppTextInputWidget(
                           controller: maxCtrl,
                           keyboardType: TextInputType.number,
-                          labelText: 'Max price',
+                          labelText: 'Giá tối đa',
                         ),
                       ),
                     ],
                   ),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('In stock only'),
+                    title: const Text('Chỉ còn hàng'),
                     value: inStock,
                     onChanged: (value) => setModalState(() => inStock = value),
                   ),
@@ -331,7 +336,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
                                 .clearFilters();
                             Navigator.of(sheetContext).pop();
                           },
-                          child: const Text('Clear'),
+                          child: const Text('Xoá bộ lọc'),
                         ),
                       ),
                       const Gap(AppSpacing.md),
@@ -356,7 +361,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
                                 );
                             Navigator.of(sheetContext).pop();
                           },
-                          child: const Text('Apply'),
+                          child: const Text('Áp dụng'),
                         ),
                       ),
                     ],

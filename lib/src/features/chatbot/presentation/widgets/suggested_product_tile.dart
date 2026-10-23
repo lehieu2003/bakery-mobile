@@ -129,11 +129,11 @@ class SuggestedProductTile extends ConsumerWidget {
                     : () {
                         cart.addProduct(product);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Added to cart')),
+                          const SnackBar(content: Text('Đã thêm vào giỏ')),
                         );
                       },
                 icon: const Icon(Icons.add_shopping_cart_rounded, size: 16),
-                label: const Text('Add'),
+                label: const Text('Thêm'),
               ),
             ],
           ),
