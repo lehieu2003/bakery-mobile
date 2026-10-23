@@ -16,6 +16,7 @@ import 'package:bakery_mobile/src/features/blog/domain/models/blog.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 /// Related posts displayed under an article.
 const int _relatedPostsShown = 3;
@@ -60,7 +61,7 @@ class _BlogDetailScreenState extends ConsumerState<BlogDetailScreen> {
       _loadRelatedPosts(post);
     } catch (error) {
       if (!mounted) return;
-      setState(() => _error = error.toString().replaceFirst('Exception: ', ''));
+      setState(() => _error = userErrorMessage(error));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

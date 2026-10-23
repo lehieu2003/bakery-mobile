@@ -5,6 +5,7 @@ import 'package:bakery_mobile/src/features/catalog/data/repositories/catalog_rep
 import 'package:bakery_mobile/src/features/catalog/domain/models/banner_item.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 /// Products in the home "Gợi Ý Dành Cho Bạn" grid.
 const int _personalizedLimit = 8;
@@ -100,7 +101,7 @@ class HomeViewModel extends Notifier<HomeState> {
     } catch (error) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: error.toString().replaceFirst('Exception: ', ''),
+        errorMessage: userErrorMessage(error),
       );
     }
   }
@@ -130,7 +131,7 @@ class HomeViewModel extends Notifier<HomeState> {
     } catch (error) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: error.toString().replaceFirst('Exception: ', ''),
+        errorMessage: userErrorMessage(error),
       );
     }
   }

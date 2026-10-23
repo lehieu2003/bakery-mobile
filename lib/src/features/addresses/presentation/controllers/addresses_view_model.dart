@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/addresses/domain/models/address.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 class AddressesState {
   const AddressesState({
@@ -53,10 +54,7 @@ class AddressesViewModel extends Notifier<AddressesState> {
       final items = await ref.read(addressRepositoryProvider).getAddresses();
       state = state.copyWith(isLoading: false, items: items);
     } catch (error) {
-      state = state.copyWith(
-        isLoading: false,
-        error: error.toString().replaceFirst('Exception: ', ''),
-      );
+      state = state.copyWith(isLoading: false, error: userErrorMessage(error));
     }
   }
 
@@ -88,9 +86,7 @@ class AddressesViewModel extends Notifier<AddressesState> {
       await _reload();
       return created;
     } catch (error) {
-      state = state.copyWith(
-        error: error.toString().replaceFirst('Exception: ', ''),
-      );
+      state = state.copyWith(error: userErrorMessage(error));
       return null;
     }
   }
@@ -124,9 +120,7 @@ class AddressesViewModel extends Notifier<AddressesState> {
       await _reload();
       return true;
     } catch (error) {
-      state = state.copyWith(
-        error: error.toString().replaceFirst('Exception: ', ''),
-      );
+      state = state.copyWith(error: userErrorMessage(error));
       return false;
     }
   }
@@ -138,9 +132,7 @@ class AddressesViewModel extends Notifier<AddressesState> {
       await _reload();
       return true;
     } catch (error) {
-      state = state.copyWith(
-        error: error.toString().replaceFirst('Exception: ', ''),
-      );
+      state = state.copyWith(error: userErrorMessage(error));
       return false;
     } finally {
       state = state.copyWith(clearPendingId: true);
@@ -157,9 +149,7 @@ class AddressesViewModel extends Notifier<AddressesState> {
       final items = await ref.read(addressRepositoryProvider).getAddresses();
       state = state.copyWith(items: items);
     } catch (error) {
-      state = state.copyWith(
-        error: error.toString().replaceFirst('Exception: ', ''),
-      );
+      state = state.copyWith(error: userErrorMessage(error));
     }
   }
 }

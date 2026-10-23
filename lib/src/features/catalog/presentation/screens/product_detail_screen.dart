@@ -22,6 +22,7 @@ import 'package:bakery_mobile/src/shared/widgets/favorite_icon_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 /// Bottom space so content clears the pinned price/"Add to Cart" bar.
 const double _bottomBarClearance = 120;
@@ -97,7 +98,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       unawaited(_loadRelatedProducts(product));
     } catch (error) {
       if (!mounted) return;
-      setState(() => _error = error.toString().replaceFirst('Exception: ', ''));
+      setState(() => _error = userErrorMessage(error));
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);

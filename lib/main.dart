@@ -3,8 +3,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/config/app_config.dart';
+import 'package:bakery_mobile/src/core/network/connectivity.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/navigation/presentation/screens/app_gate.dart';
+import 'package:bakery_mobile/src/shared/widgets/offline_banner_widget.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,15 +37,21 @@ class BakeryMobileApp extends StatelessWidget {
       title: 'Phương Loan Bakery',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
-      // Non-production builds carry a corner ribbon so they are never
-      // mistaken for the store app.
-      builder: config.isProd
-          ? null
-          : (context, child) => Banner(
-              message: config.flavor.name.toUpperCase(),
-              location: BannerLocation.topEnd,
-              child: child ?? const SizedBox.shrink(),
-            ),
+      builder: (context, child) {
+        Widget app = ConnectivityWatcher(
+          child: OfflineBannerWidget(child: child ?? const SizedBox.shrink()),
+        );
+        // Non-production builds carry a corner ribbon so they are never
+        // mistaken for the store app.
+        if (!config.isProd) {
+          app = Banner(
+            message: config.flavor.name.toUpperCase(),
+            location: BannerLocation.topEnd,
+            child: app,
+          );
+        }
+        return app;
+      },
       home: const AppGate(),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/auth/domain/models/user.dart';
+import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
 class AuthState {
   const AuthState({
@@ -157,9 +158,7 @@ class AuthViewModel extends Notifier<AuthState> {
     try {
       return await action();
     } catch (error) {
-      state = state.copyWith(
-        errorMessage: error.toString().replaceFirst('Exception: ', ''),
-      );
+      state = state.copyWith(errorMessage: userErrorMessage(error));
       return false;
     } finally {
       state = state.copyWith(isSubmitting: false);
