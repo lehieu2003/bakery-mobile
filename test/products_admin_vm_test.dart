@@ -9,6 +9,7 @@ import 'package:bakery_mobile/src/features/admin/categories/domain/models/admin_
 import 'package:bakery_mobile/src/features/admin/products/data/datasources/product_admin_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/products/data/repositories/product_admin_repository.dart';
 import 'package:bakery_mobile/src/features/admin/products/domain/models/admin_product.dart';
+import 'package:bakery_mobile/src/features/admin/products/presentation/screens/product_form_screen.dart';
 import 'package:bakery_mobile/src/features/admin/products/presentation/controllers/products_admin_view_model.dart';
 import 'package:bakery_mobile/src/features/admin/products/presentation/screens/products_screen.dart';
 import 'package:bakery_mobile/src/features/auth/domain/models/user.dart';
@@ -73,6 +74,9 @@ typedef _Call = ({int page, String? search});
 /// (already-deleted products drop out, like the server) and throws on
 /// deletes listed in [failDeleteIds].
 class _FakeProductAdminRepository extends ProductAdminRepository {
+  @override
+  Future<List<AdminAttribute>> getAttributes() async => const [];
+
   _FakeProductAdminRepository()
     : super(
         ProductAdminApiService(
@@ -413,11 +417,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Bánh mì tươi'), findsOneWidget);
 
-    // FAB announces the upcoming form (plan 4b).
+    // FAB opens the (phase 4b) create form.
     await tester.tap(find.text('Thêm sản phẩm'));
     await tester.pumpAndSettle();
-    expect(find.text('Form sản phẩm đầy đủ sắp có'), findsOneWidget);
-    await tester.pump(const Duration(seconds: 4)); // let the snackbar go
+    expect(find.byType(ProductFormScreen), findsOneWidget);
+    expect(find.text('Thông tin'), findsOneWidget);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
     await tester.pumpAndSettle();
 
     // Long-press enters selection mode; the bar counts the selection.

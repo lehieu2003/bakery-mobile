@@ -10,6 +10,7 @@ import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/admin/categories/domain/models/admin_category.dart';
 import 'package:bakery_mobile/src/features/admin/products/domain/models/admin_product.dart';
 import 'package:bakery_mobile/src/features/admin/products/presentation/controllers/products_admin_view_model.dart';
+import 'package:bakery_mobile/src/features/admin/products/presentation/screens/product_form_screen.dart';
 import 'package:bakery_mobile/src/features/admin/shared/presentation/widgets/admin_paged_list.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
@@ -93,10 +94,22 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
     await _vm.bulkDelete();
   }
 
-  void _announceFormComingSoon() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Form sản phẩm đầy đủ sắp có')),
+  Future<void> _openEditForm(String productId) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ProductFormScreen(productId: productId),
+      ),
     );
+    _vm.load();
+  }
+
+  Future<void> _openCreateForm() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const ProductFormScreen(productId: null),
+      ),
+    );
+    _vm.load();
   }
 
   @override
@@ -126,7 +139,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _announceFormComingSoon,
+        onPressed: _openCreateForm,
         icon: const Icon(Icons.add),
         label: const Text('Thêm sản phẩm'),
       ),
@@ -160,6 +173,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                 isSelecting: state.isSelecting,
                 isSelected: state.selectedIds.contains(product.id),
                 onToggleSelect: () => _vm.toggleSelect(product.id),
+                onOpen: () => _openEditForm(product.id),
               ),
               searchHint: 'Tìm sản phẩm…',
               searchText: _searchText,
@@ -296,9 +310,11 @@ class _ProductCard extends StatelessWidget {
     required this.isSelecting,
     required this.isSelected,
     required this.onToggleSelect,
+    required this.onOpen,
   });
 
   final AdminProductListItem product;
+  final VoidCallback onOpen;
   final bool isSelecting;
   final bool isSelected;
   final VoidCallback onToggleSelect;
@@ -317,7 +333,7 @@ class _ProductCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       color: isSelected ? theme.colorScheme.primaryContainer : null,
       child: InkWell(
-        onTap: isSelecting ? onToggleSelect : null,
+        onTap: isSelecting ? onToggleSelect : onOpen,
         onLongPress: onToggleSelect,
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
