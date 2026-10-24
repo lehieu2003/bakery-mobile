@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
+import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/screens/checkout_screen.dart';
@@ -67,7 +68,7 @@ class CartScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(AppRadius.xl),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.06),
+                            color: AppTheme.shadowCartSummary,
                             blurRadius: 20,
                             offset: const Offset(0, 8),
                           ),

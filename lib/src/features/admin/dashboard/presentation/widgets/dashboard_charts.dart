@@ -8,9 +8,6 @@ import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/domain/models/dashboard_stats.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
-/// Chart grid lines: AppTheme.warmBrown at ~12% alpha.
-const Color _gridLine = Color(0x1F8D5D43);
-
 /// The dashboard's two fl_chart area-style line charts: orders per day and
 /// revenue per day across the selected window. Each chart is 180 tall; when
 /// [chartData] is empty a 'Chưa có dữ liệu' placeholder replaces the chart.
@@ -115,10 +112,8 @@ class _ChartCard extends StatelessWidget {
       gridData: FlGridData(
         show: true,
         drawVerticalLine: false,
-        getDrawingHorizontalLine: (value) => const FlLine(
-          color: _gridLine, // warmBrown at ~12% alpha
-          strokeWidth: 1,
-        ),
+        getDrawingHorizontalLine: (value) =>
+            const FlLine(color: AppTheme.chartGridLine, strokeWidth: 1),
       ),
       titlesData: const FlTitlesData(show: false),
       borderData: FlBorderData(show: false),

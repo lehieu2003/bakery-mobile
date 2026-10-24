@@ -41,10 +41,7 @@ class HomeHeroBanner extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withValues(alpha: 0.02),
-                    Colors.black.withValues(alpha: 0.24),
-                  ],
+                  colors: [AppTheme.heroScrimTop, AppTheme.heroScrimBottom],
                 ),
               ),
             ),
@@ -58,7 +55,7 @@ class HomeHeroBanner extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: AppTheme.surfaceWhite,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
                 ),

@@ -186,7 +186,7 @@ class _NavButton extends StatelessWidget {
         curve: Curves.easeOut,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppRadius.pill),
-          color: selected ? Colors.white.withValues(alpha: 0.18) : null,
+          color: selected ? AppTheme.navSelectedHighlight : null,
         ),
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.lg,
@@ -236,7 +236,7 @@ class _AppDrawer extends StatelessWidget {
             currentAccountPicture: InitialAvatarWidget(
               name: displayName,
               radius: 36,
-              backgroundColor: Colors.white,
+              backgroundColor: AppTheme.surfaceWhite,
               foregroundColor: AppTheme.primaryPink,
             ),
           ),

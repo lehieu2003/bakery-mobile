@@ -8,12 +8,6 @@ import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 /// Bottom curve of the home header.
 const double _headerCurveRadius = 38;
 
-/// Pink start of the header gradient.
-const Color _headerGradientStart = Color(0xFFFFDEE7);
-
-/// Peach end of the header gradient.
-const Color _headerGradientEnd = Color(0xFFFFE6CF);
-
 class HomeHeader extends StatelessWidget {
   const HomeHeader({
     super.key,
@@ -47,7 +41,7 @@ class HomeHeader extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [_headerGradientStart, _headerGradientEnd],
+          colors: [AppTheme.headerGradientStart, AppTheme.headerGradientEnd],
         ),
         borderRadius: const BorderRadius.vertical(
           bottom: Radius.circular(_headerCurveRadius),
@@ -113,7 +107,7 @@ class HomeHeader extends StatelessWidget {
               width: double.infinity,
               height: 36,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.74),
+                color: AppTheme.surfaceSearchBar,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
                 boxShadow: [
                   BoxShadow(
@@ -179,7 +173,7 @@ class _HeaderSquareButton extends StatelessWidget {
         onTap: onTap,
         excludeSemantics: true,
         child: Material(
-          color: Colors.white.withValues(alpha: 0.52),
+          color: AppTheme.surfaceHeaderButton,
           borderRadius: BorderRadius.circular(AppRadius.md),
           child: InkWell(
             onTap: onTap,

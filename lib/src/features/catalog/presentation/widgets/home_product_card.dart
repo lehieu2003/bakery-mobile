@@ -14,9 +14,6 @@ import 'package:bakery_mobile/src/shared/widgets/favorite_icon_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
-/// Outlined heart over product photos.
-const Color _favoriteOutline = Color(0xFF555555);
-
 /// Material's minimum touch target.
 const double _minTapSize = 48;
 
@@ -166,7 +163,7 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                                 vertical: AppSpacing.xxs,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.black.withValues(alpha: 0.45),
+                                color: AppTheme.imageCounterScrim,
                                 borderRadius: BorderRadius.circular(
                                   AppRadius.pill,
                                 ),
@@ -197,7 +194,7 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                                 : () => wishlistNotifier.toggle(product),
                             excludeSemantics: true,
                             child: Material(
-                              color: Colors.white.withValues(alpha: 0.92),
+                              color: AppTheme.surfaceFavoriteButton,
                               borderRadius: BorderRadius.circular(
                                 AppRadius.pill,
                               ),
@@ -216,7 +213,7 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
                                       isFavorite: isFavorite,
                                       isPending: isPendingFavorite,
                                       size: 18,
-                                      outlineColor: _favoriteOutline,
+                                      outlineColor: AppTheme.favoriteOutline,
                                     ),
                                   ),
                                 ),
