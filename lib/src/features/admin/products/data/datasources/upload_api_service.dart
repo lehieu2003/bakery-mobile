@@ -27,10 +27,9 @@ class UploadApiService {
           '/api/upload',
           body: {'file': dataUrl},
         );
+        // ApiClient already unwraps `{success, data}` — `{url, publicId}`.
         final data = response is Map<String, dynamic>
-            ? (response['data'] is Map<String, dynamic>
-                  ? response['data']! as Map<String, dynamic>
-                  : const <String, dynamic>{})
+            ? response
             : const <String, dynamic>{};
         final url = data['url']?.toString();
         if (url == null || url.isEmpty) {
