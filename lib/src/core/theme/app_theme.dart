@@ -51,10 +51,10 @@ class AppTheme {
   /// Bottom stop of the auth header image fade.
   static const Color authHeroFadeBottom = Color(0xEEFFFFFF);
 
-  /// Frosted white pill behind the "BAKERY SHOP" brand label (white at 78%).
+  /// Frosted white pill behind the "PHƯƠNG LOAN BAKERY" brand label (white at 78%).
   static const Color surfaceAuthPill = Color(0xC7FFFFFF);
 
-  /// Brown text of the "BAKERY SHOP" brand pill.
+  /// Brown text of the "PHƯƠNG LOAN BAKERY" brand pill.
   static const Color textBrandPill = Color(0xFF7A513A);
 
   // --- Surfaces ---
