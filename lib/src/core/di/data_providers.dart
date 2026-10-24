@@ -13,6 +13,12 @@ import 'package:bakery_mobile/src/features/admin/dashboard/data/datasources/dash
 import 'package:bakery_mobile/src/features/admin/dashboard/data/repositories/dashboard_repository.dart';
 import 'package:bakery_mobile/src/features/admin/orders/data/datasources/order_admin_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/orders/data/repositories/order_admin_repository.dart';
+import 'package:bakery_mobile/src/features/admin/content/banners/data/datasources/banner_admin_api_service.dart';
+import 'package:bakery_mobile/src/features/admin/content/banners/data/repositories/banner_admin_repository.dart';
+import 'package:bakery_mobile/src/features/admin/content/notifications/data/datasources/notification_admin_api_service.dart';
+import 'package:bakery_mobile/src/features/admin/content/notifications/data/repositories/notification_admin_repository.dart';
+import 'package:bakery_mobile/src/features/admin/content/pages/data/datasources/page_admin_api_service.dart';
+import 'package:bakery_mobile/src/features/admin/content/pages/data/repositories/page_admin_repository.dart';
 import 'package:bakery_mobile/src/features/admin/products/data/datasources/product_admin_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/products/data/datasources/upload_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/products/data/repositories/product_admin_repository.dart';
@@ -176,4 +182,28 @@ final orderCheckoutServiceProvider = Provider<OrderCheckoutService>(
 /// Product-form image uploads (`/api/upload`, chunked ≤5/request).
 final uploadApiServiceProvider = Provider<UploadApiService>(
   (ref) => UploadApiService(ref.watch(apiClientProvider)),
+);
+
+// Phase 5a content modules.
+final bannerAdminApiServiceProvider = Provider<BannerAdminApiService>(
+  (ref) => BannerAdminApiService(ref.watch(apiClientProvider)),
+);
+final bannerAdminRepositoryProvider = Provider<BannerAdminRepository>(
+  (ref) => BannerAdminRepository(ref.watch(bannerAdminApiServiceProvider)),
+);
+final notificationAdminApiServiceProvider =
+    Provider<NotificationAdminApiService>(
+      (ref) => NotificationAdminApiService(ref.watch(apiClientProvider)),
+    );
+final notificationAdminRepositoryProvider =
+    Provider<NotificationAdminRepository>(
+      (ref) => NotificationAdminRepository(
+        ref.watch(notificationAdminApiServiceProvider),
+      ),
+    );
+final pageAdminApiServiceProvider = Provider<PageAdminApiService>(
+  (ref) => PageAdminApiService(ref.watch(apiClientProvider)),
+);
+final pageAdminRepositoryProvider = Provider<PageAdminRepository>(
+  (ref) => PageAdminRepository(ref.watch(pageAdminApiServiceProvider)),
 );
