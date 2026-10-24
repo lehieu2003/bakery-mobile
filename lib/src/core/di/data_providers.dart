@@ -5,6 +5,8 @@ import 'package:bakery_mobile/src/core/config/app_config.dart';
 import 'package:bakery_mobile/src/core/network/api_client.dart';
 import 'package:bakery_mobile/src/core/storage/onboarding_storage.dart';
 import 'package:bakery_mobile/src/core/storage/token_storage.dart';
+import 'package:bakery_mobile/src/features/admin/customers/data/datasources/customer_admin_api_service.dart';
+import 'package:bakery_mobile/src/features/admin/customers/data/repositories/customer_admin_repository.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/data/datasources/dashboard_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/data/repositories/dashboard_repository.dart';
 import 'package:bakery_mobile/src/features/admin/orders/data/datasources/order_admin_api_service.dart';
@@ -99,6 +101,9 @@ final dashboardApiServiceProvider = Provider<DashboardApiService>(
 final ordersAdminApiServiceProvider = Provider<OrderAdminApiService>(
   (ref) => OrderAdminApiService(ref.watch(apiClientProvider)),
 );
+final customersAdminApiServiceProvider = Provider<CustomerAdminApiService>(
+  (ref) => CustomerAdminApiService(ref.watch(apiClientProvider)),
+);
 
 final addressRepositoryProvider = Provider<AddressRepository>(
   (ref) => AddressRepository(ref.watch(addressApiServiceProvider)),
@@ -141,6 +146,9 @@ final dashboardRepositoryProvider = Provider<DashboardRepository>(
 );
 final ordersAdminRepositoryProvider = Provider<OrderAdminRepository>(
   (ref) => OrderAdminRepository(ref.watch(ordersAdminApiServiceProvider)),
+);
+final customersAdminRepositoryProvider = Provider<CustomerAdminRepository>(
+  (ref) => CustomerAdminRepository(ref.watch(customersAdminApiServiceProvider)),
 );
 
 final orderCheckoutServiceProvider = Provider<OrderCheckoutService>(
