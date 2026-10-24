@@ -27,17 +27,14 @@ class UploadApiService {
           '/api/upload',
           body: {'file': dataUrl},
         );
-        final data =
-            response is Map<String, dynamic>
-                ? (response['data'] is Map<String, dynamic>
-                      ? response['data']! as Map<String, dynamic>
-                      : const <String, dynamic>{})
-                : const <String, dynamic>{};
+        final data = response is Map<String, dynamic>
+            ? (response['data'] is Map<String, dynamic>
+                  ? response['data']! as Map<String, dynamic>
+                  : const <String, dynamic>{})
+            : const <String, dynamic>{};
         final url = data['url']?.toString();
         if (url == null || url.isEmpty) {
-          throw Exception(
-            'Tải ảnh thất bại (ảnh số ${start + index + 1})',
-          );
+          throw Exception('Tải ảnh thất bại (ảnh số ${start + index + 1})');
         }
         urls.add(url);
       }

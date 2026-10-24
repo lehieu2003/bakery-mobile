@@ -90,7 +90,9 @@ const _detailJson = {
 
 void main() {
   test('parses the wrapped detail envelope (data.product)', () {
-    final detail = AdminProductDetailDto.fromJson(_detailJson['data']! as Map<String, dynamic>);
+    final detail = AdminProductDetailDto.fromJson(
+      _detailJson['data']! as Map<String, dynamic>,
+    );
 
     expect(detail.id, 'prod-1');
     expect(detail.name, 'Bánh mousse chocolate');
@@ -105,7 +107,9 @@ void main() {
   });
 
   test('parses images (order + primary), variants and category ids', () {
-    final detail = AdminProductDetailDto.fromJson(_detailJson['data']! as Map<String, dynamic>);
+    final detail = AdminProductDetailDto.fromJson(
+      _detailJson['data']! as Map<String, dynamic>,
+    );
 
     expect(detail.images, hasLength(2));
     expect(detail.images[0].url, '/images/mousse-1.jpg');
@@ -120,18 +124,23 @@ void main() {
     expect(detail.categoryIds, ['cat-banh']);
   });
 
-  test('groups per-value assignment rows into one attribute → valueIds set', () {
-    final detail = AdminProductDetailDto.fromJson(_detailJson['data']! as Map<String, dynamic>);
+  test(
+    'groups per-value assignment rows into one attribute → valueIds set',
+    () {
+      final detail = AdminProductDetailDto.fromJson(
+        _detailJson['data']! as Map<String, dynamic>,
+      );
 
-    final assignments = detail.assignments;
-    expect(assignments, hasLength(1));
-    expect(assignments.first.attributeId, 'attr-mousse');
-    expect(
-      assignments.first.valueIds,
-      containsAll(['val-passion', 'val-mango']),
-    );
-    expect(assignments.first.valueIds, hasLength(2));
-  });
+      final assignments = detail.assignments;
+      expect(assignments, hasLength(1));
+      expect(assignments.first.attributeId, 'attr-mousse');
+      expect(
+        assignments.first.valueIds,
+        containsAll(['val-passion', 'val-mango']),
+      );
+      expect(assignments.first.valueIds, hasLength(2));
+    },
+  );
 
   test('parses the attribute catalogue with values', () {
     const json = {

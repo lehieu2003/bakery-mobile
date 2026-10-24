@@ -30,11 +30,11 @@ class ProductVariantsSection extends ConsumerWidget {
                   child: Column(
                     children: [
                       TextField(
-                        controller: TextEditingController(
-                          text: state.variants[i].name,
-                        )..selection = TextSelection.collapsed(
-                          offset: state.variants[i].name.length,
-                        ),
+                        controller:
+                            TextEditingController(text: state.variants[i].name)
+                              ..selection = TextSelection.collapsed(
+                                offset: state.variants[i].name.length,
+                              ),
                         decoration: const InputDecoration(
                           labelText: 'Tên biến thể',
                         ),
@@ -45,11 +45,13 @@ class ProductVariantsSection extends ConsumerWidget {
                         children: [
                           Expanded(
                             child: TextField(
-                              controller: TextEditingController(
-                                text: state.variants[i].sku,
-                              )..selection = TextSelection.collapsed(
-                                offset: state.variants[i].sku.length,
-                              ),
+                              controller:
+                                  TextEditingController(
+                                      text: state.variants[i].sku,
+                                    )
+                                    ..selection = TextSelection.collapsed(
+                                      offset: state.variants[i].sku.length,
+                                    ),
                               decoration: const InputDecoration(
                                 labelText: 'SKU',
                               ),
@@ -59,11 +61,14 @@ class ProductVariantsSection extends ConsumerWidget {
                           const Gap(AppSpacing.sm),
                           Expanded(
                             child: TextField(
-                              controller: TextEditingController(
-                                text: state.variants[i].priceText,
-                              )..selection = TextSelection.collapsed(
-                                offset: state.variants[i].priceText.length,
-                              ),
+                              controller:
+                                  TextEditingController(
+                                      text: state.variants[i].priceText,
+                                    )
+                                    ..selection = TextSelection.collapsed(
+                                      offset:
+                                          state.variants[i].priceText.length,
+                                    ),
                               keyboardType: TextInputType.number,
                               decoration: const InputDecoration(
                                 labelText: 'Giá (₫)',
@@ -75,16 +80,20 @@ class ProductVariantsSection extends ConsumerWidget {
                           const Gap(AppSpacing.sm),
                           Expanded(
                             child: TextField(
-                              controller: TextEditingController(
-                                text: state.variants[i].stockText,
-                              )..selection = TextSelection.collapsed(
-                                offset: state.variants[i].stockText.length,
-                              ),
+                              controller:
+                                  TextEditingController(
+                                      text: state.variants[i].stockText,
+                                    )
+                                    ..selection = TextSelection.collapsed(
+                                      offset:
+                                          state.variants[i].stockText.length,
+                                    ),
                               keyboardType: TextInputType.number,
                               decoration: const InputDecoration(
                                 labelText: 'Kho',
                               ),
-                              onChanged: (v) => vm.updateVariant(i, stockText: v),
+                              onChanged: (v) =>
+                                  vm.updateVariant(i, stockText: v),
                             ),
                           ),
                         ],

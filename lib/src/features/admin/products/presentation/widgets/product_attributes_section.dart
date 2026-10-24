@@ -47,20 +47,18 @@ class ProductAttributesSection extends ConsumerWidget {
                   for (final value in attribute.values)
                     FilterChip(
                       label: Text(value.label),
-                      selected:
-                          (state.assignments[attribute.id] ?? const [])
-                              .contains(value.id),
+                      selected: (state.assignments[attribute.id] ?? const [])
+                          .contains(value.id),
                       onSelected: (selected) => ref
                           .read(
-                            productFormViewModelProvider(
-                              productId,
-                            ).notifier,
+                            productFormViewModelProvider(productId).notifier,
                           )
                           .setAssignmentValue(
                             attribute.id,
                             value.id,
                             selected,
-                            isMulti: attribute.type == AttributeType.multiSelect,
+                            isMulti:
+                                attribute.type == AttributeType.multiSelect,
                           ),
                     ),
                 ],
