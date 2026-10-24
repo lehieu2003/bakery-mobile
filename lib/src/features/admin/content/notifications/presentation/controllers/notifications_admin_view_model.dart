@@ -75,10 +75,7 @@ class NotificationsAdminViewModel extends Notifier<NotificationsAdminState> {
   }
 
   Future<void> setStatusFilter(String? status) async {
-    state = state.copyWith(
-      statusFilter: status,
-      clearFilter: status == null,
-    );
+    state = state.copyWith(statusFilter: status, clearFilter: status == null);
     await load();
   }
 

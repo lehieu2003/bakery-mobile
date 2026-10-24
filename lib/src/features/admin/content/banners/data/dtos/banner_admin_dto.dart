@@ -11,12 +11,12 @@ class BannerAdminDto {
       description: json['description']?.toString(),
       imageUrl: json['imageUrl']?.toString(),
       linkUrl: json['linkUrl']?.toString(),
-      displayOrder:
-          (json['displayOrder'] is num)
-              ? (json['displayOrder'] as num).toInt()
-              : 0,
+      displayOrder: (json['displayOrder'] is num)
+          ? (json['displayOrder'] as num).toInt()
+          : 0,
       isActive: json['isActive'] == true,
-      createdAt: DateTime.tryParse('${json['createdAt'] ?? ''}') ?? DateTime.now(),
+      createdAt:
+          DateTime.tryParse('${json['createdAt'] ?? ''}') ?? DateTime.now(),
     );
   }
 

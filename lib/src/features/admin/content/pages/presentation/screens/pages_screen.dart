@@ -93,7 +93,11 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
 }
 
 class _PageCard extends StatelessWidget {
-  const _PageCard({required this.page, required this.onEdit, required this.onDelete});
+  const _PageCard({
+    required this.page,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   final AdminPage page;
   final VoidCallback onEdit;
@@ -112,12 +116,13 @@ class _PageCard extends StatelessWidget {
             Text(
               page.isPublished ? 'Đã xuất bản' : 'Bản nháp',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: page.isPublished
-                    ? Colors.green.shade700
-                    : Colors.grey,
+                color: page.isPublished ? Colors.green.shade700 : Colors.grey,
               ),
             ),
-            IconButton(icon: const Icon(Icons.delete_outline), onPressed: onDelete),
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              onPressed: onDelete,
+            ),
           ],
         ),
         onTap: onEdit,

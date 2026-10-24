@@ -27,9 +27,7 @@ class _PageEditSheet extends ConsumerStatefulWidget {
 class _PageEditSheetState extends ConsumerState<_PageEditSheet> {
   late final _title = TextEditingController(text: widget.page?.title ?? '');
   late final _slug = TextEditingController(text: widget.page?.slug ?? '');
-  late final _content = TextEditingController(
-    text: widget.page?.content ?? '',
-  );
+  late final _content = TextEditingController(text: widget.page?.content ?? '');
   late bool _isPublished = widget.page?.isPublished ?? false;
   String? _error;
 

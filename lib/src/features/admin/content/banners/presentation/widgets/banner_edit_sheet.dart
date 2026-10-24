@@ -13,10 +13,7 @@ import 'package:bakery_mobile/src/features/admin/products/presentation/widgets/p
 
 /// Create/edit banner bottom sheet. New images upload lazily on save
 /// (single image); existing hosted urls pass straight through.
-Future<void> showBannerEditSheet(
-  BuildContext context, {
-  AdminBanner? banner,
-}) {
+Future<void> showBannerEditSheet(BuildContext context, {AdminBanner? banner}) {
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -99,9 +96,7 @@ class _BannerEditSheetState extends ConsumerState<_BannerEditSheet> {
     if (ok) {
       Navigator.of(context).pop();
     } else {
-      setState(
-        () => _error = ref.read(bannersAdminViewModelProvider).error,
-      );
+      setState(() => _error = ref.read(bannersAdminViewModelProvider).error);
     }
   }
 
@@ -114,9 +109,7 @@ class _BannerEditSheetState extends ConsumerState<_BannerEditSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final isSaving = ref.watch(
-      bannersAdminViewModelProvider,
-    ).isSaving;
+    final isSaving = ref.watch(bannersAdminViewModelProvider).isSaving;
     return Padding(
       padding: EdgeInsets.only(
         left: 24,

@@ -18,10 +18,9 @@ class NotificationAdminRepository {
       search: search,
       status: status,
     );
-    final data =
-        response['data'] is Map<String, dynamic>
-            ? response['data']! as Map<String, dynamic>
-            : const <String, dynamic>{};
+    final data = response['data'] is Map<String, dynamic>
+        ? response['data']! as Map<String, dynamic>
+        : const <String, dynamic>{};
     return NotificationAdminListDto.fromJson(data);
   }
 

@@ -50,9 +50,9 @@ class _NotificationCreateSheetState
     if (!mounted) return;
     if (ok) {
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã tạo thông báo')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Đã tạo thông báo')));
     } else {
       setState(
         () => _error = ref.read(notificationsAdminViewModelProvider).error,

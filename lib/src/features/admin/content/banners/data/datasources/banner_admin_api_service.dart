@@ -28,11 +28,14 @@ class BannerAdminApiService {
 
   /// PATCH /reorder — server wants `{items: [{id, displayOrder}]}`.
   Future<void> reorderBanners(List<String> orderedIds) async {
-    await _client.patch('/api/admin/banners/reorder', body: {
-      'items': [
-        for (var i = 0; i < orderedIds.length; i++)
-          {'id': orderedIds[i], 'displayOrder': i},
-      ],
-    });
+    await _client.patch(
+      '/api/admin/banners/reorder',
+      body: {
+        'items': [
+          for (var i = 0; i < orderedIds.length; i++)
+            {'id': orderedIds[i], 'displayOrder': i},
+        ],
+      },
+    );
   }
 }

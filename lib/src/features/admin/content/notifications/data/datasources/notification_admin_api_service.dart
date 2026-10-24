@@ -12,12 +12,15 @@ class NotificationAdminApiService {
     String? search,
     String? status,
   }) async {
-    final r = await _client.get('/api/admin/notifications', query: {
-      'page': page,
-      'limit': limit,
-      if (search != null && search.isNotEmpty) 'search': search,
-      if (status != null && status.isNotEmpty) 'status': status,
-    });
+    final r = await _client.get(
+      '/api/admin/notifications',
+      query: {
+        'page': page,
+        'limit': limit,
+        if (search != null && search.isNotEmpty) 'search': search,
+        if (status != null && status.isNotEmpty) 'status': status,
+      },
+    );
     return r is Map<String, dynamic> ? r : const {};
   }
 
