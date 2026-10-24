@@ -59,6 +59,10 @@ class MembershipAdminViewModel extends Notifier<MembershipAdminState> {
 
   /// Persists a new minPoints for one tier (or pointsPerOrder when
   /// [tierKey] is null) and reloads. Non-positive values are rejected.
+  /// Persists a new minPoints for one tier (or pointsPerOrder when
+  /// [tierKey] is null) and reloads. The server contract requires all
+  /// three levels as `{level, minPoints, discountPercent}` plus
+  /// pointsPerOrder. Non-negative values only.
   Future<bool> updateConfig({String? tierKey, required int value}) async {
     if (value < 0) {
       state = state.copyWith(error: 'Điểm phải lớn hơn hoặc bằng 0');
@@ -73,8 +77,9 @@ class MembershipAdminViewModel extends Notifier<MembershipAdminState> {
         'levels': [
           for (final level in config.levels)
             {
-              'key': level.level,
+              'level': level.level,
               'minPoints': level.level == tierKey ? value : level.minPoints,
+              'discountPercent': level.discountPercent,
             },
         ],
         'pointsPerOrder': tierKey == null ? value : config.pointsPerOrder,
