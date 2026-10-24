@@ -1,3 +1,6 @@
+import 'dart:convert' show base64Encode;
+import 'dart:io' show File;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
@@ -352,6 +355,108 @@ class ProductFormViewModel extends FamilyNotifier<ProductFormState, String?> {
     state = state.copyWith(assignments: map);
   }
 
+  /// Validates, uploads new local images (deferred until now), then
+  /// creates or updates the product. Returns true on success — the screen
+  /// pops back to the list and triggers a reload.
+  Future<bool> save() async {
+    if (state.isSaving) return false;
+    final problem = state.validate();
+    if (problem != null) {
+      state = state.copyWith(error: problem);
+      return false;
+    }
+    state = state.copyWith(isSaving: true, clearError: true);
+
+    // Deferred upload: local picks become hosted urls; existing server
+    // images pass through untouched.
+    List<String> hostedUrls;
+    try {
+      final locals = state.images.where((image) => image.isLocal).toList();
+      hostedUrls = locals.isEmpty
+          ? const []
+          : await ref.read(uploadApiServiceProvider).uploadImages([
+              for (final local in locals) _dataUrlFor(local.source),
+            ]);
+    } catch (error) {
+      state = state.copyWith(
+        isSaving: false,
+        error: 'Tải ảnh lên thất bại — kiểm tra ảnh rồi thử lại',
+      );
+      return false;
+    }
+
+    final uploadedIterator = hostedUrls.iterator;
+    final images = <Map<String, dynamic>>[
+      for (final image in state.images)
+        if (!image.isLocal)
+          {'url': image.source, 'isPrimary': image.isPrimary}
+        else if (uploadedIterator.moveNext())
+          {'url': uploadedIterator.current, 'isPrimary': image.isPrimary},
+    ];
+    if (images.isNotEmpty && !images.any((i) => i['isPrimary'] == true)) {
+      images.first['isPrimary'] = true;
+    }
+
+    final body = <String, dynamic>{
+      'name': state.name.trim(),
+      'price': int.parse(state.priceText.trim()),
+      'stock': int.parse(state.stockText.trim()),
+      'isActive': state.isActive,
+      if (state.slug.trim().isNotEmpty) 'slug': state.slug.trim(),
+      if (state.comparePriceText.trim().isNotEmpty)
+        'comparePrice': int.parse(state.comparePriceText.trim()),
+      if (state.shortDescription.trim().isNotEmpty)
+        'shortDescription': state.shortDescription.trim(),
+      if (state.description.trim().isNotEmpty)
+        'description': state.description.trim(),
+      if (state.categoryId != null) 'categoryIds': [state.categoryId],
+      'images': images,
+      'variants': [
+        for (final variant in state.variants)
+          if (variant.name.trim().isNotEmpty)
+            {
+              if (variant.id != null) 'id': variant.id,
+              'name': variant.name.trim(),
+              if (variant.sku.trim().isNotEmpty) 'sku': variant.sku.trim(),
+              'price': int.tryParse(variant.priceText.trim()) ?? 0,
+              'stock': int.tryParse(variant.stockText.trim()) ?? 0,
+            },
+      ],
+      'attributeAssignments': [
+        for (final assignment in state.buildAssignments())
+          {
+            'attributeId': assignment.attributeId,
+            'valueIds': assignment.valueIds,
+          },
+      ],
+    };
+
+    final repo = ref.read(productsAdminRepositoryProvider);
+    try {
+      final id = arg;
+      if (id == null) {
+        await repo.createProduct(body);
+      } else {
+        await repo.updateProduct(id, body);
+      }
+      state = state.copyWith(isSaving: false);
+      return true;
+    } catch (error) {
+      if (await _logoutOn401(error)) {
+        state = state.copyWith(isSaving: false);
+        return false;
+      }
+      state = state.copyWith(isSaving: false, error: _message(error));
+      return false;
+    }
+  }
+
+  /// Reads a local pick into a base64 data URL for `/api/upload`.
+  String _dataUrlFor(String path) {
+    final bytes = File(path).readAsBytesSync();
+    return 'data:${_mimeFor(path)};base64,${base64Encode(bytes)}';
+  }
+
   Future<bool> _logoutOn401(Object error) async {
     if (error is ApiException && error.statusCode == 401) {
       await ref.read(authViewModelProvider.notifier).logout();
@@ -373,3 +478,12 @@ final productFormViewModelProvider =
     NotifierProvider.family<ProductFormViewModel, ProductFormState, String?>(
       ProductFormViewModel.new,
     );
+
+String _mimeFor(String path) {
+  final lower = path.toLowerCase();
+  if (lower.endsWith('.png')) return 'image/png';
+  if (lower.endsWith('.webp')) return 'image/webp';
+  if (lower.endsWith('.heic')) return 'image/heic';
+  if (lower.endsWith('.avif')) return 'image/avif';
+  return 'image/jpeg';
+}

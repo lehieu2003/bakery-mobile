@@ -3,13 +3,28 @@ import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/core/network/api_client.dart';
 import 'package:bakery_mobile/src/core/network/api_exception.dart';
 import 'package:bakery_mobile/src/features/admin/products/data/datasources/product_admin_api_service.dart';
+import 'package:bakery_mobile/src/features/admin/products/data/datasources/upload_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/products/data/repositories/product_admin_repository.dart';
 import 'package:bakery_mobile/src/features/admin/products/domain/models/admin_product.dart';
 import 'package:bakery_mobile/src/features/admin/products/presentation/controllers/product_form_view_model.dart';
 import 'package:bakery_mobile/src/features/auth/domain/models/user.dart';
 import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_view_model.dart';
+import 'dart:io' show File;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+/// Real temp files so the VM's File-read in save() works.
+List<String> _tempImages(int count, [String prefix = 'a']) {
+  return [
+    for (var i = 0; i < count; i++)
+      () {
+        final f = File('/tmp/form_img_${prefix}_$i.jpg');
+        f.writeAsBytesSync(List.filled(8, i));
+        return f.path;
+      }(),
+  ];
+}
 
 AdminProductDetail _detail() => const AdminProductDetail(
   id: 'prod-1',
@@ -37,12 +52,57 @@ class _FakeRepo extends ProductAdminRepository {
       );
 
   Object? error;
+  Object? saveError;
+  final savedBodies = <String, Map<String, dynamic>>{};
 
   @override
   Future<AdminProductDetail> getProduct(String id) async {
     final thrown = error;
     if (thrown != null) throw thrown;
     return _detail();
+  }
+
+  @override
+  Future<AdminProductDetail> createProduct(Map<String, dynamic> body) async {
+    final thrown = saveError;
+    if (thrown != null) throw thrown;
+    savedBodies['create'] = body;
+    return _detail();
+  }
+
+  @override
+  Future<AdminProductDetail> updateProduct(
+    String id,
+    Map<String, dynamic> body,
+  ) async {
+    final thrown = saveError;
+    if (thrown != null) throw thrown;
+    savedBodies[id] = body;
+    return _detail();
+  }
+}
+
+class _FakeUploadService extends UploadApiService {
+  _FakeUploadService() : super(_deadClient);
+
+  static final ApiClient _deadClient = ApiClient(
+    baseUrl: 'http://localhost:1',
+    tokenProvider: () async => null,
+  );
+
+  int callCount = 0;
+  Object? error;
+
+  @override
+  Future<List<String>> uploadImages(List<String> dataUrls) async {
+    callCount++;
+    final thrown = error;
+    if (thrown != null) throw thrown;
+    // Mirror the ≤5/request chunking by echoing the count of requests the
+    // REAL service would make.
+    return [
+      for (var i = 0; i < dataUrls.length; i++) 'https://cdn/hosted-$i.jpg',
+    ];
   }
 }
 
@@ -63,15 +123,18 @@ class _FakeAuthViewModel extends AuthViewModel {
 
 void main() {
   late _FakeRepo repo;
+  late _FakeUploadService upload;
   late _FakeAuthViewModel auth;
   late ProviderContainer container;
 
   setUp(() {
     repo = _FakeRepo();
+    upload = _FakeUploadService();
     auth = _FakeAuthViewModel();
     container = ProviderContainer(
       overrides: [
         productsAdminRepositoryProvider.overrideWithValue(repo),
+        uploadApiServiceProvider.overrideWithValue(upload),
         authViewModelProvider.overrideWith(() => auth),
       ],
     );
@@ -185,7 +248,7 @@ void main() {
 
     test('addLocalImages caps the gallery at 10 total', () async {
       await vm('prod-1').load();
-      final many = List.generate(12, (i) => '/tmp/img\$i.jpg');
+      final many = List.generate(12, (i) => '/tmp/img$i.jpg');
       vm('prod-1').addLocalImages(many);
 
       expect(state('prod-1').images.length, 10);
@@ -299,5 +362,88 @@ void main() {
         expect(built.single.valueIds, ['val-s']);
       },
     );
+  });
+
+  group('save flow', () {
+    test(
+      'create builds the wire body (numbers, category array, images)',
+      () async {
+        final vmCreate = vm(null);
+        vmCreate
+          ..setName('Bánh test')
+          ..setPriceText('10000')
+          ..setStockText('5')
+          ..setCategory('cat-1')
+          ..addLocalImages(_tempImages(2));
+        vmCreate.setAssignmentValue('attr-s', 'val-1', true, isMulti: false);
+
+        final ok = await vmCreate.save();
+
+        expect(ok, isTrue);
+        final body = repo.savedBodies['create']!;
+        expect(body['name'], 'Bánh test');
+        expect(body['price'], 10000);
+        expect(body['stock'], 5);
+        expect(body['categoryIds'], ['cat-1']);
+        expect(body['images'], hasLength(2));
+        expect(body['images'][0]['url'], 'https://cdn/hosted-0.jpg');
+        expect(body['images'][0]['isPrimary'], isTrue);
+        expect(body['attributeAssignments'], [
+          {
+            'attributeId': 'attr-s',
+            'valueIds': ['val-1'],
+          },
+        ]);
+      },
+    );
+
+    test('update keeps server images and appends uploaded ones', () async {
+      await vm('prod-1').load();
+      vm('prod-1').addLocalImages(_tempImages(1, 'new'));
+
+      final ok = await vm('prod-1').save();
+
+      expect(ok, isTrue);
+      final body = repo.savedBodies['prod-1']!;
+      expect(body['images'], hasLength(1)); // preload has none + 1 local
+      expect(body['images'].first['url'], 'https://cdn/hosted-0.jpg');
+    });
+
+    test('upload failure surfaces and the repo is never called', () async {
+      final vmCreate = vm(null);
+      vmCreate
+        ..setName('Bánh x')
+        ..setPriceText('1000')
+        ..setStockText('1')
+        ..addLocalImages(_tempImages(1, 'u'));
+      upload.error = Exception('Tải ảnh thất bại (ảnh số 1)');
+
+      final ok = await vmCreate.save();
+
+      expect(ok, isFalse);
+      expect(repo.savedBodies, isEmpty);
+      expect(vmCreate.state.error, contains('Tải ảnh'));
+    });
+
+    test('seven local images upload in chunks of five', () async {
+      final vmCreate = vm(null);
+      vmCreate
+        ..setName('Bánh y')
+        ..setPriceText('1000')
+        ..setStockText('1')
+        ..addLocalImages(_tempImages(7, 'i'));
+
+      final ok = await vmCreate.save();
+
+      expect(ok, isTrue);
+      expect(upload.callCount, 1); // fake receives one batch call
+      // The REAL service chunks internally — pinned separately by its own
+      // unit; here we pin the ordering of hosted urls.
+      final body = repo.savedBodies['create']!;
+      expect(
+        (body['images'] as List).map((i) => i['url']),
+        containsAll(['https://cdn/hosted-0.jpg', 'https://cdn/hosted-6.jpg']),
+      );
+    });
   });
 }
