@@ -420,7 +420,7 @@ class _BakeryHeader extends StatelessWidget {
                     vertical: AppSpacing.sm,
                   ),
                   child: Text(
-                    'BAKERY SHOP',
+                    'PHƯƠNG LOAN BAKERY',
                     style: TextStyle(
                       color: AppTheme.textBrandPill,
                       fontSize: 12,

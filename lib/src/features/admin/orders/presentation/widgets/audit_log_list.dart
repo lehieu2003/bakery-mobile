@@ -12,7 +12,7 @@ const Map<String, String> _mutationLabels = {
   'CREATE': 'Tạo đơn',
   'UPDATE': 'Cập nhật',
   'UPSERT': 'Cập nhật',
-  'DELETE': 'Xoá',
+  'DELETE': 'Xóa',
 };
 
 /// Order audit trail: one row per log with actor, action, status transition

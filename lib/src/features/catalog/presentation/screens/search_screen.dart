@@ -336,7 +336,7 @@ class _SearchViewState extends ConsumerState<_SearchView> {
                                 .clearFilters();
                             Navigator.of(sheetContext).pop();
                           },
-                          child: const Text('Xoá bộ lọc'),
+                          child: const Text('Xóa bộ lọc'),
                         ),
                       ),
                       const Gap(AppSpacing.md),

@@ -64,7 +64,7 @@ class _SplashMark extends StatelessWidget {
         ),
         const Gap(AppSpacing.xxl),
         const Text(
-          'BAKERY SHOP',
+          'PHƯƠNG LOAN BAKERY',
           style: TextStyle(
             color: AppTheme.inkBrown,
             fontSize: 22,

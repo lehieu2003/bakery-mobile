@@ -35,7 +35,7 @@ void main() {
 
     await pumpAppGate(tester);
 
-    expect(find.text('BAKERY SHOP'), findsOneWidget);
+    expect(find.text('PHƯƠNG LOAN BAKERY'), findsOneWidget);
 
     await tester.pump(const Duration(milliseconds: 1300));
     await tester.pump();
