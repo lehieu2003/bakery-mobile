@@ -7,6 +7,7 @@ import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_vi
 import 'package:bakery_mobile/src/features/addresses/presentation/controllers/addresses_view_model.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/controllers/blog_view_model.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/controllers/cart_view_model.dart';
+import 'package:bakery_mobile/src/features/catalog/presentation/controllers/category_view_model.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/home_view_model.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/search_view_model.dart';
 import 'package:bakery_mobile/src/features/chatbot/presentation/controllers/chatbot_view_model.dart';
@@ -53,6 +54,11 @@ final homeViewModelProvider = NotifierProvider<HomeViewModel, HomeState>(
 final searchViewModelProvider = NotifierProvider<SearchViewModel, SearchState>(
   SearchViewModel.new,
 );
+
+/// Products of one category screen; family arg is the root category id.
+/// Disposed with the screen so every visit starts fresh.
+final categoryViewModelProvider = NotifierProvider.autoDispose
+    .family<CategoryViewModel, CategoryState, String>(CategoryViewModel.new);
 
 final blogViewModelProvider = NotifierProvider<BlogViewModel, BlogState>(
   BlogViewModel.new,

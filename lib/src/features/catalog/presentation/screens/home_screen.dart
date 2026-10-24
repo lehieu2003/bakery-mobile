@@ -13,7 +13,7 @@ import 'package:bakery_mobile/src/shared/widgets/empty_state_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/catalog_keys.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/screens/cart_screen.dart';
-import 'package:bakery_mobile/src/features/catalog/domain/models/category.dart';
+import 'package:bakery_mobile/src/features/catalog/presentation/screens/category_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/home_view_model.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/search_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_banner_dots.dart';
@@ -21,7 +21,6 @@ import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_her
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_category_rail.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_header.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_product_card.dart';
-import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_subcategory_chips.dart';
 import 'package:bakery_mobile/src/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:bakery_mobile/src/features/wishlist/presentation/screens/wishlist_screen.dart';
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
@@ -86,11 +85,6 @@ class _HomeViewState extends ConsumerState<_HomeView> {
     final vm = ref.watch(homeViewModelProvider);
     final notifications = ref.watch(notificationsViewModelProvider);
     final wishlist = ref.watch(wishlistViewModelProvider);
-    final selectedRootCategory = _resolveRootCategory(
-      categories: vm.categories,
-      selectedCategoryId: vm.selectedCategoryId,
-    );
-    final subCategories = selectedRootCategory?.children ?? const <Category>[];
     _bannerCount = vm.banners.length;
     if (_bannerIndex >= _bannerCount && _bannerCount > 0) {
       _bannerIndex = 0;
@@ -165,19 +159,12 @@ class _HomeViewState extends ConsumerState<_HomeView> {
               HomeCategoryRail(
                 key: HomeKeys.categoryRail,
                 categories: vm.categories,
-                selectedCategoryId: vm.selectedCategoryId,
-                onSelect: (id) =>
-                    ref.read(homeViewModelProvider.notifier).selectCategory(id),
+                onSelect: (category) => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => CategoryScreen(category: category),
+                  ),
+                ),
               ),
-            if (subCategories.isNotEmpty) ...[
-              const Gap(AppSpacing.sm),
-              HomeSubcategoryChips(
-                subCategories: subCategories,
-                selectedCategoryId: vm.selectedCategoryId,
-                onSelect: (id) =>
-                    ref.read(homeViewModelProvider.notifier).selectCategory(id),
-              ),
-            ],
             const Gap(AppSpacing.md),
             if (vm.personalizedProducts.isNotEmpty) ...[
               const Padding(
@@ -291,30 +278,6 @@ class _HomeViewState extends ConsumerState<_HomeView> {
         ),
       ),
     );
-  }
-
-  Category? _resolveRootCategory({
-    required List<Category> categories,
-    required String? selectedCategoryId,
-  }) {
-    if (selectedCategoryId == null) return null;
-    for (final root in categories) {
-      if (root.id == selectedCategoryId) {
-        return root;
-      }
-      if (_containsCategoryId(root.children, selectedCategoryId)) {
-        return root;
-      }
-    }
-    return null;
-  }
-
-  bool _containsCategoryId(List<Category> categories, String targetId) {
-    for (final category in categories) {
-      if (category.id == targetId) return true;
-      if (_containsCategoryId(category.children, targetId)) return true;
-    }
-    return false;
   }
 
   String? _personalizedMessage(HomeState vm) {
