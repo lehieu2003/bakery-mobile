@@ -53,7 +53,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                   .load(),
             )
           : _buildForm(context, state),
-      bottomNavigationBar: _SaveBar(state: state),
+      bottomNavigationBar: _SaveBar(state: state, productId: widget.productId),
     );
   }
 
@@ -260,9 +260,10 @@ class _SectionCard extends StatelessWidget {
 }
 
 class _SaveBar extends ConsumerWidget {
-  const _SaveBar({required this.state});
+  const _SaveBar({required this.state, this.productId});
 
   final ProductFormState state;
+  final String? productId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -272,15 +273,24 @@ class _SaveBar extends ConsumerWidget {
         child: FilledButton(
           onPressed: state.isSaving
               ? null
-              : () {
-                  final message = state.validate();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        message ?? 'Form hợp lệ — lưu sẽ được nối ở tác vụ lưu',
-                      ),
-                    ),
+              : () async {
+                  final vm = ref.read(
+                    productFormViewModelProvider(productId).notifier,
                   );
+                  final ok = await vm.save();
+                  if (!context.mounted) return;
+                  if (ok) {
+                    Navigator.of(context).pop();
+                  } else {
+                    final error = ref
+                        .read(productFormViewModelProvider(productId))
+                        .error;
+                    if (error != null && error.isNotEmpty) {
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text(error)));
+                    }
+                  }
                 },
           child: state.isSaving
               ? const SizedBox(
