@@ -144,7 +144,7 @@ class AdminPagedList<T> extends StatelessWidget {
 }
 
 /// Ô tìm kiếm điều khiển từ ngoài: text luôn khớp [text] khi parent rebuild
-/// (dùng khi VM xoá tìm kiếm), kèm nút X xoá nhanh khi đang có text.
+/// (dùng khi VM xóa tìm kiếm), kèm nút X xóa nhanh khi đang có text.
 class _AdminSearchField extends StatefulWidget {
   const _AdminSearchField({
     required this.hint,
@@ -193,7 +193,7 @@ class _AdminSearchFieldState extends State<_AdminSearchField> {
         prefixIcon: const Icon(Icons.search),
         suffixIcon: hasText
             ? IconButton(
-                tooltip: 'Xoá tìm kiếm',
+                tooltip: 'Xóa tìm kiếm',
                 visualDensity: VisualDensity.compact,
                 icon: const Icon(Icons.close),
                 onPressed: () {

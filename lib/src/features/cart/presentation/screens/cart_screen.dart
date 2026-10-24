@@ -240,7 +240,7 @@ class _CartTile extends ConsumerWidget {
                       IconButton(
                         onPressed: () => cart.remove(item),
                         icon: const Icon(Icons.delete_outline),
-                        tooltip: 'Xoá khỏi giỏ',
+                        tooltip: 'Xóa khỏi giỏ',
                       ),
                     ],
                   ),

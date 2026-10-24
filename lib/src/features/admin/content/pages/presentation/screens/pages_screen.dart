@@ -68,7 +68,7 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Xoá trang?'),
+        title: const Text('Xóa trang?'),
         content: Text('"${page.title}" sẽ biến mất khỏi website.'),
         actions: [
           TextButton(
@@ -77,7 +77,7 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Xoá'),
+            child: const Text('Xóa'),
           ),
         ],
       ),
@@ -87,7 +87,7 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
     if (mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Đã xoá trang')));
+      ).showSnackBar(const SnackBar(content: Text('Đã xóa trang')));
     }
   }
 }

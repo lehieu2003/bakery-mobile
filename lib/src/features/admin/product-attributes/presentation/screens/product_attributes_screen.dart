@@ -82,7 +82,7 @@ class _ProductAttributesScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Xoá thuộc tính?'),
+        title: const Text('Xóa thuộc tính?'),
         content: Text(
           '"${attribute.name}" và ${attribute.values.length} giá trị sẽ bị '
           'gỡ khỏi bộ lọc sản phẩm.',
@@ -94,7 +94,7 @@ class _ProductAttributesScreenState
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Xoá'),
+            child: const Text('Xóa'),
           ),
         ],
       ),
@@ -108,9 +108,9 @@ class _ProductAttributesScreenState
         SnackBar(
           content: Text(
             ok
-                ? 'Đã xoá thuộc tính'
+                ? 'Đã xóa thuộc tính'
                 : (ref.read(productAttributesAdminViewModelProvider).error ??
-                      'Xoá thất bại'),
+                      'Xóa thất bại'),
           ),
         ),
       );
@@ -151,7 +151,7 @@ class _AttributeCard extends StatelessWidget {
         isThreeLine: false,
         trailing: IconButton(
           icon: const Icon(Icons.delete_outline),
-          tooltip: 'Xoá thuộc tính',
+          tooltip: 'Xóa thuộc tính',
           onPressed: onDelete,
         ),
         onTap: onEdit,

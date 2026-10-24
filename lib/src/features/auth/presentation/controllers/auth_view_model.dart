@@ -122,7 +122,7 @@ class AuthViewModel extends Notifier<AuthState> {
     } catch (_) {
       // The API call failed, but the session is dead either way (an expired
       // token the server rejects, or an unreachable backend) — the spec's
-      // 401 doctrine is "xoá token → AuthScreen", so logout ALWAYS ends the
+      // 401 doctrine is "xóa token → AuthScreen", so logout ALWAYS ends the
       // session client-side. Swallow the error: nothing may block the
       // return to AuthLayout.
     } finally {

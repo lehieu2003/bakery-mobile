@@ -150,7 +150,7 @@ class _AttributeEditSheetState extends ConsumerState<_AttributeEditSheet> {
                     if (i < _values.length - 1)
                       IconButton(
                         icon: const Icon(Icons.close),
-                        tooltip: 'Xoá giá trị',
+                        tooltip: 'Xóa giá trị',
                         onPressed: () => setState(() => _values.removeAt(i)),
                       ),
                   ],

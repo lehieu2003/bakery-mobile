@@ -76,7 +76,7 @@ class ProductsAdminState {
   /// True while the selected products are being deleted.
   final bool isDeleting;
 
-  /// Outcome of the last bulk delete, e.g. `Đã xoá 2 sản phẩm, 1 lỗi`.
+  /// Outcome of the last bulk delete, e.g. `Đã xóa 2 sản phẩm, 1 lỗi`.
   final String? report;
 
   bool get hasMore => page < totalPages;
@@ -306,8 +306,8 @@ class ProductsAdminViewModel extends Notifier<ProductsAdminState> {
       isDeleting: false,
       selectedIds: const {},
       report: failed == 0
-          ? 'Đã xoá $ok sản phẩm'
-          : 'Đã xoá $ok sản phẩm, $failed lỗi',
+          ? 'Đã xóa $ok sản phẩm'
+          : 'Đã xóa $ok sản phẩm, $failed lỗi',
     );
     await load();
   }

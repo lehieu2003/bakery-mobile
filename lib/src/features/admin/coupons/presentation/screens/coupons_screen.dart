@@ -80,7 +80,7 @@ class _CouponsScreenState extends ConsumerState<CouponsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Xoá coupon?'),
+        title: const Text('Xóa coupon?'),
         content: Text('"${coupon.code}" sẽ không còn dùng được.'),
         actions: [
           TextButton(
@@ -89,7 +89,7 @@ class _CouponsScreenState extends ConsumerState<CouponsScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Xoá'),
+            child: const Text('Xóa'),
           ),
         ],
       ),
@@ -103,9 +103,9 @@ class _CouponsScreenState extends ConsumerState<CouponsScreen> {
         SnackBar(
           content: Text(
             ok
-                ? 'Đã xoá coupon'
+                ? 'Đã xóa coupon'
                 : (ref.read(couponsAdminViewModelProvider).error ??
-                      'Xoá thất bại'),
+                      'Xóa thất bại'),
           ),
         ),
       );
@@ -189,7 +189,7 @@ class _CouponCard extends StatelessWidget {
             Switch(value: coupon.isActive, onChanged: onToggle),
             IconButton(
               icon: const Icon(Icons.delete_outline),
-              tooltip: 'Xoá coupon',
+              tooltip: 'Xóa coupon',
               onPressed: onDelete,
             ),
           ],
