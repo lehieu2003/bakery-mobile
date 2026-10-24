@@ -19,6 +19,7 @@ import 'package:bakery_mobile/src/features/admin/categories/presentation/screens
 import 'package:bakery_mobile/src/features/admin/customers/presentation/screens/customers_screen.dart';
 import 'package:bakery_mobile/src/features/admin/content/banners/presentation/screens/banners_screen.dart';
 import 'package:bakery_mobile/src/features/admin/content/notifications/presentation/screens/notifications_screen.dart';
+import 'package:bakery_mobile/src/features/admin/content/pages/presentation/screens/pages_screen.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:bakery_mobile/src/features/admin/orders/presentation/screens/orders_screen.dart';
 import 'package:bakery_mobile/src/features/admin/products/presentation/screens/products_screen.dart';
@@ -102,6 +103,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
               AdminSection.customers => const CustomersScreen(),
               AdminSection.banners => const BannersScreen(),
               AdminSection.notifications => const NotificationsScreen(),
+              AdminSection.pages => const PagesScreen(),
               AdminSection.categories => const CategoriesScreen(),
               AdminSection.products => const ProductsScreen(),
               _ => AdminPlaceholderScreen(_currentSection.vietnameseTitle),
