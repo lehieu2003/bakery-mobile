@@ -97,7 +97,11 @@ class CustomerDetailViewModel extends FamilyNotifier<CustomerDetailState, String
         memberLevel: memberLevel,
         points: points,
       );
-      state = state.copyWith(detail: updated, isSaving: false);
+      // The PATCH response is a stripped customer (no stats/recents) —
+      // re-fetch the full detail so the screen keeps its numbers.
+      assert(updated.id == arg);
+      final detail = await repo.getCustomer(arg);
+      state = state.copyWith(detail: detail, isSaving: false);
       return true;
     } catch (error) {
       if (await _logoutOn401(error)) {

@@ -119,7 +119,8 @@ class _FakeCustomerAdminRepository extends CustomerAdminRepository {
     calls.add(id);
     final thrown = error;
     if (thrown != null) throw thrown;
-    return _detail();
+    // After an update the controller re-fetches: serve the updated detail.
+    return updateResult ?? _detail();
   }
 
   @override
@@ -135,10 +136,21 @@ class _FakeCustomerAdminRepository extends CustomerAdminRepository {
     });
     final thrown = updateError;
     if (thrown != null) throw thrown;
-    return updateResult ?? _detail().copyWithMemberLevel(memberLevel, points);
+    // Mirror the real server: the PATCH response is a STRIPPED customer —
+    // no stats, no recents (the controller must re-fetch).
+    return AdminCustomerDetail(
+      id: id,
+      email: 'an@example.com',
+      memberLevel: memberLevel ?? 'GOLD',
+      points: points ?? 0,
+      isActive: true,
+      createdAt: DateTime.utc(2026, 1, 15, 8, 30),
+      totalOrders: 0,
+      totalSpent: 0,
+    );
   }
 
-  /// Null keeps the fixture detail (no-change PATCH still returns a detail).
+  /// The detail the follow-up GET serves after an update (null = fixture).
   AdminCustomerDetail? updateResult;
 
   @override
@@ -269,9 +281,12 @@ void main() {
     expect(current.detail!.id, 'cus-1');
   });
 
-  test('update sends only provided keys and replaces the detail', () async {
+  test('update PATCHes then re-fetches the full detail', () async {
     await vm().load();
     repo.updateCalls.clear();
+    // The PATCH response is a stripped customer — the follow-up GET is what
+    // carries the stats/recents back to the screen.
+    repo.updateResult = _detail().copyWithMemberLevel('PLATINUM', 150);
 
     final ok = await vm().update(memberLevel: 'PLATINUM', points: 150);
 
@@ -279,8 +294,12 @@ void main() {
     expect(repo.updateCalls, [
       {'id': 'cus-1', 'memberLevel': 'PLATINUM', 'points': 150},
     ]);
+    expect(repo.calls, ['cus-1', 'cus-1']);
     expect(state().detail!.memberLevel, 'PLATINUM');
     expect(state().detail!.points, 150);
+    expect(state().detail!.totalOrders, 12);
+    expect(state().detail!.totalSpent, 2450000.5);
+    expect(state().detail!.recentOrders, hasLength(2));
     expect(state().isSaving, isFalse);
     expect(state().updateError, isNull);
   });
