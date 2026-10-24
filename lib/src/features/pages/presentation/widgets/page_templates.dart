@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
+import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
@@ -32,7 +33,7 @@ PageTemplateData? builtInPageTemplate(String slug) {
       );
     case 'thanh-vien':
       return const PageTemplateData(
-        eyebrow: 'Membership',
+        eyebrow: 'Thành viên',
         title: 'Chương trình thành viên',
         subtitle: 'Tích điểm, thăng hạng và mở khóa ưu đãi theo cấp bậc.',
         icon: Icons.workspace_premium_rounded,
@@ -41,7 +42,7 @@ PageTemplateData? builtInPageTemplate(String slug) {
     case 'store':
     case 'cua-hang':
       return const PageTemplateData(
-        eyebrow: 'Store',
+        eyebrow: 'Cửa hàng',
         title: 'Cửa hàng',
         subtitle: 'Địa chỉ, thời gian hoạt động và thông tin liên hệ.',
         icon: Icons.storefront_rounded,
@@ -121,7 +122,7 @@ class BuiltInPageBody extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 18,
-                    backgroundColor: Colors.white.withValues(alpha: 0.85),
+                    backgroundColor: AppTheme.surfaceFrostedAvatar,
                     child: Icon(template.icon, color: scheme.primary),
                   ),
                   const Gap(AppSpacing.md),
@@ -168,7 +169,7 @@ class _CardSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.surfaceWhite,
         borderRadius: BorderRadius.circular(AppRadius.xl),
         border: Border.all(
           color: Theme.of(

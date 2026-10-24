@@ -37,7 +37,7 @@ class ChatbotViewModel extends Notifier<ChatbotState> {
         ChatMessage(
           role: 'assistant',
           content:
-              'Xin chao. Toi la tro ly tu van banh. Ban co the mo ta dip su kien, ngan sach hoac khau vi de toi goi y.',
+              'Xin chào. Tôi là trợ lý tư vấn bánh. Bạn có thể mô tả dịp sự kiện, ngân sách hoặc khẩu vị để tôi gợi ý.',
         ),
       ],
     );
@@ -67,7 +67,7 @@ class ChatbotViewModel extends Notifier<ChatbotState> {
           ChatMessage(
             role: 'assistant',
             content: reply.reply.isEmpty
-                ? 'Xin loi, toi chua tra loi duoc luc nay.'
+                ? 'Xin lỗi, tôi chưa trả lời được lúc này.'
                 : reply.reply,
             suggestedProducts: reply.suggestedProducts,
           ),
@@ -80,7 +80,7 @@ class ChatbotViewModel extends Notifier<ChatbotState> {
           ...updated,
           const ChatMessage(
             role: 'assistant',
-            content: 'Da co loi he thong. Vui long thu lai sau.',
+            content: 'Đã có lỗi hệ thống. Vui lòng thử lại.',
           ),
         ],
         isSending: false,

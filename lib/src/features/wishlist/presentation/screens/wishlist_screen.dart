@@ -38,7 +38,7 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
     final notifier = ref.read(wishlistViewModelProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Favorites (${vm.items.length})')),
+      appBar: AppBar(title: Text('Yêu thích (${vm.items.length})')),
       body: RefreshIndicator(
         onRefresh: notifier.load,
         child: ListView(
@@ -78,14 +78,14 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
             if (!vm.isLoading && vm.error == null && vm.items.isEmpty)
               const EmptyStateWidget(
                 key: WishlistKeys.empty,
-                message: 'No favorite products yet.',
+                message: 'Chưa có sản phẩm yêu thích.',
               ),
             ...vm.items.map((item) {
               final product = item.product;
               if (product == null) {
                 return const ListTile(
                   leading: Icon(Icons.error_outline),
-                  title: Text('Unavailable product'),
+                  title: Text('Sản phẩm không khả dụng'),
                 );
               }
 
@@ -133,6 +133,7 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
                       : null,
                 ),
                 trailing: IconButton(
+                  tooltip: 'Bỏ khỏi yêu thích',
                   key: WishlistKeys.toggle(product.id),
                   onPressed: vm.isPending(product.id)
                       ? null

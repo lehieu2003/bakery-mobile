@@ -71,7 +71,7 @@ class _BlogViewState extends ConsumerState<_BlogView> {
             AppTextInputWidget(
               key: BlogKeys.search,
               textInputAction: TextInputAction.search,
-              hintText: 'Search blog posts...',
+              hintText: 'Tìm bài viết...',
               prefixIcon: const Icon(Icons.search),
               onSubmitted: (text) => ref
                   .read(blogViewModelProvider.notifier)
@@ -87,7 +87,7 @@ class _BlogViewState extends ConsumerState<_BlogView> {
                     padding: const EdgeInsets.only(right: AppSpacing.sm),
                     child: ChoiceChip(
                       key: BlogKeys.allCategories,
-                      label: const Text('All categories'),
+                      label: const Text('Tất cả danh mục'),
                       selected: vm.categorySlug.isEmpty,
                       onSelected: (_) => ref
                           .read(blogViewModelProvider.notifier)
@@ -167,7 +167,7 @@ class _BlogViewState extends ConsumerState<_BlogView> {
             if (!vm.isLoading && vm.error == null && vm.posts.isEmpty)
               const EmptyStateWidget(
                 key: BlogKeys.empty,
-                message: 'No blog posts found.',
+                message: 'Không tìm thấy bài viết.',
               ),
             ...vm.posts.map(
               (post) => Padding(
@@ -188,7 +188,7 @@ class _BlogViewState extends ConsumerState<_BlogView> {
                 child: OutlinedButton(
                   key: BlogKeys.loadMore,
                   onPressed: ref.read(blogViewModelProvider.notifier).loadMore,
-                  child: const Text('Load more posts'),
+                  child: const Text('Xem thêm bài viết'),
                 ),
               ),
           ],

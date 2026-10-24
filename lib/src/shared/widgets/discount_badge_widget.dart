@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
@@ -26,7 +27,7 @@ class DiscountBadgeWidget extends StatelessWidget {
   final int percent;
   final DiscountBadgeVariant variant;
 
-  static const Color color = Color(0xFFE46F5B);
+  static const Color color = AppTheme.discountBadge;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +47,7 @@ class DiscountBadgeWidget extends StatelessWidget {
         ),
         11.0,
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.10),
+          color: AppTheme.shadowBadgeMedium,
           blurRadius: 10,
           offset: const Offset(0, 4),
         ),
@@ -58,7 +59,7 @@ class DiscountBadgeWidget extends StatelessWidget {
         ),
         null,
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.14),
+          color: AppTheme.shadowBadgeLarge,
           blurRadius: 14,
           offset: const Offset(0, 5),
         ),

@@ -23,6 +23,7 @@ import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 import 'package:bakery_mobile/src/shared/utils/error_message.dart';
+import 'package:bakery_mobile/src/shared/utils/motion.dart';
 
 /// Bottom space so content clears the pinned price/"Add to Cart" bar.
 const double _bottomBarClearance = 120;
@@ -57,6 +58,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     super.initState();
     _load();
     _imageTimer = Timer.periodic(AppDurations.carouselAutoplay, (_) {
+      if (!mounted || !allowsAutoplay(context)) return;
       final product = _product;
       if (product == null) return;
       final images = _productImages(product);
@@ -150,7 +152,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
     final product = _product;
     if (product == null) {
-      return const Scaffold(body: Center(child: Text('Product not found')));
+      return const Scaffold(
+        body: Center(child: Text('Không tìm thấy sản phẩm')),
+      );
     }
 
     final currentPrice = _selectedVariant?.price ?? product.price;
@@ -170,14 +174,16 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           SliverAppBar(
             pinned: true,
             expandedHeight: 360,
-            backgroundColor: Colors.white,
+            backgroundColor: AppTheme.surfaceWhite,
             surfaceTintColor: Colors.transparent,
             leading: IconButton(
+              tooltip: 'Quay lại',
               onPressed: () => Navigator.of(context).maybePop(),
               icon: const Icon(Icons.arrow_back),
             ),
             actions: [
               IconButton(
+                tooltip: isFavorite ? 'Bỏ yêu thích' : 'Thêm vào yêu thích',
                 onPressed: isPendingFavorite
                     ? null
                     : () => wishlistNotifier.toggle(product),
@@ -191,21 +197,28 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  PageView.builder(
-                    controller: _imageController,
-                    itemCount: images.length,
-                    onPageChanged: (index) =>
-                        setState(() => _activeImageIndex = index),
-                    itemBuilder: (context, index) => GestureDetector(
-                      onTap: () => _openImageViewer(
-                        context: context,
-                        images: images,
-                        initialIndex: index,
-                      ),
-                      child: AppNetworkImageWidget(
-                        url: images[index],
-                        backgroundColor: AppTheme.placeholderBeige,
-                        iconSize: 40,
+                  // A swipe hands the gallery to the user: autoplay stops.
+                  NotificationListener<UserScrollNotification>(
+                    onNotification: (_) {
+                      _imageTimer?.cancel();
+                      return false;
+                    },
+                    child: PageView.builder(
+                      controller: _imageController,
+                      itemCount: images.length,
+                      onPageChanged: (index) =>
+                          setState(() => _activeImageIndex = index),
+                      itemBuilder: (context, index) => GestureDetector(
+                        onTap: () => _openImageViewer(
+                          context: context,
+                          images: images,
+                          initialIndex: index,
+                        ),
+                        child: AppNetworkImageWidget(
+                          url: images[index],
+                          backgroundColor: AppTheme.placeholderBeige,
+                          iconSize: 40,
+                        ),
                       ),
                     ),
                   ),
@@ -236,8 +249,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           ),
                           decoration: BoxDecoration(
                             color: active
-                                ? Colors.white
-                                : Colors.white.withValues(alpha: 0.45),
+                                ? AppTheme.surfaceWhite
+                                : AppTheme.carouselDotInactive,
                             borderRadius: BorderRadius.circular(AppRadius.pill),
                           ),
                         );
@@ -285,18 +298,18 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         ),
                         decoration: BoxDecoration(
                           color: product.stock > 0
-                              ? Colors.green.withValues(alpha: 0.12)
-                              : Colors.red.withValues(alpha: 0.12),
+                              ? AppTheme.stockAvailableBg
+                              : AppTheme.stockOutBg,
                           borderRadius: BorderRadius.circular(AppRadius.pill),
                         ),
                         child: Text(
                           product.stock > 0
-                              ? 'Stock: ${product.stock}'
-                              : 'Out of stock',
+                              ? 'Còn ${product.stock} sản phẩm'
+                              : 'Hết hàng',
                           style: TextStyle(
                             color: product.stock > 0
-                                ? Colors.green.shade800
-                                : Colors.red.shade800,
+                                ? AppTheme.stockAvailableText
+                                : AppTheme.stockOutText,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -448,7 +461,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             color: Theme.of(context).colorScheme.surface,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
+                color: AppTheme.shadowBottomBar,
                 blurRadius: 14,
                 offset: const Offset(0, -4),
               ),
@@ -462,7 +475,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Total Cost',
+                      'Tổng tiền',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     Text(
@@ -480,12 +493,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     ? () {
                         cart.addProduct(product, variant: _selectedVariant);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Added to cart')),
+                          const SnackBar(content: Text('Đã thêm vào giỏ')),
                         );
                       }
                     : null,
                 icon: const Icon(Icons.shopping_bag_outlined),
-                label: const Text('Add to Cart'),
+                label: const Text('Thêm vào giỏ'),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.xxl,
@@ -534,7 +547,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
     await showDialog<void>(
       context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.92),
+      barrierColor: AppTheme.scrimImageViewer,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
@@ -567,6 +580,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       top: 8,
                       right: 8,
                       child: IconButton(
+                        tooltip: 'Đóng',
                         onPressed: () => Navigator.of(context).pop(),
                         icon: const Icon(Icons.close),
                         color: Colors.white,

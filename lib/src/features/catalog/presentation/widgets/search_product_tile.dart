@@ -55,13 +55,14 @@ class SearchProductTile extends ConsumerWidget {
           comparePrice: product.hasDiscount ? product.comparePrice : null,
         ),
         trailing: IconButton(
+          tooltip: 'Thêm vào giỏ',
           icon: const Icon(Icons.add_shopping_cart),
           onPressed: product.stock <= 0
               ? null
               : () {
                   cart.addProduct(product);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Added to cart')),
+                    const SnackBar(content: Text('Đã thêm vào giỏ')),
                   );
                 },
         ),

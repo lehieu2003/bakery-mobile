@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+
 /// Wishlist heart: filled red when [isFavorite], outlined otherwise, and a
 /// small spinner of the same footprint while the toggle is [isPending].
 /// Wrap it in the button that fits the context (IconButton, card overlay).
@@ -19,7 +21,7 @@ class FavoriteIconWidget extends StatelessWidget {
   /// Color of the outlined heart; defaults to the ambient icon color.
   final Color? outlineColor;
 
-  static const Color activeColor = Colors.redAccent;
+  static const Color activeColor = AppTheme.favoriteActive;
 
   @override
   Widget build(BuildContext context) {

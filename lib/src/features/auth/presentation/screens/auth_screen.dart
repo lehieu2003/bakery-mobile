@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
@@ -10,27 +11,6 @@ import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_vi
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
-
-/// Page background behind the auth card.
-const Color _authBackground = Color(0xFFF8F1E8);
-
-/// Soft caramel shadow under the auth card.
-const Color _cardShadow = Color(0x1A9F7A5A);
-
-/// Caramel fill of the primary auth button.
-const Color _primaryButton = Color(0xFFB87B58);
-
-/// Top stop of the header image fade.
-const Color _heroFadeTop = Color(0x24FFFFFF);
-
-/// Middle stop of the header image fade.
-const Color _heroFadeMiddle = Color(0x66FFF8F0);
-
-/// Bottom stop of the header image fade.
-const Color _heroFadeBottom = Color(0xEEFFFFFF);
-
-/// Text of the "BAKERY SHOP" pill.
-const Color _brandPillText = Color(0xFF7A513A);
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -67,7 +47,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     final viewModel = ref.watch(authViewModelProvider);
 
     return Scaffold(
-      backgroundColor: _authBackground,
+      backgroundColor: AppTheme.surfaceAuth,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, _) {
@@ -81,12 +61,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   constraints: const BoxConstraints(maxWidth: 420),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppTheme.surfaceWhite,
                       borderRadius: BorderRadius.circular(AppRadius.sheet),
                       border: Border.all(color: AppTheme.outlineBeige),
                       boxShadow: const [
                         BoxShadow(
-                          color: _cardShadow,
+                          color: AppTheme.shadowAuthCard,
                           blurRadius: 32,
                           offset: Offset(0, 18),
                         ),
@@ -109,17 +89,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                // Text(
-                                //   _title(),
-                                //   textAlign: TextAlign.center,
-                                //   style: Theme.of(context)
-                                //       .textTheme
-                                //       .headlineSmall
-                                //       ?.copyWith(
-                                //         color: const Color(0xFF3E3028),
-                                //         fontWeight: FontWeight.w700,
-                                //       ),
-                                // ),
                                 const Gap(AppSpacing.sm),
                                 Text(
                                   _subtitle(),
@@ -149,149 +118,167 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }
 
   Widget _buildForm(BuildContext context, AuthState viewModel) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        AppTextInputWidget(
-          controller: _emailCtrl,
-          keyboardType: TextInputType.emailAddress,
-          labelText: 'Email',
-          prefixIcon: const Icon(Icons.mail_outline),
-        ),
-        const Gap(AppSpacing.md),
-        if (_isRegister && _otpSent) ...[
+    // One autofill group so password managers fill email + password
+    // together and offer to save them after a successful sign-in.
+    return AutofillGroup(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           AppTextInputWidget(
-            controller: _nameCtrl,
-            labelText: 'Name (optional)',
-            prefixIcon: const Icon(Icons.person_outline),
+            controller: _emailCtrl,
+            keyboardType: TextInputType.emailAddress,
+            autofillHints: const [AutofillHints.email, AutofillHints.username],
+            labelText: 'Email',
+            prefixIcon: const Icon(Icons.mail_outline),
           ),
           const Gap(AppSpacing.md),
-          AppTextInputWidget(
-            controller: _otpCtrl,
-            labelText: 'OTP',
-            prefixIcon: const Icon(Icons.pin_outlined),
-          ),
-          const Gap(AppSpacing.md),
-        ],
-        if (_isReset && _otpSent) ...[
-          AppTextInputWidget(
-            controller: _otpCtrl,
-            labelText: 'OTP',
-            prefixIcon: const Icon(Icons.pin_outlined),
-          ),
-          const Gap(AppSpacing.md),
-          AppTextInputWidget(
-            controller: _newPasswordCtrl,
-            obscureText: _hideNewPassword,
-            labelText: 'New password',
-            prefixIcon: const Icon(Icons.lock_reset_outlined),
-            suffixIcon: IconButton(
-              onPressed: () =>
-                  setState(() => _hideNewPassword = !_hideNewPassword),
-              icon: Icon(
-                _hideNewPassword
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined,
-              ),
+          if (_isRegister && _otpSent) ...[
+            AppTextInputWidget(
+              controller: _nameCtrl,
+              autofillHints: const [AutofillHints.name],
+              labelText: 'Họ tên (không bắt buộc)',
+              prefixIcon: const Icon(Icons.person_outline),
             ),
-          ),
-          const Gap(AppSpacing.md),
-        ],
-        if (!_isReset && (!_isRegister || _otpSent)) ...[
-          AppTextInputWidget(
-            controller: _passwordCtrl,
-            obscureText: _hidePassword,
-            labelText: 'Password',
-            prefixIcon: const Icon(Icons.lock_outline),
-            suffixIcon: IconButton(
-              onPressed: () => setState(() => _hidePassword = !_hidePassword),
-              icon: Icon(
-                _hidePassword
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined,
-              ),
+            const Gap(AppSpacing.md),
+            AppTextInputWidget(
+              controller: _otpCtrl,
+              autofillHints: const [AutofillHints.oneTimeCode],
+              labelText: 'OTP',
+              prefixIcon: const Icon(Icons.pin_outlined),
             ),
-          ),
-          const Gap(AppSpacing.md),
-        ],
-        if (viewModel.errorMessage != null) ...[
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.errorContainer,
-              borderRadius: BorderRadius.circular(AppRadius.lg),
+            const Gap(AppSpacing.md),
+          ],
+          if (_isReset && _otpSent) ...[
+            AppTextInputWidget(
+              controller: _otpCtrl,
+              autofillHints: const [AutofillHints.oneTimeCode],
+              labelText: 'OTP',
+              prefixIcon: const Icon(Icons.pin_outlined),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Text(
-                viewModel.errorMessage!,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onErrorContainer,
+            const Gap(AppSpacing.md),
+            AppTextInputWidget(
+              controller: _newPasswordCtrl,
+              obscureText: _hideNewPassword,
+              autofillHints: const [AutofillHints.newPassword],
+              labelText: 'Mật khẩu mới',
+              prefixIcon: const Icon(Icons.lock_reset_outlined),
+              suffixIcon: IconButton(
+                tooltip: _hideNewPassword ? 'Hiện mật khẩu' : 'Ẩn mật khẩu',
+                onPressed: () =>
+                    setState(() => _hideNewPassword = !_hideNewPassword),
+                icon: Icon(
+                  _hideNewPassword
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
                 ),
               ),
             ),
+            const Gap(AppSpacing.md),
+          ],
+          if (!_isReset && (!_isRegister || _otpSent)) ...[
+            AppTextInputWidget(
+              controller: _passwordCtrl,
+              obscureText: _hidePassword,
+              autofillHints: [
+                _isRegister
+                    ? AutofillHints.newPassword
+                    : AutofillHints.password,
+              ],
+              labelText: 'Mật khẩu',
+              prefixIcon: const Icon(Icons.lock_outline),
+              suffixIcon: IconButton(
+                tooltip: _hidePassword ? 'Hiện mật khẩu' : 'Ẩn mật khẩu',
+                onPressed: () => setState(() => _hidePassword = !_hidePassword),
+                icon: Icon(
+                  _hidePassword
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                ),
+              ),
+            ),
+            const Gap(AppSpacing.md),
+          ],
+          if (viewModel.errorMessage != null) ...[
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.errorContainer,
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Text(
+                  viewModel.errorMessage!,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                ),
+              ),
+            ),
+            const Gap(AppSpacing.md),
+          ],
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: AppTheme.buttonPrimaryAuth,
+              foregroundColor: Colors.white,
+              minimumSize: const Size.fromHeight(50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadius.xl),
+              ),
+            ),
+            onPressed: viewModel.isSubmitting ? null : _submit,
+            child: viewModel.isSubmitting
+                ? const SizedBox(
+                    height: 18,
+                    width: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : Text(_primaryCta()),
           ),
           const Gap(AppSpacing.md),
-        ],
-        FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: _primaryButton,
-            foregroundColor: Colors.white,
-            minimumSize: const Size.fromHeight(50),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.xl),
+          if (!_isReset && !_isRegister)
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _isReset = true;
+                  _otpSent = false;
+                  _otpCtrl.clear();
+                  _newPasswordCtrl.clear();
+                });
+              },
+              child: const Text('Quên mật khẩu?'),
             ),
-          ),
-          onPressed: viewModel.isSubmitting ? null : _submit,
-          child: viewModel.isSubmitting
-              ? const SizedBox(
-                  height: 18,
-                  width: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                )
-              : Text(_primaryCta()),
-        ),
-        const Gap(AppSpacing.md),
-        if (!_isReset && !_isRegister)
           TextButton(
             onPressed: () {
               setState(() {
-                _isReset = true;
-                _otpSent = false;
-                _otpCtrl.clear();
-                _newPasswordCtrl.clear();
-              });
-            },
-            child: const Text('Forgot password?'),
-          ),
-        TextButton(
-          onPressed: () {
-            setState(() {
-              _isRegister = !_isRegister;
-              _isReset = false;
-              _otpSent = false;
-              _otpCtrl.clear();
-            });
-          },
-          child: Text(
-            _isRegister ? 'Have an account? Sign in' : 'No account? Register',
-          ),
-        ),
-        if (_isReset)
-          TextButton(
-            onPressed: () {
-              setState(() {
+                _isRegister = !_isRegister;
                 _isReset = false;
                 _otpSent = false;
                 _otpCtrl.clear();
-                _newPasswordCtrl.clear();
               });
             },
-            child: const Text('Back to sign in'),
+            child: Text(
+              _isRegister
+                  ? 'Đã có tài khoản? Đăng nhập'
+                  : 'Chưa có tài khoản? Đăng ký',
+            ),
           ),
-      ],
+          if (_isReset)
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _isReset = false;
+                  _otpSent = false;
+                  _otpCtrl.clear();
+                  _newPasswordCtrl.clear();
+                });
+              },
+              child: const Text('Quay lại đăng nhập'),
+            ),
+        ],
+      ),
     );
   }
 
@@ -301,20 +288,20 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   // }
 
   String _subtitle() {
-    if (_isReset) return 'Get a fresh password and return to your bakery cart.';
+    if (_isReset) return 'Nhận mật khẩu mới và quay lại giỏ hàng của bạn.';
     if (_isRegister && !_otpSent) {
-      return 'Create your bakery account with email OTP.';
+      return 'Tạo tài khoản tiệm bánh bằng email và mã OTP.';
     }
-    if (_isRegister) return 'Enter the OTP we sent and finish your profile.';
-    return 'Welcome back to your daily bread and pastry picks.';
+    if (_isRegister) return 'Nhập mã OTP đã gửi để hoàn tất hồ sơ của bạn.';
+    return 'Chào mừng bạn quay lại với những bánh tươi mỗi ngày.';
   }
 
   String _primaryCta() {
-    if (_isReset && !_otpSent) return 'Send reset OTP';
-    if (_isReset && _otpSent) return 'Confirm new password';
-    if (_isRegister && !_otpSent) return 'Send register OTP';
-    if (_isRegister && _otpSent) return 'Create account';
-    return 'Sign in';
+    if (_isReset && !_otpSent) return 'Gửi mã OTP khôi phục';
+    if (_isReset && _otpSent) return 'Xác nhận mật khẩu mới';
+    if (_isRegister && !_otpSent) return 'Gửi mã OTP đăng ký';
+    if (_isRegister && _otpSent) return 'Tạo tài khoản';
+    return 'Đăng nhập';
   }
 
   Future<void> _submit() async {
@@ -331,7 +318,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         );
         if (ok && mounted) {
           setState(() => _otpSent = true);
-          _showSnack(context, 'OTP sent to your email.');
+          _showSnack(context, 'Đã gửi mã OTP đến email của bạn.');
         }
       } else {
         ok = await viewModel.verifyResetPassword(
@@ -340,7 +327,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           newPassword: _newPasswordCtrl.text,
         );
         if (ok && mounted) {
-          _showSnack(context, 'Password reset completed. Please sign in.');
+          _showSnack(context, 'Đã đặt lại mật khẩu. Vui lòng đăng nhập.');
           setState(() {
             _isReset = false;
             _otpSent = false;
@@ -355,7 +342,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         ok = await viewModel.sendRegisterOtp(email: _emailCtrl.text.trim());
         if (ok && mounted) {
           setState(() => _otpSent = true);
-          _showSnack(context, 'OTP sent to your email.');
+          _showSnack(context, 'Đã gửi mã OTP đến email của bạn.');
         }
       } else {
         ok = await viewModel.verifyRegister(
@@ -364,8 +351,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           password: _passwordCtrl.text,
           name: _nameCtrl.text.trim(),
         );
+        if (ok) TextInput.finishAutofillContext();
         if (ok && mounted) {
-          _showSnack(context, 'Signed in as CUSTOMER.');
+          _showSnack(context, 'Đã đăng nhập với vai trò CUSTOMER.');
         }
       }
       return;
@@ -375,6 +363,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       email: _emailCtrl.text.trim(),
       password: _passwordCtrl.text,
     );
+    // Prompts the password manager to save the credentials just used.
+    if (ok) TextInput.finishAutofillContext();
   }
 
   void _showSnack(BuildContext context, String message) {
@@ -406,7 +396,11 @@ class _BakeryHeader extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [_heroFadeTop, _heroFadeMiddle, _heroFadeBottom],
+                colors: [
+                  AppTheme.authHeroFadeTop,
+                  AppTheme.authHeroFadeMiddle,
+                  AppTheme.authHeroFadeBottom,
+                ],
               ),
             ),
           ),
@@ -416,7 +410,7 @@ class _BakeryHeader extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: AppSpacing.xl),
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.78),
+                  color: AppTheme.surfaceAuthPill,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                   border: Border.all(color: AppTheme.outlineBeige),
                 ),
@@ -428,7 +422,7 @@ class _BakeryHeader extends StatelessWidget {
                   child: Text(
                     'BAKERY SHOP',
                     style: TextStyle(
-                      color: _brandPillText,
+                      color: AppTheme.textBrandPill,
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0,

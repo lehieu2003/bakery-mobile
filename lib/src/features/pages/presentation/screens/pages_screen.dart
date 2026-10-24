@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
+import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/pages/domain/models/app_page.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/screens/page_detail_screen.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/states/static_page_fallbacks.dart';
@@ -53,7 +54,7 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Policy & Pages')),
+      appBar: AppBar(title: const Text('Chính sách & Trang')),
       body: RefreshIndicator(
         onRefresh: ref.read(pagesViewModelProvider.notifier).loadPages,
         child: ListView(
@@ -129,7 +130,7 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
                   child: Ink(
                     padding: const EdgeInsets.all(AppSpacing.lg),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppTheme.surfaceWhite,
                       borderRadius: BorderRadius.circular(AppRadius.xl),
                       border: Border.all(
                         color: scheme.outlineVariant.withValues(alpha: 0.55),

@@ -59,7 +59,7 @@ void main() {
     expect(prefs.getBool('bakery_onboarding_seen'), isTrue);
     expect(find.text('Email'), findsOneWidget);
     expect(
-      find.text('Welcome back to your daily bread and pastry picks.'),
+      find.text('Chào mừng bạn quay lại với những bánh tươi mỗi ngày.'),
       findsOneWidget,
     );
   });

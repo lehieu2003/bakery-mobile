@@ -19,9 +19,9 @@ class ChatbotScreen extends ConsumerStatefulWidget {
 
 class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
   static const _quickPrompts = <String>[
-    'Goi y banh sinh nhat duoi 500k',
-    'Banh nao ban chay nhat?',
-    'Toi thich vi it ngot',
+    'Gợi ý bánh sinh nhật dưới 500k',
+    'Bánh nào bán chạy nhất?',
+    'Tôi thích vị ít ngọt',
   ];
   static const double _hostBottomBarHeight = 20;
 
@@ -66,7 +66,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(title: const Text('Chatbot')),
+      appBar: AppBar(title: const Text('Trợ lý')),
       body: Column(
         children: [
           Expanded(

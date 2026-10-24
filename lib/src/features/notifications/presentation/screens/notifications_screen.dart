@@ -53,13 +53,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
     if (!auth.isAuthenticated) {
       return const Scaffold(
-        body: Center(child: Text('Sign in to view notifications.')),
+        body: Center(child: Text('Đăng nhập để xem thông báo.')),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Notifications (${vm.unreadCount})'),
+        title: Text('Thông báo (${vm.unreadCount})'),
         actions: [
           TextButton(
             key: NotificationsKeys.markAllRead,
@@ -68,7 +68,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                       .read(notificationsViewModelProvider.notifier)
                       .markAllAsRead
                 : null,
-            child: const Text('Mark all read'),
+            child: const Text('Đọc tất cả'),
           ),
         ],
       ),
@@ -100,7 +100,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             if (!vm.isLoading && vm.error == null && vm.notifications.isEmpty)
               const EmptyStateWidget(
                 key: NotificationsKeys.empty,
-                message: 'No notifications.',
+                message: 'Chưa có thông báo.',
                 icon: Icons.notifications_none_rounded,
               ),
             ...vm.notifications.map(
@@ -120,7 +120,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                         onPressed: () => ref
                             .read(notificationsViewModelProvider.notifier)
                             .markOneAsRead(n.id),
-                        child: const Text('Read'),
+                        child: const Text('Đánh dấu đã đọc'),
                       ),
               ),
             ),
@@ -146,7 +146,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   onPressed: ref
                       .read(notificationsViewModelProvider.notifier)
                       .loadMore,
-                  child: const Text('Load more'),
+                  child: const Text('Xem thêm'),
                 ),
               ),
           ],

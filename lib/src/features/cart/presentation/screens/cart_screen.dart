@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
+import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/screens/checkout_screen.dart';
@@ -37,7 +38,7 @@ class CartScreen extends ConsumerWidget {
     final estimatedTotal = cart.subtotal - membershipDiscount;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Cart')),
+      appBar: AppBar(title: const Text('Giỏ hàng')),
       body: cart.items.isEmpty
           ? const _EmptyCartView()
           : Column(
@@ -67,7 +68,7 @@ class CartScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(AppRadius.xl),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.06),
+                            color: AppTheme.shadowCartSummary,
                             blurRadius: 20,
                             offset: const Offset(0, 8),
                           ),
@@ -81,7 +82,7 @@ class CartScreen extends ConsumerWidget {
                             Row(
                               children: [
                                 Text(
-                                  'Subtotal',
+                                  'Tạm tính',
                                   style: Theme.of(
                                     context,
                                   ).textTheme.titleMedium,
@@ -100,7 +101,7 @@ class CartScreen extends ConsumerWidget {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      '${membership.benefits?.currentTier.label ?? 'Member'} saving',
+                                      '${membership.benefits?.currentTier.label ?? 'Thành viên'} tiết kiệm',
                                       style: Theme.of(
                                         context,
                                       ).textTheme.bodyMedium,
@@ -118,7 +119,7 @@ class CartScreen extends ConsumerWidget {
                               Row(
                                 children: [
                                   Text(
-                                    'Estimated total',
+                                    'Tổng cộng',
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleMedium,
@@ -136,7 +137,7 @@ class CartScreen extends ConsumerWidget {
                             ] else if (auth.user == null) ...[
                               const Gap(AppSpacing.sm),
                               Text(
-                                'Sign in to apply membership savings.',
+                                'Đăng nhập để nhận ưu đãi thành viên.',
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                             ],
@@ -150,7 +151,7 @@ class CartScreen extends ConsumerWidget {
                                 );
                               },
                               icon: const Icon(Icons.payments_outlined),
-                              label: const Text('Proceed to checkout'),
+                              label: const Text('Tiến hành thanh toán'),
                             ),
                           ],
                         ),
@@ -239,7 +240,7 @@ class _CartTile extends ConsumerWidget {
                       IconButton(
                         onPressed: () => cart.remove(item),
                         icon: const Icon(Icons.delete_outline),
-                        tooltip: 'Remove item',
+                        tooltip: 'Xoá khỏi giỏ',
                       ),
                     ],
                   ),
@@ -305,14 +306,14 @@ class _EmptyCartView extends StatelessWidget {
             ),
             const Gap(AppSpacing.lg),
             Text(
-              'Your cart is empty',
+              'Giỏ hàng trống',
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
             const Gap(AppSpacing.sm),
             Text(
-              'Pick your favorite cakes and desserts to start an order.',
+              'Chọn bánh và món tráng miệng yêu thích để bắt đầu đơn hàng.',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
