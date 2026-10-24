@@ -5,12 +5,16 @@ import 'package:bakery_mobile/src/core/config/app_config.dart';
 import 'package:bakery_mobile/src/core/network/api_client.dart';
 import 'package:bakery_mobile/src/core/storage/onboarding_storage.dart';
 import 'package:bakery_mobile/src/core/storage/token_storage.dart';
+import 'package:bakery_mobile/src/features/admin/categories/data/datasources/category_admin_api_service.dart';
+import 'package:bakery_mobile/src/features/admin/categories/data/repositories/category_admin_repository.dart';
 import 'package:bakery_mobile/src/features/admin/customers/data/datasources/customer_admin_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/customers/data/repositories/customer_admin_repository.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/data/datasources/dashboard_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/data/repositories/dashboard_repository.dart';
 import 'package:bakery_mobile/src/features/admin/orders/data/datasources/order_admin_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/orders/data/repositories/order_admin_repository.dart';
+import 'package:bakery_mobile/src/features/admin/products/data/datasources/product_admin_api_service.dart';
+import 'package:bakery_mobile/src/features/admin/products/data/repositories/product_admin_repository.dart';
 import 'package:bakery_mobile/src/features/auth/data/datasources/auth_api_service.dart';
 import 'package:bakery_mobile/src/features/auth/data/repositories/auth_repository.dart';
 import 'package:bakery_mobile/src/features/addresses/data/datasources/address_api_service.dart';
@@ -104,6 +108,12 @@ final ordersAdminApiServiceProvider = Provider<OrderAdminApiService>(
 final customersAdminApiServiceProvider = Provider<CustomerAdminApiService>(
   (ref) => CustomerAdminApiService(ref.watch(apiClientProvider)),
 );
+final productsAdminApiServiceProvider = Provider<ProductAdminApiService>(
+  (ref) => ProductAdminApiService(ref.watch(apiClientProvider)),
+);
+final categoriesAdminApiServiceProvider = Provider<CategoryAdminApiService>(
+  (ref) => CategoryAdminApiService(ref.watch(apiClientProvider)),
+);
 
 final addressRepositoryProvider = Provider<AddressRepository>(
   (ref) => AddressRepository(ref.watch(addressApiServiceProvider)),
@@ -149,6 +159,13 @@ final ordersAdminRepositoryProvider = Provider<OrderAdminRepository>(
 );
 final customersAdminRepositoryProvider = Provider<CustomerAdminRepository>(
   (ref) => CustomerAdminRepository(ref.watch(customersAdminApiServiceProvider)),
+);
+final productsAdminRepositoryProvider = Provider<ProductAdminRepository>(
+  (ref) => ProductAdminRepository(ref.watch(productsAdminApiServiceProvider)),
+);
+final categoriesAdminRepositoryProvider = Provider<CategoryAdminRepository>(
+  (ref) =>
+      CategoryAdminRepository(ref.watch(categoriesAdminApiServiceProvider)),
 );
 
 final orderCheckoutServiceProvider = Provider<OrderCheckoutService>(

@@ -26,7 +26,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   static const _slides = [
     _OnboardingSlide(
       title: 'Bánh mới mỗi ngày',
-      description: 'Khám phá bánh ngọt, bánh mì và món mới từ Phương Loan Bakery.',
+      description:
+          'Khám phá bánh ngọt, bánh mì và món mới từ Phương Loan Bakery.',
       icon: Icons.bakery_dining_rounded,
       accent: AppTheme.pastryPeach,
     ),
