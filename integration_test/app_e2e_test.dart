@@ -91,12 +91,28 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 
 Future<void> _scrollTo(WidgetTester tester, Finder finder) async {
   if (finder.evaluate().isEmpty) {
-    await tester.scrollUntilVisible(
-      finder,
-      300,
-      scrollable: find.byType(Scrollable).first,
-      maxScrolls: 60,
-    );
+    // The target screen's list can still be mounting when we get here.
+    try {
+      await _waitFor(tester, find.byType(Scrollable));
+      await tester.scrollUntilVisible(
+        finder,
+        300,
+        scrollable: find.byType(Scrollable).first,
+        maxScrolls: 60,
+      );
+    } catch (e) {
+      final visible = find
+          .byType(Text)
+          .evaluate()
+          .map((e) {
+            final w = e.widget as Text;
+            return w.data ?? w.textSpan?.toPlainText() ?? '';
+          })
+          .where((t) => t.trim().isNotEmpty)
+          .take(40)
+          .join(' | ');
+      throw TestFailure('scrollTo($finder) failed. On screen: [$visible]');
+    }
   }
   await tester.ensureVisible(finder.first);
   await tester.pump();
@@ -178,11 +194,22 @@ Finder _pdpFavorite() => find.descendant(
   matching: find.byType(FavoriteIconWidget),
 );
 
-bool _isFavorite(WidgetTester tester) =>
-    tester.widget<FavoriteIconWidget>(_pdpFavorite().first).isFavorite;
+/// Reads the favorite state tolerantly: the icon briefly leaves the tree or
+/// flips to its pending style while the wishlist API round-trips.
+Future<bool> _readFavorite(WidgetTester tester) async {
+  final end = DateTime.now().add(const Duration(seconds: 10));
+  while (DateTime.now().isBefore(end)) {
+    await _settle(tester, 200);
+    if (_pdpFavorite().evaluate().isNotEmpty) {
+      final w = tester.widget<FavoriteIconWidget>(_pdpFavorite().first);
+      if (!w.isPending) return w.isFavorite;
+    }
+  }
+  throw TestFailure('Favorite icon never became readable');
+}
 
 Future<void> _toggleFavoriteAndWait(WidgetTester tester) async {
-  final before = _isFavorite(tester);
+  final before = await _readFavorite(tester);
   await _tap(
     tester,
     find.ancestor(of: _pdpFavorite().first, matching: find.byType(IconButton)),
@@ -190,8 +217,10 @@ Future<void> _toggleFavoriteAndWait(WidgetTester tester) async {
   final end = DateTime.now().add(const Duration(seconds: 20));
   while (DateTime.now().isBefore(end)) {
     await _settle(tester, 300);
-    final w = tester.widget<FavoriteIconWidget>(_pdpFavorite().first);
-    if (!w.isPending && w.isFavorite != before) return;
+    if (_pdpFavorite().evaluate().isNotEmpty) {
+      final w = tester.widget<FavoriteIconWidget>(_pdpFavorite().first);
+      if (!w.isPending && w.isFavorite != before) return;
+    }
   }
   throw TestFailure('Favorite did not toggle from $before');
 }
@@ -218,7 +247,9 @@ void main() {
   testWidgets('03 search → product detail with reviews', (tester) async {
     await _launch(tester);
     await _openProduct(tester);
-    expect(find.text('Thêm vào giỏ'), findsOneWidget);
+    // Wait (not expect): the CTA renders after the product-detail fetch
+    // resolves, and a timeout dumps the on-screen texts for debugging.
+    await _waitFor(tester, find.text('Thêm vào giỏ'));
     await _scrollTo(tester, find.text('Viết đánh giá'));
   }, timeout: _timeout);
 
@@ -243,10 +274,12 @@ void main() {
   ) async {
     await _launch(tester);
     await _openProduct(tester);
-    final initial = _isFavorite(tester);
+    // Same race as test 03: wait for the CTA before reading favorite state.
+    await _waitFor(tester, find.text('Thêm vào giỏ'));
+    final initial = await _readFavorite(tester);
     await _toggleFavoriteAndWait(tester);
     // Whichever state it is in now, make sure it is a favorite for the check.
-    if (!_isFavorite(tester)) await _toggleFavoriteAndWait(tester);
+    if (!await _readFavorite(tester)) await _toggleFavoriteAndWait(tester);
 
     await _back(tester); // PDP → search
     await _tap(tester, find.byIcon(Icons.home_outlined));
@@ -263,8 +296,11 @@ void main() {
 
     // Restore the original state.
     await _openProduct(tester);
-    if (_isFavorite(tester) != initial) await _toggleFavoriteAndWait(tester);
-    expect(_isFavorite(tester), initial);
+    await _waitFor(tester, find.text('Thêm vào giỏ'));
+    if (await _readFavorite(tester) != initial) {
+      await _toggleFavoriteAndWait(tester);
+    }
+    expect(await _readFavorite(tester), initial);
   }, timeout: _timeout);
 
   testWidgets('06 cart: add, change quantity, checkout screen, remove', (
@@ -322,9 +358,20 @@ void main() {
   testWidgets('07 order history → order detail', (tester) async {
     await _launch(tester);
     await _tap(tester, find.byIcon(Icons.person_outline));
-    await _scrollTo(tester, find.text('Lịch sử đơn hàng'));
-    await _scrollTo(tester, find.textContaining('#BK'));
-    await _tap(tester, find.textContaining('#BK'));
+    // The demo account accumulates orders (web E2E runs create them too) and
+    // profile tiles build lazily: drag the profile until an order tile is
+    // actually built, then tap the newest one.
+    await _waitFor(tester, find.byType(Scrollable));
+    final end = DateTime.now().add(const Duration(seconds: 20));
+    final orderTile = find.textContaining('#BK');
+    while (orderTile.evaluate().isEmpty && DateTime.now().isBefore(end)) {
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
+      await _settle(tester, 300);
+    }
+    if (orderTile.evaluate().isEmpty) {
+      throw TestFailure('No #BK order tile appeared on the profile screen');
+    }
+    await tester.tap(orderTile.first);
     await _waitFor(tester, find.byType(OrderDetailScreen));
     await _waitFor(tester, find.text('Tổng cộng'));
   }, timeout: _timeout);
