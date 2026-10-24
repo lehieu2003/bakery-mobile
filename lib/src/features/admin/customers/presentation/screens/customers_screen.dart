@@ -8,6 +8,7 @@ import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/admin/customers/domain/models/admin_customer.dart';
 import 'package:bakery_mobile/src/features/admin/customers/presentation/controllers/customers_admin_view_model.dart';
+import 'package:bakery_mobile/src/features/admin/customers/presentation/screens/customer_detail_screen.dart';
 import 'package:bakery_mobile/src/features/admin/customers/presentation/widgets/member_level_badge.dart';
 import 'package:bakery_mobile/src/features/admin/shared/presentation/widgets/admin_paged_list.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
@@ -23,8 +24,7 @@ final List<AdminFilterChip> _levelFilters = [
 ];
 
 /// Admin customers list (section "Khách hàng"): search, tier filter and
-/// infinite scroll. Tapping a card does nothing yet — Task 3 wires the push
-/// to the detail screen.
+/// infinite scroll. Tapping a card opens the customer detail.
 class CustomersScreen extends ConsumerStatefulWidget {
   const CustomersScreen({super.key});
 
@@ -102,11 +102,21 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
 }
 
 /// One row of the admin customers list: avatar + name/email + tier badge,
-/// points, and order count + lifetime spend. Not tappable yet (Task 3).
+/// points, and order count + lifetime spend. Tapping it opens the detail.
 class _CustomerCard extends StatelessWidget {
   const _CustomerCard({required this.customer});
 
   final AdminCustomer customer;
+
+  void _openDetail(BuildContext context) {
+    // Root navigator: the detail has its own AppBar and must cover the
+    // AdminShell chrome (this screen lives in the shell's nested Navigator).
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute<void>(
+        builder: (_) => CustomerDetailScreen(customerId: customer.id),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,61 +128,65 @@ class _CustomerCard extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                // Initial from the display name, falling back to the email —
-                // every customer account has one.
-                InitialAvatarWidget(
-                  name: hasName ? customer.name : customer.email,
-                  radius: 20,
-                  fallback: '?',
-                ),
-                const Gap(AppSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        hasName ? customer.name! : customer.email,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.inkBrown,
-                        ),
-                      ),
-                      if (hasName)
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => _openDetail(context),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  // Initial from the display name, falling back to the email —
+                  // every customer account has one.
+                  InitialAvatarWidget(
+                    name: hasName ? customer.name : customer.email,
+                    radius: 20,
+                    fallback: '?',
+                  ),
+                  const Gap(AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          customer.email,
+                          hasName ? customer.name! : customer.email,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: muted,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.inkBrown,
+                          ),
                         ),
-                    ],
+                        if (hasName)
+                          Text(
+                            customer.email,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: muted,
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-                const Gap(AppSpacing.sm),
-                MemberLevelBadge(level: customer.memberLevel),
-              ],
-            ),
-            const Gap(AppSpacing.sm),
-            Text(
-              '${customer.points} điểm',
-              style: theme.textTheme.bodyMedium,
-            ),
-            const Gap(AppSpacing.xs),
-            Text(
-              '${customer.totalOrders} đơn hàng · ${formatVnd(customer.totalSpent)}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: muted,
-            ),
-          ],
+                  const Gap(AppSpacing.sm),
+                  MemberLevelBadge(level: customer.memberLevel),
+                ],
+              ),
+              const Gap(AppSpacing.sm),
+              Text(
+                '${customer.points} điểm',
+                style: theme.textTheme.bodyMedium,
+              ),
+              const Gap(AppSpacing.xs),
+              Text(
+                '${customer.totalOrders} đơn hàng · ${formatVnd(customer.totalSpent)}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: muted,
+              ),
+            ],
+          ),
         ),
       ),
     );
