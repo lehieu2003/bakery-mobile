@@ -46,13 +46,11 @@ class _BlogPostCreateSheetState extends ConsumerState<_BlogPostCreateSheet> {
     if (!mounted) return;
     if (ok) {
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Đã tạo bài viết (bản nháp)')));
-    } else {
-      setState(
-        () => _error = ref.read(blogPostsAdminViewModelProvider).error,
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã tạo bài viết (bản nháp)')),
       );
+    } else {
+      setState(() => _error = ref.read(blogPostsAdminViewModelProvider).error);
     }
   }
 

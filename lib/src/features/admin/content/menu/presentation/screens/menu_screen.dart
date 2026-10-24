@@ -149,7 +149,11 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
 typedef MenuModelsMenuItemRef = AdminMenuItem;
 
 class _MenuCard extends StatelessWidget {
-  const _MenuCard({required this.item, required this.onEdit, required this.onDelete});
+  const _MenuCard({
+    required this.item,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   final AdminMenuItem item;
   final VoidCallback onEdit;

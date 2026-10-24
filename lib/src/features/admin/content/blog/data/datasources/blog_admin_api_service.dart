@@ -11,11 +11,14 @@ class BlogAdminApiService {
     int limit = 20,
     String? search,
   }) async {
-    final r = await _client.get('/api/admin/blog/posts', query: {
-      'page': page,
-      'limit': limit,
-      if (search != null && search.isNotEmpty) 'search': search,
-    });
+    final r = await _client.get(
+      '/api/admin/blog/posts',
+      query: {
+        'page': page,
+        'limit': limit,
+        if (search != null && search.isNotEmpty) 'search': search,
+      },
+    );
     return r is Map<String, dynamic> ? r : const {};
   }
 
@@ -25,21 +28,19 @@ class BlogAdminApiService {
   }
 
   Future<void> updatePostStatus(String id, String status) async {
-    await _client.patch('/api/admin/blog/posts/$id/status', body: {
-      'status': status,
-    });
+    await _client.patch(
+      '/api/admin/blog/posts/$id/status',
+      body: {'status': status},
+    );
   }
 
   Future<void> deletePost(String id) async {
     await _client.delete('/api/admin/blog/posts/$id');
   }
 
-  Future<dynamic> getCategories() =>
-      _client.get('/api/admin/blog/categories');
+  Future<dynamic> getCategories() => _client.get('/api/admin/blog/categories');
 
-  Future<Map<String, dynamic>> createCategory(
-    Map<String, dynamic> body,
-  ) async {
+  Future<Map<String, dynamic>> createCategory(Map<String, dynamic> body) async {
     final r = await _client.post('/api/admin/blog/categories', body: body);
     return r is Map<String, dynamic> ? r : const {};
   }

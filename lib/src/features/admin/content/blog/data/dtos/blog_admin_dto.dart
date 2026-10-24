@@ -25,12 +25,11 @@ class BlogPostListDto {
                   ),
             ]
           : const [],
-      total: pagination is Map<String, dynamic> &&
-              pagination['total'] is num
+      total: pagination is Map<String, dynamic> && pagination['total'] is num
           ? (pagination['total'] as num).toInt()
           : 0,
-      totalPages: pagination is Map<String, dynamic> &&
-              pagination['totalPages'] is num
+      totalPages:
+          pagination is Map<String, dynamic> && pagination['totalPages'] is num
           ? (pagination['totalPages'] as num).toInt()
           : 1,
     );

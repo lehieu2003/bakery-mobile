@@ -17,10 +17,9 @@ class BlogAdminRepository {
       limit: limit,
       search: search,
     );
-    final data =
-        response['data'] is Map<String, dynamic>
-            ? response['data']! as Map<String, dynamic>
-            : const <String, dynamic>{};
+    final data = response['data'] is Map<String, dynamic>
+        ? response['data']! as Map<String, dynamic>
+        : const <String, dynamic>{};
     return BlogPostListDto.fromJson(data);
   }
 
