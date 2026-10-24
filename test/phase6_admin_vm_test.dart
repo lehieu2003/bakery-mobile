@@ -514,8 +514,8 @@ void main() {
         expect(ok, isTrue);
         expect(repo.lastPut, {
           'levels': [
-            {'key': 'SILVER', 'minPoints': 0},
-            {'key': 'GOLD', 'minPoints': 500},
+            {'level': 'SILVER', 'minPoints': 0, 'discountPercent': 3},
+            {'level': 'GOLD', 'minPoints': 500, 'discountPercent': 7},
           ],
           'pointsPerOrder': 10000,
         });
@@ -533,8 +533,9 @@ void main() {
       expect(ok, isTrue);
       expect(repo.lastPut!['pointsPerOrder'], 20000);
       expect((repo.lastPut!['levels'] as List)[1], {
-        'key': 'GOLD',
+        'level': 'GOLD',
         'minPoints': 300,
+        'discountPercent': 7,
       });
     });
 
