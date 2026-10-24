@@ -21,6 +21,8 @@ import 'package:bakery_mobile/src/features/admin/membership/data/datasources/mem
 import 'package:bakery_mobile/src/features/admin/membership/data/repositories/membership_admin_repository.dart';
 import 'package:bakery_mobile/src/features/admin/settings/data/datasources/settings_admin_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/settings/data/repositories/settings_admin_repository.dart';
+import 'package:bakery_mobile/src/features/admin/product-attributes/data/datasources/product_attribute_admin_api_service.dart';
+import 'package:bakery_mobile/src/features/admin/product-attributes/data/repositories/product_attribute_admin_repository.dart';
 import 'package:bakery_mobile/src/features/admin/content/blog/data/datasources/blog_admin_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/content/blog/data/repositories/blog_admin_repository.dart';
 import 'package:bakery_mobile/src/features/admin/content/menu/data/datasources/menu_admin_api_service.dart';
@@ -213,6 +215,16 @@ final couponAdminApiServiceProvider = Provider<CouponAdminApiService>(
 final couponAdminRepositoryProvider = Provider<CouponAdminRepository>(
   (ref) => CouponAdminRepository(ref.watch(couponAdminApiServiceProvider)),
 );
+final productAttributeAdminApiServiceProvider =
+    Provider<ProductAttributeAdminApiService>(
+      (ref) => ProductAttributeAdminApiService(ref.watch(apiClientProvider)),
+    );
+final productAttributeAdminRepositoryProvider =
+    Provider<ProductAttributeAdminRepository>(
+      (ref) => ProductAttributeAdminRepository(
+        ref.watch(productAttributeAdminApiServiceProvider),
+      ),
+    );
 final membershipAdminApiServiceProvider = Provider<MembershipAdminApiService>(
   (ref) => MembershipAdminApiService(ref.watch(apiClientProvider)),
 );

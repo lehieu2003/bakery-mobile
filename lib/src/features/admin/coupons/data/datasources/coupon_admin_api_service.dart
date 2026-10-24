@@ -16,4 +16,8 @@ class CouponAdminApiService {
   Future<void> deleteCoupon(String id) async {
     await _client.delete('/api/admin/coupons/$id');
   }
+
+  Future<void> updateCoupon(String id, Map<String, dynamic> body) async {
+    await _client.put('/api/admin/coupons/$id', body: body);
+  }
 }

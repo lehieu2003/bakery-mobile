@@ -46,4 +46,7 @@ class CouponAdminRepository {
       _service.createCoupon(body);
 
   Future<void> deleteCoupon(String id) => _service.deleteCoupon(id);
+
+  Future<void> setCouponActive(String id, {required bool isActive}) =>
+      _service.updateCoupon(id, {'isActive': isActive});
 }

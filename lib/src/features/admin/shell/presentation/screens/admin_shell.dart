@@ -7,8 +7,9 @@
 // section's screen (chosen over `pushAndRemoveUntil`: no route animation plays
 // while the drawer is closing and there is no back stack to manage).
 // Real screens: dashboard (phase 1), orders (phase 2), customers (phase 3)
-// and categories + products (phase 4a); every other section still renders
-// AdminPlaceholderScreen.
+// and categories + products (phase 4a); content modules (phase 5a/5b) and the
+// last five (phase 6: coupons, attributes, membership, audit, settings).
+// Every spec module now has a real screen.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -17,6 +18,11 @@ import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/admin/categories/presentation/screens/categories_screen.dart';
 import 'package:bakery_mobile/src/features/admin/customers/presentation/screens/customers_screen.dart';
+import 'package:bakery_mobile/src/features/admin/audit/presentation/screens/audit_screen.dart';
+import 'package:bakery_mobile/src/features/admin/coupons/presentation/screens/coupons_screen.dart';
+import 'package:bakery_mobile/src/features/admin/membership/presentation/screens/membership_screen.dart';
+import 'package:bakery_mobile/src/features/admin/product-attributes/presentation/screens/product_attributes_screen.dart';
+import 'package:bakery_mobile/src/features/admin/settings/presentation/screens/settings_screen.dart';
 import 'package:bakery_mobile/src/features/admin/content/banners/presentation/screens/banners_screen.dart';
 import 'package:bakery_mobile/src/features/admin/content/notifications/presentation/screens/notifications_screen.dart';
 import 'package:bakery_mobile/src/features/admin/content/blog/presentation/screens/blog_posts_screen.dart';
@@ -26,7 +32,6 @@ import 'package:bakery_mobile/src/features/admin/dashboard/presentation/screens/
 import 'package:bakery_mobile/src/features/admin/orders/presentation/screens/orders_screen.dart';
 import 'package:bakery_mobile/src/features/admin/products/presentation/screens/products_screen.dart';
 import 'package:bakery_mobile/src/features/admin/shell/domain/admin_section.dart';
-import 'package:bakery_mobile/src/features/admin/shell/presentation/screens/admin_placeholder_screen.dart';
 import 'package:bakery_mobile/src/shared/widgets/initial_avatar_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
@@ -110,7 +115,11 @@ class _AdminShellState extends ConsumerState<AdminShell> {
               AdminSection.menu => const MenuScreen(),
               AdminSection.categories => const CategoriesScreen(),
               AdminSection.products => const ProductsScreen(),
-              _ => AdminPlaceholderScreen(_currentSection.vietnameseTitle),
+              AdminSection.coupons => const CouponsScreen(),
+              AdminSection.productAttributes => const ProductAttributesScreen(),
+              AdminSection.membership => const MembershipScreen(),
+              AdminSection.audit => const AuditScreen(),
+              AdminSection.settings => const SettingsScreen(),
             },
             settings: settings,
           );
