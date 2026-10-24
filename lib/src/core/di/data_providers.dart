@@ -13,6 +13,10 @@ import 'package:bakery_mobile/src/features/admin/dashboard/data/datasources/dash
 import 'package:bakery_mobile/src/features/admin/dashboard/data/repositories/dashboard_repository.dart';
 import 'package:bakery_mobile/src/features/admin/orders/data/datasources/order_admin_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/orders/data/repositories/order_admin_repository.dart';
+import 'package:bakery_mobile/src/features/admin/content/blog/data/datasources/blog_admin_api_service.dart';
+import 'package:bakery_mobile/src/features/admin/content/blog/data/repositories/blog_admin_repository.dart';
+import 'package:bakery_mobile/src/features/admin/content/menu/data/datasources/menu_admin_api_service.dart';
+import 'package:bakery_mobile/src/features/admin/content/menu/data/repositories/menu_admin_repository.dart';
 import 'package:bakery_mobile/src/features/admin/content/banners/data/datasources/banner_admin_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/content/banners/data/repositories/banner_admin_repository.dart';
 import 'package:bakery_mobile/src/features/admin/content/notifications/data/datasources/notification_admin_api_service.dart';
@@ -180,6 +184,20 @@ final orderCheckoutServiceProvider = Provider<OrderCheckoutService>(
 );
 
 /// Product-form image uploads (`/api/upload`, chunked ≤5/request).
+// Phase 5b: blog + menu.
+final blogAdminApiServiceProvider = Provider<BlogAdminApiService>(
+  (ref) => BlogAdminApiService(ref.watch(apiClientProvider)),
+);
+final blogAdminRepositoryProvider = Provider<BlogAdminRepository>(
+  (ref) => BlogAdminRepository(ref.watch(blogAdminApiServiceProvider)),
+);
+final menuAdminApiServiceProvider = Provider<MenuAdminApiService>(
+  (ref) => MenuAdminApiService(ref.watch(apiClientProvider)),
+);
+final menuAdminRepositoryProvider = Provider<MenuAdminRepository>(
+  (ref) => MenuAdminRepository(ref.watch(menuAdminApiServiceProvider)),
+);
+
 final uploadApiServiceProvider = Provider<UploadApiService>(
   (ref) => UploadApiService(ref.watch(apiClientProvider)),
 );
