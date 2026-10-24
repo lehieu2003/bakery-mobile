@@ -12,14 +12,13 @@ class BlogAdminRepository {
     int limit = 20,
     String? search,
   }) async {
-    final response = await _service.getPosts(
+    // ApiClient already unwraps `{success, data}` — the payload here is
+    // `{posts, pagination}`.
+    final data = await _service.getPosts(
       page: page,
       limit: limit,
       search: search,
     );
-    final data = response['data'] is Map<String, dynamic>
-        ? response['data']! as Map<String, dynamic>
-        : const <String, dynamic>{};
     return BlogPostListDto.fromJson(data);
   }
 

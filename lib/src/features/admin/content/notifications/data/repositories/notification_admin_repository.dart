@@ -18,10 +18,9 @@ class NotificationAdminRepository {
       search: search,
       status: status,
     );
-    final data = response['data'] is Map<String, dynamic>
-        ? response['data']! as Map<String, dynamic>
-        : const <String, dynamic>{};
-    return NotificationAdminListDto.fromJson(data);
+    // ApiClient already unwraps `{success, data}` — the payload here is
+    // `{notifications, pagination}`.
+    return NotificationAdminListDto.fromJson(response);
   }
 
   Future<void> createNotification(Map<String, dynamic> body) =>
