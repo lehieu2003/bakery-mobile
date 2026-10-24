@@ -181,14 +181,15 @@ void main() {
         );
       }
 
-      // 'Đơn hàng' has a real screen since phase 2 (it would hit the API here),
-      // so navigation is exercised with a section that is still a placeholder.
-      await tester.tap(find.text('Khách hàng'));
+      // 'Đơn hàng' has a real screen since phase 2 and 'Khách hàng' since
+      // phase 3 (they would hit the API here), so navigation is exercised
+      // with a section that is still a placeholder.
+      await tester.tap(find.text('Coupon'));
       await tester.pumpAndSettle();
 
       expect(find.byType(AdminPlaceholderScreen), findsOneWidget);
-      expect(find.text('Mục "Khách hàng" sắp ra mắt'), findsOneWidget);
-      expect(find.text('Khách hàng'), findsOneWidget);
+      expect(find.text('Mục "Coupon" sắp ra mắt'), findsOneWidget);
+      expect(find.text('Coupon'), findsOneWidget);
     },
   );
 
