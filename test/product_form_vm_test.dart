@@ -29,7 +29,10 @@ class _FakeRepo extends ProductAdminRepository {
   _FakeRepo()
     : super(
         ProductAdminApiService(
-          ApiClient(baseUrl: 'http://localhost:1', tokenProvider: () async => null),
+          ApiClient(
+            baseUrl: 'http://localhost:1',
+            tokenProvider: () async => null,
+          ),
         ),
       );
 
@@ -107,38 +110,41 @@ void main() {
     expect(s.error, isNull);
   });
 
-  test('validate() reports the first problem, null when everything is fine', () async {
-    await vm('prod-1').load();
+  test(
+    'validate() reports the first problem, null when everything is fine',
+    () async {
+      await vm('prod-1').load();
 
-    // Valid preload passes.
-    expect(state('prod-1').validate(), isNull);
+      // Valid preload passes.
+      expect(state('prod-1').validate(), isNull);
 
-    // Empty name.
-    vm('prod-1').setName('');
-    expect(state('prod-1').validate(), contains('Tên'));
+      // Empty name.
+      vm('prod-1').setName('');
+      expect(state('prod-1').validate(), contains('Tên'));
 
-    // Non-numeric price.
-    vm('prod-1').setName('Bánh');
-    vm('prod-1').setPriceText('12.000abc');
-    expect(state('prod-1').validate(), contains('Giá'));
+      // Non-numeric price.
+      vm('prod-1').setName('Bánh');
+      vm('prod-1').setPriceText('12.000abc');
+      expect(state('prod-1').validate(), contains('Giá'));
 
-    // Negative price.
-    vm('prod-1').setPriceText('-5');
-    expect(state('prod-1').validate(), contains('Giá'));
+      // Negative price.
+      vm('prod-1').setPriceText('-5');
+      expect(state('prod-1').validate(), contains('Giá'));
 
-    // Missing stock.
-    vm('prod-1').setPriceText('68000');
-    vm('prod-1').setStockText('');
-    expect(state('prod-1').validate(), contains('kho'));
+      // Missing stock.
+      vm('prod-1').setPriceText('68000');
+      vm('prod-1').setStockText('');
+      expect(state('prod-1').validate(), contains('kho'));
 
-    // Optional compare price must still be numeric when filled.
-    vm('prod-1').setStockText('30');
-    vm('prod-1').setComparePriceText('abc');
-    expect(state('prod-1').validate(), contains('so sánh'));
+      // Optional compare price must still be numeric when filled.
+      vm('prod-1').setStockText('30');
+      vm('prod-1').setComparePriceText('abc');
+      expect(state('prod-1').validate(), contains('so sánh'));
 
-    vm('prod-1').setComparePriceText('');
-    expect(state('prod-1').validate(), isNull);
-  });
+      vm('prod-1').setComparePriceText('');
+      expect(state('prod-1').validate(), isNull);
+    },
+  );
 
   test('setCategory replaces the single pick', () async {
     await vm('prod-1').load();
@@ -163,5 +169,49 @@ void main() {
     await vm('prod-1').load();
 
     expect(state('prod-1').error, 'Lỗi máy chủ');
+  });
+
+  group('images section', () {
+    test(
+      'addLocalImages marks the first local pick primary when none is',
+      () async {
+        await vm('prod-1').load();
+        vm('prod-1').addLocalImages(['/tmp/a.jpg', '/tmp/b.jpg']);
+        expect(state('prod-1').images.length, 2);
+        expect(state('prod-1').images.first.isPrimary, isTrue);
+        expect(state('prod-1').images.first.isLocal, isTrue);
+      },
+    );
+
+    test('addLocalImages caps the gallery at 10 total', () async {
+      await vm('prod-1').load();
+      final many = List.generate(12, (i) => '/tmp/img\$i.jpg');
+      vm('prod-1').addLocalImages(many);
+
+      expect(state('prod-1').images.length, 10);
+    });
+
+    test('setPrimary makes exactly one primary', () async {
+      await vm('prod-1').load();
+      vm('prod-1').addLocalImages(['/tmp/a.jpg', '/tmp/b.jpg', '/tmp/c.jpg']);
+      vm('prod-1').setPrimary(2);
+
+      final images = state('prod-1').images;
+      expect(images[2].isPrimary, isTrue);
+      expect(images.where((i) => i.isPrimary), hasLength(1));
+    });
+
+    test(
+      'removeImage keeps at least a sane state and re-picks primary',
+      () async {
+        await vm('prod-1').load();
+        vm('prod-1').addLocalImages(['/tmp/a.jpg', '/tmp/b.jpg']);
+        vm('prod-1').removeImage(0);
+
+        final images = state('prod-1').images;
+        expect(images, hasLength(1));
+        expect(images.single.isPrimary, isTrue);
+      },
+    );
   });
 }

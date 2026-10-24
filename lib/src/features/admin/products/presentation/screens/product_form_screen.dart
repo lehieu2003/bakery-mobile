@@ -7,6 +7,7 @@ import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/admin/products/presentation/controllers/product_form_view_model.dart';
+import 'package:bakery_mobile/src/features/admin/products/presentation/widgets/product_images_section.dart';
 import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
 
 /// Create/edit product form (phase 4b). Sections land in stages: T2 info +
@@ -161,6 +162,11 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           ),
           const Gap(AppSpacing.md),
           _CategorySection(state: state),
+          const Gap(AppSpacing.md),
+          _SectionCard(
+            title: 'Ảnh',
+            child: ProductImagesSection(productId: widget.productId),
+          ),
           const Gap(AppSpacing.xl),
         ],
       ),

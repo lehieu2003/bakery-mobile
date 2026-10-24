@@ -6,6 +6,21 @@ import 'package:bakery_mobile/src/core/network/api_exception.dart';
 import 'package:bakery_mobile/src/features/admin/products/domain/models/admin_product.dart';
 import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
+/// One gallery entry: a hosted url (edit preload) or a freshly picked
+/// local file awaiting upload at save time (deferred, parity with web).
+class FormImage {
+  const FormImage({
+    required this.source,
+    this.isPrimary = false,
+    this.isLocal = false,
+  });
+
+  /// Hosted url or local file path.
+  final String source;
+  final bool isPrimary;
+  final bool isLocal;
+}
+
 /// Editable state of the product form. Phase 4b adds sections in stages:
 /// T2 owns the info block (name/slug/price/stock/compare/descriptions/
 /// isActive/category), T3 images, T4 variants + attribute assignments.
@@ -23,6 +38,7 @@ class ProductFormState {
     this.description = '',
     this.isActive = true,
     this.categoryId,
+    this.images = const [],
     this.isSaving = false,
   });
 
@@ -49,6 +65,8 @@ class ProductFormState {
   /// `[categoryId]`).
   final String? categoryId;
 
+  final List<FormImage> images;
+
   final bool isSaving;
 
   ProductFormState copyWith({
@@ -66,6 +84,7 @@ class ProductFormState {
     bool? isActive,
     String? categoryId,
     bool clearCategory = false,
+    List<FormImage>? images,
     bool? isSaving,
   }) {
     return ProductFormState(
@@ -81,6 +100,7 @@ class ProductFormState {
       description: description ?? this.description,
       isActive: isActive ?? this.isActive,
       categoryId: clearCategory ? null : (categoryId ?? this.categoryId),
+      images: images ?? this.images,
       isSaving: isSaving ?? this.isSaving,
     );
   }
@@ -106,8 +126,7 @@ class ProductFormState {
 int? _parseInt(String raw) => int.tryParse(raw.trim());
 
 /// Drives the product form. Family key = productId (null = create).
-class ProductFormViewModel
-    extends FamilyNotifier<ProductFormState, String?> {
+class ProductFormViewModel extends FamilyNotifier<ProductFormState, String?> {
   @override
   ProductFormState build(String? arg) => const ProductFormState();
 
@@ -126,12 +145,23 @@ class ProductFormViewModel
         slug: detail.slug,
         priceText: _plain(detail.price),
         stockText: '${detail.stock}',
-        comparePriceText:
-            detail.comparePrice == null ? '' : _plain(detail.comparePrice!),
+        comparePriceText: detail.comparePrice == null
+            ? ''
+            : _plain(detail.comparePrice!),
         shortDescription: detail.shortDescription ?? '',
         description: detail.description ?? '',
         isActive: detail.isActive,
-        categoryId: detail.categoryIds.isEmpty ? null : detail.categoryIds.first,
+        categoryId: detail.categoryIds.isEmpty
+            ? null
+            : detail.categoryIds.first,
+        images: [
+          for (final image in detail.images)
+            FormImage(
+              source: image.url,
+              isPrimary: image.isPrimary,
+              isLocal: false,
+            ),
+        ],
       );
     } catch (error) {
       if (await _logoutOn401(error)) {
@@ -154,6 +184,51 @@ class ProductFormViewModel
   void setIsActive(bool v) => state = state.copyWith(isActive: v);
   void setCategory(String? id) =>
       state = state.copyWith(categoryId: id, clearCategory: id == null);
+
+  /// Appends freshly picked local files (deferred upload). The gallery
+  /// holds at most 10 entries; extras are dropped. The first entry without
+  /// any primary becomes primary.
+  void addLocalImages(List<String> paths) {
+    final updated = [...state.images];
+    for (final path in paths) {
+      if (updated.length >= 10) break;
+      updated.add(FormImage(source: path, isLocal: true));
+    }
+    state = state.copyWith(images: _withOnePrimary(updated));
+  }
+
+  /// Marks [index] as the single primary image.
+  void setPrimary(int index) {
+    final updated = [
+      for (var i = 0; i < state.images.length; i++)
+        FormImage(
+          source: state.images[i].source,
+          isPrimary: i == index,
+          isLocal: state.images[i].isLocal,
+        ),
+    ];
+    state = state.copyWith(images: updated);
+  }
+
+  /// Removes one gallery entry; when the primary was removed the first
+  /// remaining entry takes over.
+  void removeImage(int index) {
+    final updated = [...state.images]..removeAt(index);
+    state = state.copyWith(images: _withOnePrimary(updated));
+  }
+
+  List<FormImage> _withOnePrimary(List<FormImage> images) {
+    if (images.isEmpty) return images;
+    final hasPrimary = images.any((image) => image.isPrimary);
+    return [
+      for (var i = 0; i < images.length; i++)
+        FormImage(
+          source: images[i].source,
+          isPrimary: !hasPrimary && i == 0 ? true : images[i].isPrimary,
+          isLocal: images[i].isLocal,
+        ),
+    ];
+  }
 
   Future<bool> _logoutOn401(Object error) async {
     if (error is ApiException && error.statusCode == 401) {

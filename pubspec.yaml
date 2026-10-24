@@ -47,6 +47,7 @@ dependencies:
   flutter_secure_storage: ^10.3.4
   gap: ^3.0.1
   connectivity_plus: ^6.1.5
+  image_picker: ^1.2.1
 
 dev_dependencies:
   flutter_test:
