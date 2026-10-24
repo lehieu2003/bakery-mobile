@@ -83,6 +83,12 @@ class CustomerDetailViewModel extends FamilyNotifier<CustomerDetailState, String
   /// server's response); on failure [CustomerDetailState.updateError] is set.
   Future<bool> update({String? memberLevel, int? points}) async {
     if (state.isSaving) return false;
+    // Client gate mirrors the server's integer >= 0 rule (400 'Invalid
+    // points') so an impossible value never leaves the device.
+    if (points != null && points < 0) {
+      state = state.copyWith(updateError: 'Điểm phải là số nguyên không âm');
+      return false;
+    }
     state = state.copyWith(isSaving: true, clearUpdateError: true);
     final repo = ref.read(customersAdminRepositoryProvider);
     try {

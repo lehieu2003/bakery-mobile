@@ -110,7 +110,9 @@ class _FakeCustomerAdminRepository extends CustomerAdminRepository {
       );
 
   final List<String> calls = [];
+  final List<Map<String, Object?>> updateCalls = [];
   Object? error;
+  Object? updateError;
 
   @override
   Future<AdminCustomerDetail> getCustomer(String id) async {
@@ -119,6 +121,25 @@ class _FakeCustomerAdminRepository extends CustomerAdminRepository {
     if (thrown != null) throw thrown;
     return _detail();
   }
+
+  @override
+  Future<AdminCustomerDetail> updateCustomer(
+    String id, {
+    String? memberLevel,
+    int? points,
+  }) async {
+    updateCalls.add({
+      'id': id,
+      if (memberLevel != null) 'memberLevel': memberLevel,
+      if (points != null) 'points': points,
+    });
+    final thrown = updateError;
+    if (thrown != null) throw thrown;
+    return updateResult ?? _detail().copyWithMemberLevel(memberLevel, points);
+  }
+
+  /// Null keeps the fixture detail (no-change PATCH still returns a detail).
+  AdminCustomerDetail? updateResult;
 
   @override
   Future<CustomerAdminPage> getCustomers({
@@ -246,6 +267,45 @@ void main() {
     expect(repo.calls, ['cus-1', 'cus-1']);
     expect(current.error, isNull);
     expect(current.detail!.id, 'cus-1');
+  });
+
+  test('update sends only provided keys and replaces the detail', () async {
+    await vm().load();
+    repo.updateCalls.clear();
+
+    final ok = await vm().update(memberLevel: 'PLATINUM', points: 150);
+
+    expect(ok, isTrue);
+    expect(repo.updateCalls, [
+      {'id': 'cus-1', 'memberLevel': 'PLATINUM', 'points': 150},
+    ]);
+    expect(state().detail!.memberLevel, 'PLATINUM');
+    expect(state().detail!.points, 150);
+    expect(state().isSaving, isFalse);
+    expect(state().updateError, isNull);
+  });
+
+  test('update gates negative points client-side without calling the repo', () async {
+    await vm().load();
+    repo.updateCalls.clear();
+
+    final ok = await vm().update(points: -5);
+
+    expect(ok, isFalse);
+    expect(repo.updateCalls, isEmpty);
+    expect(state().updateError, 'Điểm phải là số nguyên không âm');
+    expect(auth.logoutCalls, 0);
+  });
+
+  test('server 400 on update surfaces its message as updateError', () async {
+    await vm().load();
+    repo.updateError = ApiException('Invalid points', statusCode: 400);
+
+    final ok = await vm().update(points: 10);
+
+    expect(ok, isFalse);
+    expect(state().updateError, 'Invalid points');
+    expect(state().isSaving, isFalse);
   });
 
   testWidgets('CustomerDetailScreen renders header, stats, recents and summary',

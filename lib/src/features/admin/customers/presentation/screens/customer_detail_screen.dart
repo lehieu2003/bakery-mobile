@@ -7,6 +7,7 @@ import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/admin/customers/domain/models/admin_customer.dart';
 import 'package:bakery_mobile/src/features/admin/customers/presentation/controllers/customer_detail_view_model.dart';
+import 'package:bakery_mobile/src/features/admin/customers/presentation/widgets/customer_edit_sheet.dart';
 import 'package:bakery_mobile/src/features/admin/customers/presentation/widgets/member_level_badge.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
@@ -149,8 +150,9 @@ class _HeaderCard extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: OutlinedButton.icon(
-                // Task 4 opens the member-level/points bottom sheet here.
-                onPressed: isSaving ? null : () {},
+                onPressed: isSaving
+                    ? null
+                    : () => showCustomerEditSheet(context, detail),
                 icon: const Icon(Icons.edit_outlined, size: 18),
                 label: const Text('Chỉnh sửa'),
               ),

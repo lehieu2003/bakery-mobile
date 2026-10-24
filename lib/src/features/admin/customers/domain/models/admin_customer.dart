@@ -68,6 +68,27 @@ class AdminCustomerDetail extends AdminCustomer {
   /// The customer's 10 most recent notification reads (newest first).
   final List<AdminCustomerNotification> recentNotifications;
   final AdminNotificationSummary notificationSummary;
+
+  /// Copy with the PATCHed loyalty fields — mirrors the detail the server
+  /// returns after a successful member-level/points update.
+  AdminCustomerDetail copyWithMemberLevel(String? memberLevel, int? points) {
+    return AdminCustomerDetail(
+      id: id,
+      email: email,
+      name: name,
+      phone: phone,
+      memberLevel: memberLevel ?? this.memberLevel,
+      points: points ?? this.points,
+      isActive: isActive,
+      createdAt: createdAt,
+      totalOrders: totalOrders,
+      totalSpent: totalSpent,
+      recentOrders: recentOrders,
+      recentPayments: recentPayments,
+      recentNotifications: recentNotifications,
+      notificationSummary: notificationSummary,
+    );
+  }
 }
 
 /// One order of an [AdminCustomerDetail.recentOrders] page.
