@@ -333,7 +333,7 @@ void main() {
       await vm.bulkDelete();
 
       expect(repo.deletedIds, ['p1', 'p3']); // p2 was attempted but refused
-      expect(readState().report, 'Đã xoá 2 sản phẩm, 1 lỗi');
+      expect(readState().report, 'Đã xóa 2 sản phẩm, 1 lỗi');
       expect(readState().selectedIds, isEmpty);
       expect(readState().isSelecting, isFalse);
       expect(readState().isDeleting, isFalse);
@@ -441,13 +441,13 @@ void main() {
     // Select, confirm-delete, and the report snackbar appears.
     await tester.longPress(find.text('Bánh mì tươi'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Xoá đã chọn'));
+    await tester.tap(find.byTooltip('Xóa đã chọn'));
     await tester.pumpAndSettle();
-    expect(find.text('Xoá 1 sản phẩm?'), findsOneWidget);
-    await tester.tap(find.widgetWithText(FilledButton, 'Xoá'));
+    expect(find.text('Xóa 1 sản phẩm?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Xóa'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Đã xoá 1 sản phẩm'), findsOneWidget);
+    expect(find.text('Đã xóa 1 sản phẩm'), findsOneWidget);
     expect(find.text('Bánh mì tươi'), findsNothing);
     expect(find.text('0 đã chọn'), findsNothing); // selection mode exited
   });

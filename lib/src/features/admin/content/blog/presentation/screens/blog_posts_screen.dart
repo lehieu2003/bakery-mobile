@@ -102,8 +102,8 @@ class _PostCard extends ConsumerWidget {
                 final confirmed = await showDialog<bool>(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: const Text('Xoá bài viết?'),
-                    content: Text('"${post.title}" sẽ bị xoá vĩnh viễn.'),
+                    title: const Text('Xóa bài viết?'),
+                    content: Text('"${post.title}" sẽ bị xóa vĩnh viễn.'),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context, false),
@@ -111,7 +111,7 @@ class _PostCard extends ConsumerWidget {
                       ),
                       FilledButton(
                         onPressed: () => Navigator.pop(context, true),
-                        child: const Text('Xoá'),
+                        child: const Text('Xóa'),
                       ),
                     ],
                   ),

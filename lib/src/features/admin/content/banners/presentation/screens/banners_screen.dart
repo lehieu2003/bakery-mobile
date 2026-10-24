@@ -77,7 +77,7 @@ class _BannersScreenState extends ConsumerState<BannersScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Xoá banner?'),
+        title: const Text('Xóa banner?'),
         content: Text('"${banner.title}" sẽ bị gỡ khỏi trang chủ.'),
         actions: [
           TextButton(
@@ -86,7 +86,7 @@ class _BannersScreenState extends ConsumerState<BannersScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Xoá'),
+            child: const Text('Xóa'),
           ),
         ],
       ),
@@ -96,7 +96,7 @@ class _BannersScreenState extends ConsumerState<BannersScreen> {
     if (mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Đã xoá banner')));
+      ).showSnackBar(const SnackBar(content: Text('Đã xóa banner')));
     }
   }
 }

@@ -126,7 +126,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Xoá mục menu?'),
+        title: const Text('Xóa mục menu?'),
         content: Text('"${item.title}" sẽ gỡ khỏi header website.'),
         actions: [
           TextButton(
@@ -135,7 +135,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Xoá'),
+            child: const Text('Xóa'),
           ),
         ],
       ),

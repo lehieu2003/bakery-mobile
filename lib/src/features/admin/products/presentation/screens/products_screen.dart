@@ -71,9 +71,9 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text('Xoá $count sản phẩm?'),
+          title: Text('Xóa $count sản phẩm?'),
           content: const Text(
-            'Các sản phẩm được chọn sẽ bị xoá vĩnh viễn. Sản phẩm đã bị xoá ở '
+            'Các sản phẩm được chọn sẽ bị xóa vĩnh viễn. Sản phẩm đã bị xóa ở '
             'nơi khác sẽ được bỏ qua.',
           ),
           actions: [
@@ -83,7 +83,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
             ),
             FilledButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text('Xoá'),
+              child: const Text('Xóa'),
             ),
           ],
         );
@@ -237,7 +237,7 @@ class _SelectionBar extends StatelessWidget {
               )
             else
               IconButton(
-                tooltip: 'Xoá đã chọn',
+                tooltip: 'Xóa đã chọn',
                 icon: const Icon(Icons.delete_outline),
                 color: AppTheme.inkBrown,
                 onPressed: onDelete,
