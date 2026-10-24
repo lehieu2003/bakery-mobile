@@ -103,12 +103,7 @@ void main() {
       () {
         final list = AdminCustomerListDto.fromJson({
           'customers': [sampleCustomerRow],
-          'pagination': {
-            'page': 1,
-            'limit': 50,
-            'total': 87,
-            'totalPages': 2,
-          },
+          'pagination': {'page': 1, 'limit': 50, 'total': 87, 'totalPages': 2},
         });
 
         expect(list.customers, hasLength(1));
@@ -151,85 +146,100 @@ void main() {
   });
 
   group('AdminCustomerDetailDto', () {
-    test('parses the detail: recent orders, payments, notifications, summary', () {
-      final detail = AdminCustomerDetailDto.fromJson(sampleCustomerDetail);
+    test(
+      'parses the detail: recent orders, payments, notifications, summary',
+      () {
+        final detail = AdminCustomerDetailDto.fromJson(sampleCustomerDetail);
 
-      expect(detail, isA<AdminCustomerDetail>());
-      expect(detail, isA<AdminCustomer>());
-      expect(detail.id, 'cus-1');
-      expect(detail.memberLevel, 'GOLD');
-      expect(detail.totalSpent, 2450000.5);
+        expect(detail, isA<AdminCustomerDetail>());
+        expect(detail, isA<AdminCustomer>());
+        expect(detail.id, 'cus-1');
+        expect(detail.memberLevel, 'GOLD');
+        expect(detail.totalSpent, 2450000.5);
 
-      // Recent orders: money strings coerce, payment may be absent.
-      expect(detail.recentOrders, hasLength(2));
-      expect(detail.recentOrders[0].orderNumber, 'PL-1042');
-      expect(detail.recentOrders[0].total, 875000.0);
-      expect(detail.recentOrders[0].total, isA<double>());
-      expect(detail.recentOrders[0].status, 'COMPLETED');
-      expect(detail.recentOrders[0].paymentMethod, 'VNPAY');
-      expect(detail.recentOrders[0].createdAt, DateTime.utc(2026, 10, 7, 9, 30));
-      expect(detail.recentOrders[0].payment, isNotNull);
-      expect(detail.recentOrders[0].payment!.id, 'pay-1');
-      expect(detail.recentOrders[0].payment!.provider, 'VNPAY');
-      expect(detail.recentOrders[0].payment!.transactionId, 'TXN-889');
-      expect(detail.recentOrders[0].payment!.amount, 875000.0);
-      expect(detail.recentOrders[0].payment!.amount, isA<double>());
-      expect(detail.recentOrders[0].payment!.status, 'PAID');
-      // Unpaid order: payment null and paymentMethod null are OK.
-      expect(detail.recentOrders[1].payment, isNull);
-      expect(detail.recentOrders[1].paymentMethod, isNull);
-      expect(detail.recentOrders[1].total, 120000.0);
+        // Recent orders: money strings coerce, payment may be absent.
+        expect(detail.recentOrders, hasLength(2));
+        expect(detail.recentOrders[0].orderNumber, 'PL-1042');
+        expect(detail.recentOrders[0].total, 875000.0);
+        expect(detail.recentOrders[0].total, isA<double>());
+        expect(detail.recentOrders[0].status, 'COMPLETED');
+        expect(detail.recentOrders[0].paymentMethod, 'VNPAY');
+        expect(
+          detail.recentOrders[0].createdAt,
+          DateTime.utc(2026, 10, 7, 9, 30),
+        );
+        expect(detail.recentOrders[0].payment, isNotNull);
+        expect(detail.recentOrders[0].payment!.id, 'pay-1');
+        expect(detail.recentOrders[0].payment!.provider, 'VNPAY');
+        expect(detail.recentOrders[0].payment!.transactionId, 'TXN-889');
+        expect(detail.recentOrders[0].payment!.amount, 875000.0);
+        expect(detail.recentOrders[0].payment!.amount, isA<double>());
+        expect(detail.recentOrders[0].payment!.status, 'PAID');
+        // Unpaid order: payment null and paymentMethod null are OK.
+        expect(detail.recentOrders[1].payment, isNull);
+        expect(detail.recentOrders[1].paymentMethod, isNull);
+        expect(detail.recentOrders[1].total, 120000.0);
 
-      // Recent payments flatten order + payment; amount arrives as a number.
-      expect(detail.recentPayments, hasLength(1));
-      expect(detail.recentPayments[0].paymentId, 'pay-1');
-      expect(detail.recentPayments[0].orderId, 'ord-1');
-      expect(detail.recentPayments[0].orderNumber, 'PL-1042');
-      expect(detail.recentPayments[0].provider, 'VNPAY');
-      expect(detail.recentPayments[0].transactionId, 'TXN-889');
-      expect(detail.recentPayments[0].amount, 875000.0);
-      expect(detail.recentPayments[0].amount, isA<double>());
-      expect(detail.recentPayments[0].status, 'PAID');
+        // Recent payments flatten order + payment; amount arrives as a number.
+        expect(detail.recentPayments, hasLength(1));
+        expect(detail.recentPayments[0].paymentId, 'pay-1');
+        expect(detail.recentPayments[0].orderId, 'ord-1');
+        expect(detail.recentPayments[0].orderNumber, 'PL-1042');
+        expect(detail.recentPayments[0].provider, 'VNPAY');
+        expect(detail.recentPayments[0].transactionId, 'TXN-889');
+        expect(detail.recentPayments[0].amount, 875000.0);
+        expect(detail.recentPayments[0].amount, isA<double>());
+        expect(detail.recentPayments[0].status, 'PAID');
 
-      // Notifications: readAt/publishedAt may be null (unread/unscheduled).
-      expect(detail.recentNotifications, hasLength(2));
-      expect(detail.recentNotifications[0].notificationId, 'noti-1');
-      expect(detail.recentNotifications[0].title, 'Khuyến mãi cuối tuần');
-      expect(detail.recentNotifications[0].status, 'PUBLISHED');
-      expect(detail.recentNotifications[0].audience, 'GLOBAL');
-      expect(detail.recentNotifications[0].publishedAt, DateTime.utc(2026, 10, 1, 7));
-      expect(detail.recentNotifications[0].readAt, DateTime.utc(2026, 10, 2, 9));
-      expect(detail.recentNotifications[1].publishedAt, isNull);
-      expect(detail.recentNotifications[1].readAt, isNull);
+        // Notifications: readAt/publishedAt may be null (unread/unscheduled).
+        expect(detail.recentNotifications, hasLength(2));
+        expect(detail.recentNotifications[0].notificationId, 'noti-1');
+        expect(detail.recentNotifications[0].title, 'Khuyến mãi cuối tuần');
+        expect(detail.recentNotifications[0].status, 'PUBLISHED');
+        expect(detail.recentNotifications[0].audience, 'GLOBAL');
+        expect(
+          detail.recentNotifications[0].publishedAt,
+          DateTime.utc(2026, 10, 1, 7),
+        );
+        expect(
+          detail.recentNotifications[0].readAt,
+          DateTime.utc(2026, 10, 2, 9),
+        );
+        expect(detail.recentNotifications[1].publishedAt, isNull);
+        expect(detail.recentNotifications[1].readAt, isNull);
 
-      expect(detail.notificationSummary.totalRead, 3);
-      expect(detail.notificationSummary.unreadPublished, 1);
-    });
+        expect(detail.notificationSummary.totalRead, 3);
+        expect(detail.notificationSummary.unreadPublished, 1);
+      },
+    );
 
-    test('parses the PATCH response (customer detail directly) and validates member levels', () {
-      // PATCH /api/admin/customers/{id} returns the updated customer detail
-      // object directly (no envelope) — same parse as the detail response.
-      final updated = AdminCustomerDetailDto.fromJson({
-        ...sampleCustomerDetail,
-        'memberLevel': 'PLATINUM',
-        'points': 150,
-      });
+    test(
+      'parses the PATCH response (customer detail directly) and validates member levels',
+      () {
+        // PATCH /api/admin/customers/{id} returns the updated customer detail
+        // object directly (no envelope) — same parse as the detail response.
+        final updated = AdminCustomerDetailDto.fromJson({
+          ...sampleCustomerDetail,
+          'memberLevel': 'PLATINUM',
+          'points': 150,
+        });
 
-      expect(updated, isA<AdminCustomerDetail>());
-      expect(updated.memberLevel, 'PLATINUM');
-      expect(updated.points, 150);
-      expect(updated.email, 'an@example.com');
-      // Detail blocks survive the PATCH parse.
-      expect(updated.recentOrders, hasLength(2));
-      expect(updated.notificationSummary.totalRead, 3);
+        expect(updated, isA<AdminCustomerDetail>());
+        expect(updated.memberLevel, 'PLATINUM');
+        expect(updated.points, 150);
+        expect(updated.email, 'an@example.com');
+        // Detail blocks survive the PATCH parse.
+        expect(updated.recentOrders, hasLength(2));
+        expect(updated.notificationSummary.totalRead, 3);
 
-      // Only the three server-accepted levels validate.
-      expect(AdminMemberLevel.valid('SILVER'), isTrue);
-      expect(AdminMemberLevel.valid('GOLD'), isTrue);
-      expect(AdminMemberLevel.valid('PLATINUM'), isTrue);
-      expect(AdminMemberLevel.valid('DIAMOND'), isFalse);
-      expect(AdminMemberLevel.valid('silver'), isFalse);
-      expect(AdminMemberLevel.valid(null), isFalse);
-    });
+        // Only the three server-accepted levels validate.
+        expect(AdminMemberLevel.valid('SILVER'), isTrue);
+        expect(AdminMemberLevel.valid('GOLD'), isTrue);
+        expect(AdminMemberLevel.valid('PLATINUM'), isTrue);
+        expect(AdminMemberLevel.valid('DIAMOND'), isFalse);
+        expect(AdminMemberLevel.valid('silver'), isFalse);
+        expect(AdminMemberLevel.valid(null), isFalse);
+      },
+    );
   });
 }

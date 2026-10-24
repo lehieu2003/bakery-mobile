@@ -70,7 +70,9 @@ class AdminCustomerDetailDto {
       paymentMethod: json['paymentMethod']?.toString(),
       createdAt:
           DateTime.tryParse('${json['createdAt'] ?? ''}') ?? DateTime.now(),
-      payment: payment is Map<String, dynamic> ? _paymentInfoFromJson(payment) : null,
+      payment: payment is Map<String, dynamic>
+          ? _paymentInfoFromJson(payment)
+          : null,
     );
   }
 
@@ -125,7 +127,10 @@ class AdminCustomerDetailDto {
 /// Envelope of `GET /api/admin/customers` (after `ApiClient` unwraps `data`):
 /// `{ customers: [...], pagination: { page, limit, total, totalPages } }`.
 class AdminCustomerListDto {
-  const AdminCustomerListDto({required this.customers, required this.pagination});
+  const AdminCustomerListDto({
+    required this.customers,
+    required this.pagination,
+  });
 
   final List<AdminCustomer> customers;
   final AdminCustomerPaginationDto pagination;

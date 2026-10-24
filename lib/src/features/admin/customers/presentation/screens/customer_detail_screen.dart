@@ -136,10 +136,7 @@ class _HeaderCard extends StatelessWidget {
             ),
             const Gap(AppSpacing.sm),
             if (detail.phone != null && detail.phone!.trim().isNotEmpty)
-              Text(
-                detail.phone!,
-                style: theme.textTheme.bodyMedium,
-              ),
+              Text(detail.phone!, style: theme.textTheme.bodyMedium),
             Text(
               'Tham gia từ ${formatDateVi(detail.createdAt.toLocal())}',
               style: theme.textTheme.bodySmall?.copyWith(
@@ -375,10 +372,7 @@ class _RecentNotificationsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (notifications.isEmpty)
-            const Text(
-              'Không có',
-              style: TextStyle(color: AppTheme.warmBrown),
-            )
+            const Text('Không có', style: TextStyle(color: AppTheme.warmBrown))
           else
             for (final (index, notification) in notifications.indexed) ...[
               if (index > 0) const Divider(),

@@ -69,9 +69,7 @@ class CustomersAdminState {
       totalPages: totalPages ?? this.totalPages,
       total: total ?? this.total,
       search: search ?? this.search,
-      levelFilter: clearLevelFilter
-          ? null
-          : (levelFilter ?? this.levelFilter),
+      levelFilter: clearLevelFilter ? null : (levelFilter ?? this.levelFilter),
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       error: clearError ? null : (error ?? this.error),

@@ -75,17 +75,16 @@ class _CustomerEditSheetState extends ConsumerState<_CustomerEditSheet> {
       return;
     }
     setState(() {
-      _pointsError =
-          ref.read(customerDetailViewModelProvider(id)).updateError;
+      _pointsError = ref.read(customerDetailViewModelProvider(id)).updateError;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     _messenger ??= ScaffoldMessenger.maybeOf(context);
-    final isSaving = ref.watch(
-      customerDetailViewModelProvider(widget.detail.id),
-    ).isSaving;
+    final isSaving = ref
+        .watch(customerDetailViewModelProvider(widget.detail.id))
+        .isSaving;
     return Padding(
       padding: EdgeInsets.only(
         left: 24,

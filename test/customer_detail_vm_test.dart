@@ -225,61 +225,70 @@ void main() {
   CustomerDetailState state() =>
       container.read(customerDetailViewModelProvider('cus-1'));
 
-  test('load() fetches the detail with recents and notification summary', () async {
-    await vm().load();
+  test(
+    'load() fetches the detail with recents and notification summary',
+    () async {
+      await vm().load();
 
-    expect(repo.calls, ['cus-1']);
-    final detail = state().detail;
-    expect(detail, isNotNull);
-    expect(detail!.id, 'cus-1');
-    expect(detail.email, 'an@example.com');
-    expect(detail.name, 'Nguyễn Văn A');
-    expect(detail.memberLevel, 'GOLD');
-    expect(detail.points, 120);
-    expect(detail.totalOrders, 12);
-    expect(detail.totalSpent, 2450000.5);
-    // Recent orders: paid one carries its payment, unpaid one has none.
-    expect(detail.recentOrders, hasLength(2));
-    expect(detail.recentOrders[0].orderNumber, 'PL-1042');
-    expect(detail.recentOrders[0].payment!.transactionId, 'TXN-889');
-    expect(detail.recentOrders[1].payment, isNull);
-    // Flattened payments and notifications, with the read/unread summary.
-    expect(detail.recentPayments.single.transactionId, 'TXN-889');
-    expect(detail.recentNotifications[0].readAt, isNotNull);
-    expect(detail.recentNotifications[1].readAt, isNull);
-    expect(detail.notificationSummary.totalRead, 3);
-    expect(detail.notificationSummary.unreadPublished, 1);
-    expect(state().isLoading, isFalse);
-    expect(state().error, isNull);
-  });
+      expect(repo.calls, ['cus-1']);
+      final detail = state().detail;
+      expect(detail, isNotNull);
+      expect(detail!.id, 'cus-1');
+      expect(detail.email, 'an@example.com');
+      expect(detail.name, 'Nguyễn Văn A');
+      expect(detail.memberLevel, 'GOLD');
+      expect(detail.points, 120);
+      expect(detail.totalOrders, 12);
+      expect(detail.totalSpent, 2450000.5);
+      // Recent orders: paid one carries its payment, unpaid one has none.
+      expect(detail.recentOrders, hasLength(2));
+      expect(detail.recentOrders[0].orderNumber, 'PL-1042');
+      expect(detail.recentOrders[0].payment!.transactionId, 'TXN-889');
+      expect(detail.recentOrders[1].payment, isNull);
+      // Flattened payments and notifications, with the read/unread summary.
+      expect(detail.recentPayments.single.transactionId, 'TXN-889');
+      expect(detail.recentNotifications[0].readAt, isNotNull);
+      expect(detail.recentNotifications[1].readAt, isNull);
+      expect(detail.notificationSummary.totalRead, 3);
+      expect(detail.notificationSummary.unreadPublished, 1);
+      expect(state().isLoading, isFalse);
+      expect(state().error, isNull);
+    },
+  );
 
-  test('401 on load logs out through AuthViewModel and sets no error', () async {
-    repo.error = ApiException('Unauthorized', statusCode: 401);
-    await vm().load();
+  test(
+    '401 on load logs out through AuthViewModel and sets no error',
+    () async {
+      repo.error = ApiException('Unauthorized', statusCode: 401);
+      await vm().load();
 
-    expect(auth.logoutCalls, 1);
-    expect(container.read(authViewModelProvider).user, isNull);
-    expect(state().error, isNull);
-    expect(state().isLoading, isFalse);
-  });
+      expect(auth.logoutCalls, 1);
+      expect(container.read(authViewModelProvider).user, isNull);
+      expect(state().error, isNull);
+      expect(state().isLoading, isFalse);
+    },
+  );
 
-  test('generic error surfaces as state.error; retry re-calls the repo', () async {
-    repo.error = ApiException('Lỗi máy chủ', statusCode: 500);
-    await vm().load();
+  test(
+    'generic error surfaces as state.error; retry re-calls the repo',
+    () async {
+      repo.error = ApiException('Lỗi máy chủ', statusCode: 500);
+      await vm().load();
 
-    var current = state();
-    expect(current.error, 'Lỗi máy chủ');
-    expect(current.detail, isNull);
-    expect(current.isLoading, isFalse);
-    expect(auth.logoutCalls, 0);
+      var current = state();
+      expect(current.error, 'Lỗi máy chủ');
+      expect(current.detail, isNull);
+      expect(current.isLoading, isFalse);
+      expect(auth.logoutCalls, 0);
 
-    repo.error = null;
-    await vm().retry();
-    current = state();
-    expect(repo.calls, ['cus-1', 'cus-1']);
-    expect(current.error, isNull);
-    expect(current.detail!.id, 'cus-1');
-  });
+      repo.error = null;
+      await vm().retry();
+      current = state();
+      expect(repo.calls, ['cus-1', 'cus-1']);
+      expect(current.error, isNull);
+      expect(current.detail!.id, 'cus-1');
+    },
+  );
 
   test('update PATCHes then re-fetches the full detail', () async {
     await vm().load();
@@ -304,17 +313,20 @@ void main() {
     expect(state().updateError, isNull);
   });
 
-  test('update gates negative points client-side without calling the repo', () async {
-    await vm().load();
-    repo.updateCalls.clear();
+  test(
+    'update gates negative points client-side without calling the repo',
+    () async {
+      await vm().load();
+      repo.updateCalls.clear();
 
-    final ok = await vm().update(points: -5);
+      final ok = await vm().update(points: -5);
 
-    expect(ok, isFalse);
-    expect(repo.updateCalls, isEmpty);
-    expect(state().updateError, 'Điểm phải là số nguyên không âm');
-    expect(auth.logoutCalls, 0);
-  });
+      expect(ok, isFalse);
+      expect(repo.updateCalls, isEmpty);
+      expect(state().updateError, 'Điểm phải là số nguyên không âm');
+      expect(auth.logoutCalls, 0);
+    },
+  );
 
   test('server 400 on update surfaces its message as updateError', () async {
     await vm().load();
@@ -327,47 +339,46 @@ void main() {
     expect(state().isSaving, isFalse);
   });
 
-  testWidgets('CustomerDetailScreen renders header, stats, recents and summary',
-      (tester) async {
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: MaterialApp(
-          theme: AppTheme.light(),
-          home: const CustomerDetailScreen(customerId: 'cus-1'),
+  testWidgets(
+    'CustomerDetailScreen renders header, stats, recents and summary',
+    (tester) async {
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            theme: AppTheme.light(),
+            home: const CustomerDetailScreen(customerId: 'cus-1'),
+          ),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
+      await tester.pumpAndSettle();
 
-    expect(repo.calls, ['cus-1']);
-    // Header: name, email, tier badge, edit button (Task 4 wires the sheet).
-    expect(find.text('Nguyễn Văn A'), findsOneWidget);
-    expect(find.text('an@example.com'), findsOneWidget);
-    expect(find.text('GOLD'), findsOneWidget);
-    expect(find.text('Chỉnh sửa'), findsOneWidget);
-    // 3 stat cards.
-    expect(find.text('Tổng đơn'), findsOneWidget);
-    expect(find.text('Tổng chi'), findsOneWidget);
-    expect(find.text('Điểm'), findsOneWidget);
-    expect(find.text('12'), findsOneWidget);
-    // Recent orders with Vietnamese status labels.
-    expect(find.text('PL-1042'), findsOneWidget);
-    expect(find.text('PL-1043'), findsOneWidget);
-    expect(find.text('Hoàn thành'), findsOneWidget);
-    expect(find.text('Chờ xác nhận'), findsOneWidget);
-    // Recent payments, then scroll down to the notifications section.
-    expect(find.text('VNPAY · PL-1042'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text('3 đã đọc · 1 chưa đọc'),
-      200,
-    );
-    expect(find.text('Khuyến mãi cuối tuần'), findsOneWidget);
-    expect(find.text('Nhắc giờ lấy bánh'), findsOneWidget);
-    expect(find.text('Chưa đọc'), findsOneWidget);
-    expect(find.text('Đã đọc'), findsOneWidget);
-    expect(find.text('3 đã đọc · 1 chưa đọc'), findsOneWidget);
-  });
+      expect(repo.calls, ['cus-1']);
+      // Header: name, email, tier badge, edit button (Task 4 wires the sheet).
+      expect(find.text('Nguyễn Văn A'), findsOneWidget);
+      expect(find.text('an@example.com'), findsOneWidget);
+      expect(find.text('GOLD'), findsOneWidget);
+      expect(find.text('Chỉnh sửa'), findsOneWidget);
+      // 3 stat cards.
+      expect(find.text('Tổng đơn'), findsOneWidget);
+      expect(find.text('Tổng chi'), findsOneWidget);
+      expect(find.text('Điểm'), findsOneWidget);
+      expect(find.text('12'), findsOneWidget);
+      // Recent orders with Vietnamese status labels.
+      expect(find.text('PL-1042'), findsOneWidget);
+      expect(find.text('PL-1043'), findsOneWidget);
+      expect(find.text('Hoàn thành'), findsOneWidget);
+      expect(find.text('Chờ xác nhận'), findsOneWidget);
+      // Recent payments, then scroll down to the notifications section.
+      expect(find.text('VNPAY · PL-1042'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('3 đã đọc · 1 chưa đọc'), 200);
+      expect(find.text('Khuyến mãi cuối tuần'), findsOneWidget);
+      expect(find.text('Nhắc giờ lấy bánh'), findsOneWidget);
+      expect(find.text('Chưa đọc'), findsOneWidget);
+      expect(find.text('Đã đọc'), findsOneWidget);
+      expect(find.text('3 đã đọc · 1 chưa đọc'), findsOneWidget);
+    },
+  );
 
   testWidgets('tapping a customer card pushes the detail screen', (
     tester,

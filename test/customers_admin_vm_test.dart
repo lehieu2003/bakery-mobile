@@ -112,10 +112,7 @@ void main() {
 
     final state = container.read(customersAdminViewModelProvider);
     expect(repo.calls, [(page: 1, search: null, level: null)]);
-    expect(state.items.map((c) => c.email), [
-      'p1a@bakery.vn',
-      'p1b@bakery.vn',
-    ]);
+    expect(state.items.map((c) => c.email), ['p1a@bakery.vn', 'p1b@bakery.vn']);
     expect(state.page, 1);
     expect(state.totalPages, 3);
     expect(state.total, 6);
@@ -136,10 +133,7 @@ void main() {
     expect(repo.calls.last, (page: 1, search: 'linh', level: null));
     expect(state.search, 'linh');
     expect(state.page, 1);
-    expect(state.items.map((c) => c.email), [
-      'p1a@bakery.vn',
-      'p1b@bakery.vn',
-    ]);
+    expect(state.items.map((c) => c.email), ['p1a@bakery.vn', 'p1b@bakery.vn']);
   });
 
   test("setFilter forwards level, 'ALL' clears it, resets page", () async {
@@ -150,17 +144,11 @@ void main() {
     await vm.setFilter('GOLD');
     expect(repo.calls.last, (page: 1, search: null, level: 'GOLD'));
     expect(container.read(customersAdminViewModelProvider).page, 1);
-    expect(
-      container.read(customersAdminViewModelProvider).levelFilter,
-      'GOLD',
-    );
+    expect(container.read(customersAdminViewModelProvider).levelFilter, 'GOLD');
 
     await vm.setFilter('ALL');
     expect(repo.calls.last, (page: 1, search: null, level: null));
-    expect(
-      container.read(customersAdminViewModelProvider).levelFilter,
-      isNull,
-    );
+    expect(container.read(customersAdminViewModelProvider).levelFilter, isNull);
   });
 
   test('loadMore appends next page while page < totalPages', () async {
@@ -234,8 +222,10 @@ void main() {
     expect(find.text('120 điểm'), findsNWidgets(2));
     // 'GOLD' appears twice: the filter chip and the badge on card 2.
     expect(find.text('GOLD'), findsNWidgets(2));
-    expect(find.descendant(of: find.byType(Card), matching: find.text('GOLD')),
-        findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(Card), matching: find.text('GOLD')),
+      findsOneWidget,
+    );
     expect(repo.calls, [(page: 1, search: null, level: null)]);
 
     // The badge text equals the chip label → target the chip by type.

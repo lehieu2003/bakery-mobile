@@ -54,7 +54,8 @@ class CustomerDetailState {
 /// Drives one admin customer detail (family key = customer id): detail load
 /// and the member-level/points update consumed by the edit bottom sheet
 /// (Task 4). A 401 logs the admin out instead of surfacing an error.
-class CustomerDetailViewModel extends FamilyNotifier<CustomerDetailState, String> {
+class CustomerDetailViewModel
+    extends FamilyNotifier<CustomerDetailState, String> {
   @override
   CustomerDetailState build(String arg) => const CustomerDetailState();
 
@@ -128,6 +129,8 @@ class CustomerDetailViewModel extends FamilyNotifier<CustomerDetailState, String
 /// this one lives next to its VM — the Task 3 file list allows touching only
 /// the customers feature files.
 final customerDetailViewModelProvider =
-    NotifierProvider.family<CustomerDetailViewModel, CustomerDetailState, String>(
-      CustomerDetailViewModel.new,
-    );
+    NotifierProvider.family<
+      CustomerDetailViewModel,
+      CustomerDetailState,
+      String
+    >(CustomerDetailViewModel.new);
