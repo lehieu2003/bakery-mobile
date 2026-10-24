@@ -35,7 +35,7 @@ void main() {
     expect(find.byKey(SearchKeys.error), findsNothing);
     expect(find.byKey(SearchKeys.resultCount), findsOneWidget);
     expect(
-      find.text('All products (${idsOf(productsSuccess, 'products').length})'),
+      find.text('Tất cả sản phẩm (${idsOf(productsSuccess, 'products').length})'),
       findsOneWidget,
     );
   });

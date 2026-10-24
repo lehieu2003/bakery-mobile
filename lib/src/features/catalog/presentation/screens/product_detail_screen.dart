@@ -152,7 +152,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
     final product = _product;
     if (product == null) {
-      return const Scaffold(body: Center(child: Text('Product not found')));
+      return const Scaffold(
+        body: Center(child: Text('Không tìm thấy sản phẩm')),
+      );
     }
 
     final currentPrice = _selectedVariant?.price ?? product.price;
@@ -302,8 +304,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         ),
                         child: Text(
                           product.stock > 0
-                              ? 'Stock: ${product.stock}'
-                              : 'Out of stock',
+                              ? 'Còn ${product.stock} sản phẩm'
+                              : 'Hết hàng',
                           style: TextStyle(
                             color: product.stock > 0
                                 ? Colors.green.shade800
@@ -473,7 +475,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Total Cost',
+                      'Tổng tiền',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     Text(
@@ -491,12 +493,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     ? () {
                         cart.addProduct(product, variant: _selectedVariant);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Added to cart')),
+                          const SnackBar(content: Text('Đã thêm vào giỏ')),
                         );
                       }
                     : null,
                 icon: const Icon(Icons.shopping_bag_outlined),
-                label: const Text('Add to Cart'),
+                label: const Text('Thêm vào giỏ'),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.xxl,

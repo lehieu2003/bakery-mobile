@@ -168,7 +168,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             AppTextInputWidget(
               controller: _nameCtrl,
               autofillHints: const [AutofillHints.name],
-              labelText: 'Name (optional)',
+              labelText: 'Họ tên (không bắt buộc)',
               prefixIcon: const Icon(Icons.person_outline),
             ),
             const Gap(AppSpacing.md),
@@ -192,7 +192,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               controller: _newPasswordCtrl,
               obscureText: _hideNewPassword,
               autofillHints: const [AutofillHints.newPassword],
-              labelText: 'New password',
+              labelText: 'Mật khẩu mới',
               prefixIcon: const Icon(Icons.lock_reset_outlined),
               suffixIcon: IconButton(
                 tooltip: _hideNewPassword ? 'Hiện mật khẩu' : 'Ẩn mật khẩu',
@@ -216,7 +216,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     ? AutofillHints.newPassword
                     : AutofillHints.password,
               ],
-              labelText: 'Password',
+              labelText: 'Mật khẩu',
               prefixIcon: const Icon(Icons.lock_outline),
               suffixIcon: IconButton(
                 tooltip: _hidePassword ? 'Hiện mật khẩu' : 'Ẩn mật khẩu',
@@ -280,7 +280,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   _newPasswordCtrl.clear();
                 });
               },
-              child: const Text('Forgot password?'),
+              child: const Text('Quên mật khẩu?'),
             ),
           TextButton(
             onPressed: () {
@@ -292,7 +292,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               });
             },
             child: Text(
-              _isRegister ? 'Have an account? Sign in' : 'No account? Register',
+              _isRegister
+                  ? 'Đã có tài khoản? Đăng nhập'
+                  : 'Chưa có tài khoản? Đăng ký',
             ),
           ),
           if (_isReset)
@@ -305,7 +307,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   _newPasswordCtrl.clear();
                 });
               },
-              child: const Text('Back to sign in'),
+              child: const Text('Quay lại đăng nhập'),
             ),
         ],
       ),
@@ -318,20 +320,20 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   // }
 
   String _subtitle() {
-    if (_isReset) return 'Get a fresh password and return to your bakery cart.';
+    if (_isReset) return 'Nhận mật khẩu mới và quay lại giỏ hàng của bạn.';
     if (_isRegister && !_otpSent) {
-      return 'Create your bakery account with email OTP.';
+      return 'Tạo tài khoản tiệm bánh bằng email và mã OTP.';
     }
-    if (_isRegister) return 'Enter the OTP we sent and finish your profile.';
-    return 'Welcome back to your daily bread and pastry picks.';
+    if (_isRegister) return 'Nhập mã OTP đã gửi để hoàn tất hồ sơ của bạn.';
+    return 'Chào mừng bạn quay lại với những bánh tươi mỗi ngày.';
   }
 
   String _primaryCta() {
-    if (_isReset && !_otpSent) return 'Send reset OTP';
-    if (_isReset && _otpSent) return 'Confirm new password';
-    if (_isRegister && !_otpSent) return 'Send register OTP';
-    if (_isRegister && _otpSent) return 'Create account';
-    return 'Sign in';
+    if (_isReset && !_otpSent) return 'Gửi mã OTP khôi phục';
+    if (_isReset && _otpSent) return 'Xác nhận mật khẩu mới';
+    if (_isRegister && !_otpSent) return 'Gửi mã OTP đăng ký';
+    if (_isRegister && _otpSent) return 'Tạo tài khoản';
+    return 'Đăng nhập';
   }
 
   Future<void> _submit() async {
@@ -348,7 +350,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         );
         if (ok && mounted) {
           setState(() => _otpSent = true);
-          _showSnack(context, 'OTP sent to your email.');
+          _showSnack(context, 'Đã gửi mã OTP đến email của bạn.');
         }
       } else {
         ok = await viewModel.verifyResetPassword(
@@ -357,7 +359,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           newPassword: _newPasswordCtrl.text,
         );
         if (ok && mounted) {
-          _showSnack(context, 'Password reset completed. Please sign in.');
+          _showSnack(context, 'Đã đặt lại mật khẩu. Vui lòng đăng nhập.');
           setState(() {
             _isReset = false;
             _otpSent = false;
@@ -372,7 +374,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         ok = await viewModel.sendRegisterOtp(email: _emailCtrl.text.trim());
         if (ok && mounted) {
           setState(() => _otpSent = true);
-          _showSnack(context, 'OTP sent to your email.');
+          _showSnack(context, 'Đã gửi mã OTP đến email của bạn.');
         }
       } else {
         ok = await viewModel.verifyRegister(
@@ -383,7 +385,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         );
         if (ok) TextInput.finishAutofillContext();
         if (ok && mounted) {
-          _showSnack(context, 'Signed in as CUSTOMER.');
+          _showSnack(context, 'Đã đăng nhập với vai trò CUSTOMER.');
         }
       }
       return;

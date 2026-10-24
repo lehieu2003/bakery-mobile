@@ -115,14 +115,14 @@ class _BlogDetailScreenState extends ConsumerState<BlogDetailScreen> {
             leading: IconButton(
               onPressed: () => Navigator.of(context).maybePop(),
               icon: const Icon(Icons.arrow_back),
-              tooltip: 'Back',
+              tooltip: 'Quay lại',
             ),
             actions: [
               if (post != null)
                 IconButton(
                   onPressed: () => _sharePost(post),
                   icon: const Icon(Icons.ios_share_rounded),
-                  tooltip: 'Share',
+                  tooltip: 'Chia sẻ',
                 ),
             ],
           ),
@@ -130,7 +130,7 @@ class _BlogDetailScreenState extends ConsumerState<BlogDetailScreen> {
             const SliverToBoxAdapter(child: SkeletonBlogDetailWidget())
           else if (_error != null || post == null)
             SliverFillRemaining(
-              child: Center(child: Text(_error ?? 'Post not found')),
+              child: Center(child: Text(_error ?? 'Không tìm thấy bài viết')),
             )
           else
             SliverToBoxAdapter(
@@ -153,9 +153,9 @@ class _BlogDetailScreenState extends ConsumerState<BlogDetailScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Blog link copied'),
+        content: const Text('Đã sao chép liên kết bài viết'),
         action: SnackBarAction(
-          label: 'Open',
+          label: 'Mở',
           onPressed: () {
             final uri = Uri.tryParse(url);
             if (uri != null) {

@@ -32,7 +32,7 @@ PageTemplateData? builtInPageTemplate(String slug) {
       );
     case 'thanh-vien':
       return const PageTemplateData(
-        eyebrow: 'Membership',
+        eyebrow: 'Thành viên',
         title: 'Chương trình thành viên',
         subtitle: 'Tích điểm, thăng hạng và mở khóa ưu đãi theo cấp bậc.',
         icon: Icons.workspace_premium_rounded,
@@ -41,7 +41,7 @@ PageTemplateData? builtInPageTemplate(String slug) {
     case 'store':
     case 'cua-hang':
       return const PageTemplateData(
-        eyebrow: 'Store',
+        eyebrow: 'Cửa hàng',
         title: 'Cửa hàng',
         subtitle: 'Địa chỉ, thời gian hoạt động và thông tin liên hệ.',
         icon: Icons.storefront_rounded,

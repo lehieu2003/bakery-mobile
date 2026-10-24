@@ -61,13 +61,13 @@ class _PageDetailScreenState extends ConsumerState<PageDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_template?.title ?? _page?.title ?? 'Page')),
+      appBar: AppBar(title: Text(_template?.title ?? _page?.title ?? 'Trang')),
       body: _isLoading
           ? const LoadingWidget()
           : _template != null
           ? BuiltInPageBody(template: _template!)
           : _page == null
-          ? const Center(child: Text('Page not found'))
+          ? const Center(child: Text('Không tìm thấy trang'))
           : ListView(
               padding: const EdgeInsets.all(AppSpacing.lg),
               children: [

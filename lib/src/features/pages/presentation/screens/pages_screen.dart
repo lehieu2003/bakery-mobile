@@ -53,7 +53,7 @@ class _PagesScreenState extends ConsumerState<PagesScreen> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Policy & Pages')),
+      appBar: AppBar(title: const Text('Chính sách & Trang')),
       body: RefreshIndicator(
         onRefresh: ref.read(pagesViewModelProvider.notifier).loadPages,
         child: ListView(

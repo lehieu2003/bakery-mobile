@@ -134,7 +134,7 @@ class HomeHeader extends StatelessWidget {
                   ),
                   Gap(AppSpacing.sm),
                   Text(
-                    'Search fresh pastry',
+                    'Tìm bánh tươi ngon…',
                     style: TextStyle(
                       color: AppTheme.textHint,
                       fontSize: 13,

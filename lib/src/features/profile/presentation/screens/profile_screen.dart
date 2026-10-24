@@ -46,8 +46,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (user == null) {
       _requestedInitialOrders = false;
       return Scaffold(
-        appBar: AppBar(title: const Text('Profile')),
-        body: const Center(child: Text('Please sign in to see your profile.')),
+        appBar: AppBar(title: const Text('Hồ sơ')),
+        body: const Center(child: Text('Vui lòng đăng nhập để xem hồ sơ.')),
       );
     }
 
@@ -64,7 +64,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('Hồ sơ'),
         actions: [
           IconButton(
             tooltip: 'Đăng xuất',
@@ -180,10 +180,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 child: Column(
                   children: [
-                    const Text('No orders yet'),
+                    const Text('Chưa có đơn hàng'),
                     const Gap(AppSpacing.xs),
                     Text(
-                      'Start shopping to see your order history.',
+                      'Mua sắm ngay để xem lịch sử đơn hàng.',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const Gap(AppSpacing.sm),
@@ -191,7 +191,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       onPressed: () => ref
                           .read(ordersViewModelProvider.notifier)
                           .loadMyOrders(),
-                      child: const Text('Refresh'),
+                      child: const Text('Làm mới'),
                     ),
                   ],
                 ),
@@ -254,7 +254,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Edit profile',
+                'Sửa hồ sơ',
                 style: Theme.of(
                   sheetContext,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
@@ -262,14 +262,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               const Gap(AppSpacing.lg),
               AppTextInputWidget(
                 controller: nameCtrl,
-                labelText: 'Name',
+                labelText: 'Họ tên',
                 textInputAction: TextInputAction.next,
                 prefixIcon: const Icon(Icons.person_outline),
               ),
               const Gap(AppSpacing.md),
               AppTextInputWidget(
                 controller: phoneCtrl,
-                labelText: 'Phone',
+                labelText: 'Số điện thoại',
                 keyboardType: TextInputType.phone,
                 prefixIcon: const Icon(Icons.phone_outlined),
               ),
@@ -285,7 +285,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   if (!sheetContext.mounted) return;
                   if (ok) Navigator.of(sheetContext).pop();
                 },
-                child: const Text('Save profile'),
+                child: const Text('Lưu hồ sơ'),
               ),
             ],
           ),
@@ -323,10 +323,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     final unavailableCount = result.unavailableItems.length;
     final message = cartItems.isEmpty
-        ? 'No items from #${result.sourceOrderNumber} could be reordered.'
+        ? 'Không thể đặt lại món nào từ đơn #${result.sourceOrderNumber}.'
         : unavailableCount > 0
-        ? 'Reorder prepared with $unavailableCount unavailable item(s).'
-        : 'Reorder prepared from #${result.sourceOrderNumber}.';
+        ? 'Đã chuẩn bị đặt lại đơn, có $unavailableCount món không khả dụng.'
+        : 'Đã chuẩn bị đặt lại từ đơn #${result.sourceOrderNumber}.';
 
     ScaffoldMessenger.of(
       context,
@@ -354,7 +354,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           children: [
             Text(
-              'Items needing attention',
+              'Món cần lưu ý',
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
@@ -410,7 +410,7 @@ class _ProfileHeaderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final displayName = (name?.trim().isNotEmpty ?? false)
         ? name!.trim()
-        : 'Customer';
+        : 'Khách hàng';
     final displayLevel = (level?.trim().isNotEmpty ?? false)
         ? level!.trim()
         : 'SILVER';
@@ -469,7 +469,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.edit_outlined),
-                  tooltip: 'Edit profile',
+                  tooltip: 'Sửa hồ sơ',
                 ),
               ],
             ),
@@ -479,7 +479,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                 Expanded(
                   child: _ProfileStatChip(
                     icon: Icons.workspace_premium_outlined,
-                    label: 'Level',
+                    label: 'Hạng',
                     value: tierLabel,
                   ),
                 ),
@@ -487,7 +487,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                 Expanded(
                   child: _ProfileStatChip(
                     icon: Icons.stars_outlined,
-                    label: 'Points',
+                    label: 'Điểm',
                     value: '$points',
                   ),
                 ),
@@ -509,7 +509,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                   children: [
                     if (discountPercent != null)
                       Text(
-                        '${discountPercent!.toStringAsFixed(0)}% membership discount',
+                        'Giảm giá thành viên ${discountPercent!.toStringAsFixed(0)}%',
                         style: const TextStyle(fontWeight: FontWeight.w800),
                       ),
                     if (eligibilityMessage != null &&
@@ -523,7 +523,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                     if (nextTierLabel != null && pointsNeeded != null) ...[
                       const Gap(AppSpacing.xs),
                       Text(
-                        '$pointsNeeded points to $nextTierLabel',
+                        'Cần thêm $pointsNeeded điểm để đạt hạng $nextTierLabel',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -608,26 +608,26 @@ class _QuickActionsCard extends StatelessWidget {
         children: [
           _ActionTile(
             icon: Icons.notifications_outlined,
-            title: 'Notifications',
-            subtitle: '$unreadNotifications unread',
+            title: 'Thông báo',
+            subtitle: '$unreadNotifications chưa đọc',
             onTap: onOpenNotifications,
           ),
           _ActionTile(
             icon: Icons.article_outlined,
             title: 'Blog',
-            subtitle: 'Read news and updates',
+            subtitle: 'Đọc tin tức và cập nhật',
             onTap: onOpenBlog,
           ),
           _ActionTile(
             icon: Icons.chat_bubble_outline,
-            title: 'Chatbot',
-            subtitle: 'Get product suggestions',
+            title: 'Trợ lý',
+            subtitle: 'Nhận gợi ý sản phẩm',
             onTap: onOpenChatbot,
           ),
           _ActionTile(
             icon: Icons.menu_book_outlined,
-            title: 'Policy & Pages',
-            subtitle: 'Terms, policy and about',
+            title: 'Chính sách & Trang',
+            subtitle: 'Điều khoản, chính sách và giới thiệu',
             onTap: onOpenPages,
             hideDivider: true,
           ),
@@ -681,7 +681,7 @@ class _OrdersHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Order History',
+          'Lịch sử đơn hàng',
           style: Theme.of(
             context,
           ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
@@ -689,7 +689,7 @@ class _OrdersHeader extends StatelessWidget {
         IconButton(
           onPressed: onRefresh,
           icon: const Icon(Icons.refresh),
-          tooltip: 'Refresh orders',
+          tooltip: 'Làm mới đơn hàng',
         ),
       ],
     );
@@ -718,9 +718,9 @@ class _OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final firstItemName = order.orderItems.isNotEmpty
         ? order.orderItems.first.name
-        : 'No items';
+        : 'Chưa có món';
     final extraItems = order.orderItems.length > 1
-        ? ' +${order.orderItems.length - 1} more'
+        ? ' +${order.orderItems.length - 1} món khác'
         : '';
     final createdAt = order.createdAt.toLocal();
     final dateText =
@@ -812,7 +812,7 @@ class _OrderCard extends StatelessWidget {
                       if (pointsEarned != null) ...[
                         const Gap(AppSpacing.xxs),
                         Text(
-                          '+${pointsEarned!} pts',
+                          '+${pointsEarned!} điểm',
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.primary,
                             fontSize: 12,
@@ -838,7 +838,9 @@ class _OrderCard extends StatelessWidget {
                           )
                         : const Icon(Icons.replay_outlined),
                     label: Text(
-                      isPreparingReorder ? 'Preparing reorder...' : 'Reorder',
+                      isPreparingReorder
+                          ? 'Đang chuẩn bị đặt lại...'
+                          : 'Đặt lại đơn',
                     ),
                   ),
                 ),

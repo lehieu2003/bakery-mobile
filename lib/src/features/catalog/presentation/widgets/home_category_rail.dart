@@ -48,15 +48,15 @@ class HomeCategoryRail extends StatelessWidget {
   String _shortCategoryLabel(String name) {
     final normalized = name.trim().toLowerCase();
     if (normalized.contains('pha') || normalized.contains('drink')) {
-      return 'Drinks';
+      return 'Đồ uống';
     }
     if (normalized.contains('làm') ||
         normalized.contains('lam') ||
         normalized.contains('baking')) {
-      return 'Baking';
+      return 'Làm bánh';
     }
     if (normalized.contains('birthday') || normalized.contains('sinh')) {
-      return 'Birthday';
+      return 'Sinh nhật';
     }
     if (normalized.contains('tiramisu')) {
       return 'Tiramisu';
