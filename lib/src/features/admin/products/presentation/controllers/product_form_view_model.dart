@@ -21,6 +21,26 @@ class FormImage {
   final bool isLocal;
 }
 
+/// One dynamic variant row being edited.
+class FormVariant {
+  const FormVariant({
+    required this.key,
+    this.id,
+    this.name = '',
+    this.sku = '',
+    this.priceText = '',
+    this.stockText = '',
+  });
+
+  /// Local identity for widget keys (server id only exists after save).
+  final int key;
+  final String? id;
+  final String name;
+  final String sku;
+  final String priceText;
+  final String stockText;
+}
+
 /// Editable state of the product form. Phase 4b adds sections in stages:
 /// T2 owns the info block (name/slug/price/stock/compare/descriptions/
 /// isActive/category), T3 images, T4 variants + attribute assignments.
@@ -39,6 +59,8 @@ class ProductFormState {
     this.isActive = true,
     this.categoryId,
     this.images = const [],
+    this.variants = const [],
+    this.assignments = const {},
     this.isSaving = false,
   });
 
@@ -66,6 +88,10 @@ class ProductFormState {
   final String? categoryId;
 
   final List<FormImage> images;
+  final List<FormVariant> variants;
+
+  /// attributeId → picked valueIds (SELECT keeps ≤1, MULTI any).
+  final Map<String, List<String>> assignments;
 
   final bool isSaving;
 
@@ -85,6 +111,8 @@ class ProductFormState {
     String? categoryId,
     bool clearCategory = false,
     List<FormImage>? images,
+    List<FormVariant>? variants,
+    Map<String, List<String>>? assignments,
     bool? isSaving,
   }) {
     return ProductFormState(
@@ -101,8 +129,22 @@ class ProductFormState {
       isActive: isActive ?? this.isActive,
       categoryId: clearCategory ? null : (categoryId ?? this.categoryId),
       images: images ?? this.images,
+      variants: variants ?? this.variants,
+      assignments: assignments ?? this.assignments,
       isSaving: isSaving ?? this.isSaving,
     );
+  }
+
+  /// Wire shape for POST/PUT: only attributes with at least one pick.
+  List<AdminProductDetailAssignment> buildAssignments() {
+    return [
+      for (final entry in assignments.entries)
+        if (entry.value.isNotEmpty)
+          AdminProductDetailAssignment(
+            attributeId: entry.key,
+            valueIds: entry.value,
+          ),
+    ];
   }
 
   /// First validation problem, or null when the info block is submittable.
@@ -162,6 +204,22 @@ class ProductFormViewModel extends FamilyNotifier<ProductFormState, String?> {
               isLocal: false,
             ),
         ],
+        variants: [
+          for (var i = 0; i < detail.variants.length; i++)
+            FormVariant(
+              key: i,
+              id: detail.variants[i].id,
+              name: detail.variants[i].name,
+              sku: detail.variants[i].sku ?? '',
+              priceText: _plain(detail.variants[i].price),
+              stockText: '${detail.variants[i].stock}',
+            ),
+        ],
+        assignments: {
+          for (final assignment in detail.assignments)
+            if (assignment.valueIds.isNotEmpty)
+              assignment.attributeId: assignment.valueIds,
+        },
       );
     } catch (error) {
       if (await _logoutOn401(error)) {
@@ -228,6 +286,70 @@ class ProductFormViewModel extends FamilyNotifier<ProductFormState, String?> {
           isLocal: images[i].isLocal,
         ),
     ];
+  }
+
+  /// Appends an empty variant row.
+  void addVariant() {
+    final nextKey = state.variants.isEmpty
+        ? 0
+        : state.variants.map((v) => v.key).reduce((a, b) => a > b ? a : b) + 1;
+    state = state.copyWith(
+      variants: [
+        ...state.variants,
+        FormVariant(key: nextKey),
+      ],
+    );
+  }
+
+  void removeVariant(int index) {
+    final updated = [...state.variants]..removeAt(index);
+    state = state.copyWith(variants: updated);
+  }
+
+  void updateVariant(
+    int index, {
+    String? name,
+    String? sku,
+    String? priceText,
+    String? stockText,
+  }) {
+    final row = state.variants[index];
+    final updated = [...state.variants];
+    updated[index] = FormVariant(
+      key: row.key,
+      id: row.id,
+      name: name ?? row.name,
+      sku: sku ?? row.sku,
+      priceText: priceText ?? row.priceText,
+      stockText: stockText ?? row.stockText,
+    );
+    state = state.copyWith(variants: updated);
+  }
+
+  /// Toggles one attribute value. SELECT attributes keep at most one pick
+  /// (a new pick replaces the old); MULTI_SELECT toggles membership.
+  void setAssignmentValue(
+    String attributeId,
+    String valueId,
+    bool selected, {
+    required bool isMulti,
+  }) {
+    final current = [...(state.assignments[attributeId] ?? const <String>[])];
+    List<String> next;
+    if (isMulti) {
+      next = selected
+          ? <String>{...current, valueId}.toList()
+          : current.where((v) => v != valueId).toList();
+    } else {
+      next = selected ? [valueId] : const [];
+    }
+    final map = {...state.assignments};
+    if (next.isEmpty) {
+      map.remove(attributeId);
+    } else {
+      map[attributeId] = next;
+    }
+    state = state.copyWith(assignments: map);
   }
 
   Future<bool> _logoutOn401(Object error) async {

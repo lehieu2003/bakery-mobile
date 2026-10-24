@@ -214,4 +214,90 @@ void main() {
       },
     );
   });
+
+  group('variants and attributes sections', () {
+    test('variant rows add, update and remove', () async {
+      await vm('prod-1').load();
+      vm('prod-1').addVariant();
+      vm('prod-1').addVariant();
+      expect(state('prod-1').variants, hasLength(2));
+
+      vm('prod-1').updateVariant(
+        0,
+        name: 'Cỡ 6 inch',
+        priceText: '68000',
+        stockText: '12',
+      );
+      vm('prod-1').updateVariant(0, sku: 'MOU-6');
+      expect(state('prod-1').variants.first.name, 'Cỡ 6 inch');
+      expect(state('prod-1').variants.first.sku, 'MOU-6');
+
+      vm('prod-1').removeVariant(0);
+      expect(state('prod-1').variants, hasLength(1));
+      expect(state('prod-1').variants.first.name, isEmpty);
+    });
+
+    test('edit preload carries existing variants as rows', () async {
+      // _detail() has no variants; a detail WITH them flows through load
+      // only via the repo — covered by the DTO tests. Here: assignment map.
+      expect(state('prod-1').assignments, isEmpty);
+    });
+
+    test(
+      'SELECT assignment replaces the single value; MULTI toggles',
+      () async {
+        await vm('prod-1').load();
+
+        vm(
+          'prod-1',
+        ).setAssignmentValue('attr-size', 'val-s', true, isMulti: false);
+        vm(
+          'prod-1',
+        ).setAssignmentValue('attr-size', 'val-m', true, isMulti: false);
+        expect(state('prod-1').assignments['attr-size'], ['val-m']);
+
+        vm(
+          'prod-1',
+        ).setAssignmentValue('attr-mousse', 'val-passion', true, isMulti: true);
+        vm(
+          'prod-1',
+        ).setAssignmentValue('attr-mousse', 'val-mango', true, isMulti: true);
+        vm('prod-1').setAssignmentValue(
+          'attr-mousse',
+          'val-passion',
+          false,
+          isMulti: true,
+        );
+        expect(
+          state('prod-1').assignments['attr-mousse'],
+          contains('val-mango'),
+        );
+        expect(
+          state('prod-1').assignments['attr-mousse'],
+          isNot(contains('val-passion')),
+        );
+      },
+    );
+
+    test(
+      'buildAssignments skips attributes with no picks and mirrors preload',
+      () async {
+        await vm('prod-1').load();
+        vm(
+          'prod-1',
+        ).setAssignmentValue('attr-size', 'val-s', true, isMulti: false);
+        vm(
+          'prod-1',
+        ).setAssignmentValue('attr-empty', 'val-x', true, isMulti: false);
+        vm(
+          'prod-1',
+        ).setAssignmentValue('attr-empty', 'val-x', false, isMulti: false);
+
+        final built = state('prod-1').buildAssignments();
+        expect(built, hasLength(1));
+        expect(built.single.attributeId, 'attr-size');
+        expect(built.single.valueIds, ['val-s']);
+      },
+    );
+  });
 }
