@@ -6,14 +6,16 @@
 // `Navigator(onGenerateRoute:)`, so the new root route is always the selected
 // section's screen (chosen over `pushAndRemoveUntil`: no route animation plays
 // while the drawer is closing and there is no back stack to manage).
-// Real screens: dashboard (phase 1), orders (phase 2) and customers
-// (phase 3); every other section still renders AdminPlaceholderScreen.
+// Real screens: dashboard (phase 1), orders (phase 2), customers (phase 3)
+// and categories (phase 4a); every other section still renders
+// AdminPlaceholderScreen.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
+import 'package:bakery_mobile/src/features/admin/categories/presentation/screens/categories_screen.dart';
 import 'package:bakery_mobile/src/features/admin/customers/presentation/screens/customers_screen.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:bakery_mobile/src/features/admin/orders/presentation/screens/orders_screen.dart';
@@ -95,6 +97,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
               AdminSection.dashboard => const DashboardScreen(),
               AdminSection.orders => const OrdersScreen(),
               AdminSection.customers => const CustomersScreen(),
+              AdminSection.categories => const CategoriesScreen(),
               _ => AdminPlaceholderScreen(_currentSection.vietnameseTitle),
             },
             settings: settings,
