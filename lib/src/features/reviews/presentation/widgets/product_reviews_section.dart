@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/features/auth/presentation/screens/auth_screen.dart';
 import 'package:bakery_mobile/src/features/reviews/domain/models/product_review.dart';
+import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Mirrors MAX_COMMENT_LENGTH in bakery-web app/api/products/[id]/reviews.
@@ -198,7 +199,7 @@ class _StarDisplay extends StatelessWidget {
         return Icon(
           index < rating ? Icons.star : Icons.star_border,
           size: size,
-          color: Colors.amber,
+          color: AppTheme.starRating,
         );
       }),
     );
@@ -268,7 +269,7 @@ class _ReviewFormSheetState extends ConsumerState<_ReviewFormSheet> {
                 icon: Icon(
                   index < _rating ? Icons.star : Icons.star_border,
                   size: 34,
-                  color: Colors.amber,
+                  color: AppTheme.starRating,
                 ),
               );
             }),

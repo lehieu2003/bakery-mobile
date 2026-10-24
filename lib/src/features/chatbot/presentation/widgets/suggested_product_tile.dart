@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
+import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/catalog/domain/models/product.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/product_detail_screen.dart';
@@ -28,7 +29,7 @@ class SuggestedProductTile extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.only(top: AppSpacing.sm),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.surfaceWhite,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(color: scheme.primary.withValues(alpha: 0.45)),
         boxShadow: [

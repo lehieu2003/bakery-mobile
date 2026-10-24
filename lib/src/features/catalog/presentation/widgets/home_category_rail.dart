@@ -10,9 +10,6 @@ import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 /// Category labels under the round icons are cut to this many words.
 const int _maxLabelWords = 2;
 
-/// Circle behind an unselected category icon.
-const Color _railIconBackground = Color(0xFFFFF8F0);
-
 class HomeCategoryRail extends StatelessWidget {
   const HomeCategoryRail({
     super.key,
@@ -100,7 +97,7 @@ class _CategoryCapsule extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: _railIconBackground,
+                  color: AppTheme.surfaceRailIcon,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(

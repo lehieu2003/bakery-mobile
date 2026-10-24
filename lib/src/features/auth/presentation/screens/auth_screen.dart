@@ -12,27 +12,6 @@ import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
-/// Page background behind the auth card.
-const Color _authBackground = Color(0xFFF8F1E8);
-
-/// Soft caramel shadow under the auth card.
-const Color _cardShadow = Color(0x1A9F7A5A);
-
-/// Caramel fill of the primary auth button.
-const Color _primaryButton = Color(0xFFB87B58);
-
-/// Top stop of the header image fade.
-const Color _heroFadeTop = Color(0x24FFFFFF);
-
-/// Middle stop of the header image fade.
-const Color _heroFadeMiddle = Color(0x66FFF8F0);
-
-/// Bottom stop of the header image fade.
-const Color _heroFadeBottom = Color(0xEEFFFFFF);
-
-/// Text of the "BAKERY SHOP" pill.
-const Color _brandPillText = Color(0xFF7A513A);
-
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
 
@@ -68,7 +47,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     final viewModel = ref.watch(authViewModelProvider);
 
     return Scaffold(
-      backgroundColor: _authBackground,
+      backgroundColor: AppTheme.surfaceAuth,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, _) {
@@ -82,12 +61,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   constraints: const BoxConstraints(maxWidth: 420),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppTheme.surfaceWhite,
                       borderRadius: BorderRadius.circular(AppRadius.sheet),
                       border: Border.all(color: AppTheme.outlineBeige),
                       boxShadow: const [
                         BoxShadow(
-                          color: _cardShadow,
+                          color: AppTheme.shadowAuthCard,
                           blurRadius: 32,
                           offset: Offset(0, 18),
                         ),
@@ -110,17 +89,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                // Text(
-                                //   _title(),
-                                //   textAlign: TextAlign.center,
-                                //   style: Theme.of(context)
-                                //       .textTheme
-                                //       .headlineSmall
-                                //       ?.copyWith(
-                                //         color: const Color(0xFF3E3028),
-                                //         fontWeight: FontWeight.w700,
-                                //       ),
-                                // ),
                                 const Gap(AppSpacing.sm),
                                 Text(
                                   _subtitle(),
@@ -250,7 +218,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           ],
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: _primaryButton,
+              backgroundColor: AppTheme.buttonPrimaryAuth,
               foregroundColor: Colors.white,
               minimumSize: const Size.fromHeight(50),
               shape: RoundedRectangleBorder(
@@ -428,7 +396,11 @@ class _BakeryHeader extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [_heroFadeTop, _heroFadeMiddle, _heroFadeBottom],
+                colors: [
+                  AppTheme.authHeroFadeTop,
+                  AppTheme.authHeroFadeMiddle,
+                  AppTheme.authHeroFadeBottom,
+                ],
               ),
             ),
           ),
@@ -438,7 +410,7 @@ class _BakeryHeader extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: AppSpacing.xl),
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.78),
+                  color: AppTheme.surfaceAuthPill,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                   border: Border.all(color: AppTheme.outlineBeige),
                 ),
@@ -450,7 +422,7 @@ class _BakeryHeader extends StatelessWidget {
                   child: Text(
                     'BAKERY SHOP',
                     style: TextStyle(
-                      color: _brandPillText,
+                      color: AppTheme.textBrandPill,
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0,

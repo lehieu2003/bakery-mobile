@@ -174,7 +174,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           SliverAppBar(
             pinned: true,
             expandedHeight: 360,
-            backgroundColor: Colors.white,
+            backgroundColor: AppTheme.surfaceWhite,
             surfaceTintColor: Colors.transparent,
             leading: IconButton(
               tooltip: 'Quay lại',
@@ -249,8 +249,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           ),
                           decoration: BoxDecoration(
                             color: active
-                                ? Colors.white
-                                : Colors.white.withValues(alpha: 0.45),
+                                ? AppTheme.surfaceWhite
+                                : AppTheme.carouselDotInactive,
                             borderRadius: BorderRadius.circular(AppRadius.pill),
                           ),
                         );
@@ -298,8 +298,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         ),
                         decoration: BoxDecoration(
                           color: product.stock > 0
-                              ? Colors.green.withValues(alpha: 0.12)
-                              : Colors.red.withValues(alpha: 0.12),
+                              ? AppTheme.stockAvailableBg
+                              : AppTheme.stockOutBg,
                           borderRadius: BorderRadius.circular(AppRadius.pill),
                         ),
                         child: Text(
@@ -308,8 +308,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                               : 'Hết hàng',
                           style: TextStyle(
                             color: product.stock > 0
-                                ? Colors.green.shade800
-                                : Colors.red.shade800,
+                                ? AppTheme.stockAvailableText
+                                : AppTheme.stockOutText,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -461,7 +461,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             color: Theme.of(context).colorScheme.surface,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
+                color: AppTheme.shadowBottomBar,
                 blurRadius: 14,
                 offset: const Offset(0, -4),
               ),
@@ -547,7 +547,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
     await showDialog<void>(
       context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.92),
+      barrierColor: AppTheme.scrimImageViewer,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
