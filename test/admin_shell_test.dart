@@ -1,7 +1,7 @@
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/admin/shell/domain/admin_section.dart';
-import 'package:bakery_mobile/src/features/admin/shell/presentation/screens/admin_placeholder_screen.dart';
+import 'package:bakery_mobile/src/features/admin/coupons/presentation/screens/coupons_screen.dart';
 import 'package:bakery_mobile/src/features/admin/shell/presentation/screens/admin_shell.dart';
 import 'package:bakery_mobile/src/features/auth/domain/models/user.dart';
 import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_view_model.dart';
@@ -181,14 +181,13 @@ void main() {
         );
       }
 
-      // 'Đơn hàng' has a real screen since phase 2 and 'Khách hàng' since
-      // phase 3 (they would hit the API here), so navigation is exercised
-      // with a section that is still a placeholder.
+      // Every spec module has a real screen since phase 6; navigation is
+      // exercised with Coupon (its API call fails offline — the screen's
+      // retry state is the expected render).
       await tester.tap(find.text('Coupon'));
       await tester.pumpAndSettle();
 
-      expect(find.byType(AdminPlaceholderScreen), findsOneWidget);
-      expect(find.text('Mục "Coupon" sắp ra mắt'), findsOneWidget);
+      expect(find.byType(CouponsScreen), findsOneWidget);
       expect(find.text('Coupon'), findsOneWidget);
     },
   );

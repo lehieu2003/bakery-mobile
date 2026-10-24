@@ -13,6 +13,16 @@ import 'package:bakery_mobile/src/features/admin/dashboard/data/datasources/dash
 import 'package:bakery_mobile/src/features/admin/dashboard/data/repositories/dashboard_repository.dart';
 import 'package:bakery_mobile/src/features/admin/orders/data/datasources/order_admin_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/orders/data/repositories/order_admin_repository.dart';
+import 'package:bakery_mobile/src/features/admin/audit/data/datasources/audit_admin_api_service.dart';
+import 'package:bakery_mobile/src/features/admin/audit/data/repositories/audit_admin_repository.dart';
+import 'package:bakery_mobile/src/features/admin/coupons/data/datasources/coupon_admin_api_service.dart';
+import 'package:bakery_mobile/src/features/admin/coupons/data/repositories/coupon_admin_repository.dart';
+import 'package:bakery_mobile/src/features/admin/membership/data/datasources/membership_admin_api_service.dart';
+import 'package:bakery_mobile/src/features/admin/membership/data/repositories/membership_admin_repository.dart';
+import 'package:bakery_mobile/src/features/admin/settings/data/datasources/settings_admin_api_service.dart';
+import 'package:bakery_mobile/src/features/admin/settings/data/repositories/settings_admin_repository.dart';
+import 'package:bakery_mobile/src/features/admin/product-attributes/data/datasources/product_attribute_admin_api_service.dart';
+import 'package:bakery_mobile/src/features/admin/product-attributes/data/repositories/product_attribute_admin_repository.dart';
 import 'package:bakery_mobile/src/features/admin/content/blog/data/datasources/blog_admin_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/content/blog/data/repositories/blog_admin_repository.dart';
 import 'package:bakery_mobile/src/features/admin/content/menu/data/datasources/menu_admin_api_service.dart';
@@ -196,6 +206,43 @@ final menuAdminApiServiceProvider = Provider<MenuAdminApiService>(
 );
 final menuAdminRepositoryProvider = Provider<MenuAdminRepository>(
   (ref) => MenuAdminRepository(ref.watch(menuAdminApiServiceProvider)),
+);
+
+// Phase 6: last-five admin modules.
+final couponAdminApiServiceProvider = Provider<CouponAdminApiService>(
+  (ref) => CouponAdminApiService(ref.watch(apiClientProvider)),
+);
+final couponAdminRepositoryProvider = Provider<CouponAdminRepository>(
+  (ref) => CouponAdminRepository(ref.watch(couponAdminApiServiceProvider)),
+);
+final productAttributeAdminApiServiceProvider =
+    Provider<ProductAttributeAdminApiService>(
+      (ref) => ProductAttributeAdminApiService(ref.watch(apiClientProvider)),
+    );
+final productAttributeAdminRepositoryProvider =
+    Provider<ProductAttributeAdminRepository>(
+      (ref) => ProductAttributeAdminRepository(
+        ref.watch(productAttributeAdminApiServiceProvider),
+      ),
+    );
+final membershipAdminApiServiceProvider = Provider<MembershipAdminApiService>(
+  (ref) => MembershipAdminApiService(ref.watch(apiClientProvider)),
+);
+final membershipAdminRepositoryProvider = Provider<MembershipAdminRepository>(
+  (ref) =>
+      MembershipAdminRepository(ref.watch(membershipAdminApiServiceProvider)),
+);
+final auditAdminApiServiceProvider = Provider<AuditAdminApiService>(
+  (ref) => AuditAdminApiService(ref.watch(apiClientProvider)),
+);
+final auditAdminRepositoryProvider = Provider<AuditAdminRepository>(
+  (ref) => AuditAdminRepository(ref.watch(auditAdminApiServiceProvider)),
+);
+final settingsAdminApiServiceProvider = Provider<SettingsAdminApiService>(
+  (ref) => SettingsAdminApiService(ref.watch(apiClientProvider)),
+);
+final settingsAdminRepositoryProvider = Provider<SettingsAdminRepository>(
+  (ref) => SettingsAdminRepository(ref.watch(settingsAdminApiServiceProvider)),
 );
 
 final uploadApiServiceProvider = Provider<UploadApiService>(
