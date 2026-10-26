@@ -248,7 +248,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                  ),
                   child: Text(
                     'HOẶC',
                     style: TextStyle(
@@ -540,34 +542,55 @@ class _GoogleLogoPainter extends CustomPainter {
       ..lineTo(w * 0.5, h * 0.5)
       ..lineTo(w * 0.5, h * 0.35)
       ..lineTo(w * 0.93, h * 0.35)
-      ..arcToPoint(Offset(w * 0.88, h * 0.72), radius: Radius.circular(w * 0.45))
+      ..arcToPoint(
+        Offset(w * 0.88, h * 0.72),
+        radius: Radius.circular(w * 0.45),
+      )
       ..close();
     canvas.drawPath(bluePath, bluePaint);
 
     // Green bottom arc
     final greenPath = Path()
       ..moveTo(w * 0.88, h * 0.72)
-      ..arcToPoint(Offset(w * 0.28, h * 0.82), radius: Radius.circular(w * 0.45))
+      ..arcToPoint(
+        Offset(w * 0.28, h * 0.82),
+        radius: Radius.circular(w * 0.45),
+      )
       ..lineTo(w * 0.38, h * 0.64)
-      ..arcToPoint(Offset(w * 0.76, h * 0.60), radius: Radius.circular(w * 0.28))
+      ..arcToPoint(
+        Offset(w * 0.76, h * 0.60),
+        radius: Radius.circular(w * 0.28),
+      )
       ..close();
     canvas.drawPath(greenPath, greenPaint);
 
     // Yellow left arc
     final yellowPath = Path()
       ..moveTo(w * 0.28, h * 0.82)
-      ..arcToPoint(Offset(w * 0.28, h * 0.18), radius: Radius.circular(w * 0.45))
+      ..arcToPoint(
+        Offset(w * 0.28, h * 0.18),
+        radius: Radius.circular(w * 0.45),
+      )
       ..lineTo(w * 0.38, h * 0.36)
-      ..arcToPoint(Offset(w * 0.38, h * 0.64), radius: Radius.circular(w * 0.28))
+      ..arcToPoint(
+        Offset(w * 0.38, h * 0.64),
+        radius: Radius.circular(w * 0.28),
+      )
       ..close();
     canvas.drawPath(yellowPath, yellowPaint);
 
     // Red top arc
     final redPath = Path()
       ..moveTo(w * 0.28, h * 0.18)
-      ..arcToPoint(Offset(w * 0.78, h * 0.22), radius: Radius.circular(w * 0.45))
+      ..arcToPoint(
+        Offset(w * 0.78, h * 0.22),
+        radius: Radius.circular(w * 0.45),
+      )
       ..lineTo(w * 0.65, h * 0.38)
-      ..arcToPoint(Offset(w * 0.38, h * 0.36), radius: Radius.circular(w * 0.28))
+      ..arcToPoint(
+        Offset(w * 0.38, h * 0.36),
+        radius: Radius.circular(w * 0.28),
+      )
       ..close();
     canvas.drawPath(redPath, redPaint);
   }

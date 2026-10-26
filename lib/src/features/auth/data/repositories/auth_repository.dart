@@ -19,10 +19,7 @@ class AuthRepository {
     return user;
   }
 
-  Future<User> loginWithGoogle({
-    String? idToken,
-    String? accessToken,
-  }) async {
+  Future<User> loginWithGoogle({String? idToken, String? accessToken}) async {
     final result = await authApiService.loginWithGoogle(
       idToken: idToken,
       accessToken: accessToken,

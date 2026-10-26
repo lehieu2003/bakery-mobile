@@ -67,7 +67,8 @@ class AuthViewModel extends Notifier<AuthState> {
 
   Future<bool> loginWithGoogle({GoogleSignIn? googleSignIn}) {
     return _submit(() async {
-      final signIn = googleSignIn ??
+      final signIn =
+          googleSignIn ??
           GoogleSignIn(
             scopes: const ['email', 'profile'],
             serverClientId:
@@ -78,7 +79,9 @@ class AuthViewModel extends Notifier<AuthState> {
         return false;
       }
       final auth = await account.authentication;
-      final user = await ref.read(authRepositoryProvider).loginWithGoogle(
+      final user = await ref
+          .read(authRepositoryProvider)
+          .loginWithGoogle(
             idToken: auth.idToken,
             accessToken: auth.accessToken,
           );

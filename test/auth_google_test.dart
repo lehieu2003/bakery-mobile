@@ -11,15 +11,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeGoogleAuthRepository extends AuthRepository {
   _FakeGoogleAuthRepository(this._user)
-      : super(
-          tokenStorage: TokenStorage(),
-          authApiService: AuthApiService(
-            ApiClient(
-              baseUrl: 'http://localhost:1',
-              tokenProvider: () async => null,
-            ),
+    : super(
+        tokenStorage: TokenStorage(),
+        authApiService: AuthApiService(
+          ApiClient(
+            baseUrl: 'http://localhost:1',
+            tokenProvider: () async => null,
           ),
-        );
+        ),
+      );
 
   final User _user;
 
@@ -36,29 +36,32 @@ void main() {
     FlutterSecureStorage.setMockInitialValues({});
   });
 
-  test('loginWithGoogle authenticates and populates user in AuthState', () async {
-    final expectedUser = const User(
-      id: 'google-u1',
-      email: 'customer@gmail.com',
-      role: 'CUSTOMER',
-      name: 'Google Customer',
-    );
+  test(
+    'loginWithGoogle authenticates and populates user in AuthState',
+    () async {
+      final expectedUser = const User(
+        id: 'google-u1',
+        email: 'customer@gmail.com',
+        role: 'CUSTOMER',
+        name: 'Google Customer',
+      );
 
-    final container = ProviderContainer(
-      overrides: [
-        authRepositoryProvider.overrideWithValue(
-          _FakeGoogleAuthRepository(expectedUser),
-        ),
-      ],
-    );
-    addTearDown(container.dispose);
+      final container = ProviderContainer(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(
+            _FakeGoogleAuthRepository(expectedUser),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
 
-    // Call repository directly through fake
-    final user = await container.read(authRepositoryProvider).loginWithGoogle(
-          idToken: 'fake-id-token',
-        );
+      // Call repository directly through fake
+      final user = await container
+          .read(authRepositoryProvider)
+          .loginWithGoogle(idToken: 'fake-id-token');
 
-    expect(user.id, 'google-u1');
-    expect(user.email, 'customer@gmail.com');
-  });
+      expect(user.id, 'google-u1');
+      expect(user.email, 'customer@gmail.com');
+    },
+  );
 }
