@@ -237,6 +237,67 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   )
                 : Text(_primaryCta()),
           ),
+          if (!_isReset && !_otpSent) ...[
+            const Gap(AppSpacing.md),
+            Row(
+              children: [
+                Expanded(
+                  child: Divider(
+                    color: Colors.brown.withValues(alpha: 0.2),
+                    height: 1,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                  child: Text(
+                    'HOẶC',
+                    style: TextStyle(
+                      color: AppTheme.textMuted,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Divider(
+                    color: Colors.brown.withValues(alpha: 0.2),
+                    height: 1,
+                  ),
+                ),
+              ],
+            ),
+            const Gap(AppSpacing.md),
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: const Color(0xFF2C1810),
+                minimumSize: const Size.fromHeight(50),
+                side: BorderSide(color: Colors.brown.withValues(alpha: 0.25)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.xl),
+                ),
+              ),
+              onPressed: viewModel.isSubmitting ? null : _loginWithGoogle,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  _GoogleLogo(size: 18),
+                  Gap(AppSpacing.xs),
+                  Flexible(
+                    child: Text(
+                      'Đăng nhập bằng Google',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           const Gap(AppSpacing.md),
           if (!_isReset && !_isRegister)
             TextButton(
@@ -367,6 +428,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     if (ok) TextInput.finishAutofillContext();
   }
 
+  Future<void> _loginWithGoogle() async {
+    final viewModel = ref.read(authViewModelProvider.notifier);
+    final ok = await viewModel.loginWithGoogle();
+    if (ok) TextInput.finishAutofillContext();
+    if (ok && mounted) {
+      _showSnack(context, 'Đăng nhập Google thành công.');
+    }
+  }
+
   void _showSnack(BuildContext context, String message) {
     ScaffoldMessenger.of(
       context,
@@ -436,4 +506,72 @@ class _BakeryHeader extends StatelessWidget {
       ),
     );
   }
+}
+
+class _GoogleLogo extends StatelessWidget {
+  const _GoogleLogo({this.size = 20});
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: Size(size, size),
+      painter: const _GoogleLogoPainter(),
+    );
+  }
+}
+
+class _GoogleLogoPainter extends CustomPainter {
+  const _GoogleLogoPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double w = size.width;
+    final double h = size.height;
+
+    final bluePaint = Paint()..color = const Color(0xFF4285F4);
+    final greenPaint = Paint()..color = const Color(0xFF34A853);
+    final yellowPaint = Paint()..color = const Color(0xFFFBBC05);
+    final redPaint = Paint()..color = const Color(0xFFEA4335);
+
+    // Blue horizontal bar
+    final bluePath = Path()
+      ..moveTo(w * 0.95, h * 0.5)
+      ..lineTo(w * 0.5, h * 0.5)
+      ..lineTo(w * 0.5, h * 0.35)
+      ..lineTo(w * 0.93, h * 0.35)
+      ..arcToPoint(Offset(w * 0.88, h * 0.72), radius: Radius.circular(w * 0.45))
+      ..close();
+    canvas.drawPath(bluePath, bluePaint);
+
+    // Green bottom arc
+    final greenPath = Path()
+      ..moveTo(w * 0.88, h * 0.72)
+      ..arcToPoint(Offset(w * 0.28, h * 0.82), radius: Radius.circular(w * 0.45))
+      ..lineTo(w * 0.38, h * 0.64)
+      ..arcToPoint(Offset(w * 0.76, h * 0.60), radius: Radius.circular(w * 0.28))
+      ..close();
+    canvas.drawPath(greenPath, greenPaint);
+
+    // Yellow left arc
+    final yellowPath = Path()
+      ..moveTo(w * 0.28, h * 0.82)
+      ..arcToPoint(Offset(w * 0.28, h * 0.18), radius: Radius.circular(w * 0.45))
+      ..lineTo(w * 0.38, h * 0.36)
+      ..arcToPoint(Offset(w * 0.38, h * 0.64), radius: Radius.circular(w * 0.28))
+      ..close();
+    canvas.drawPath(yellowPath, yellowPaint);
+
+    // Red top arc
+    final redPath = Path()
+      ..moveTo(w * 0.28, h * 0.18)
+      ..arcToPoint(Offset(w * 0.78, h * 0.22), radius: Radius.circular(w * 0.45))
+      ..lineTo(w * 0.65, h * 0.38)
+      ..arcToPoint(Offset(w * 0.38, h * 0.36), radius: Radius.circular(w * 0.28))
+      ..close();
+    canvas.drawPath(redPath, redPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

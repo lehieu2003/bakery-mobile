@@ -48,6 +48,7 @@ dependencies:
   gap: ^3.0.1
   connectivity_plus: ^6.1.5
   image_picker: ^1.2.1
+  google_sign_in: ^6.2.2
 
 dev_dependencies:
   flutter_test:

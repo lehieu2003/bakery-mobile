@@ -19,6 +19,22 @@ class AuthRepository {
     return user;
   }
 
+  Future<User> loginWithGoogle({
+    String? idToken,
+    String? accessToken,
+  }) async {
+    final result = await authApiService.loginWithGoogle(
+      idToken: idToken,
+      accessToken: accessToken,
+    );
+    final user = result.user.toDomain();
+    final token = result.token;
+    if (token.isNotEmpty) {
+      await _startSession(token);
+    }
+    return user;
+  }
+
   Future<void> register({required String email}) {
     return authApiService.register(email: email);
   }
