@@ -159,11 +159,20 @@ class AuthViewModel extends Notifier<AuthState> {
   /// Drops a stale error (e.g. from a previous form) before a new flow.
   void clearError() => state = state.copyWith(clearError: true);
 
+  /// Emails the code that confirms account deletion — a code rather than the
+  /// password, which Google sign-in accounts do not have.
+  Future<bool> sendDeleteAccountOtp() {
+    return _submit(() async {
+      await ref.read(authRepositoryProvider).requestDeleteAccountOtp();
+      return true;
+    });
+  }
+
   /// Deletes the account; on success the user is signed out (AppGate
   /// returns to the auth screen). The server's reason lands in errorMessage.
-  Future<bool> deleteAccount({required String password}) {
+  Future<bool> deleteAccount({required String otp}) {
     return _submit(() async {
-      await ref.read(authRepositoryProvider).deleteAccount(password: password);
+      await ref.read(authRepositoryProvider).deleteAccount(otp: otp);
       state = state.copyWith(clearUser: true);
       return true;
     });

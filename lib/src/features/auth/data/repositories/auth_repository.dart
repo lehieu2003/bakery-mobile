@@ -98,10 +98,13 @@ class AuthRepository {
     )).toDomain();
   }
 
+  Future<void> requestDeleteAccountOtp() =>
+      authApiService.requestDeleteAccountOtp();
+
   /// The server revokes every session on success, so the local token goes
-  /// too. On failure (wrong password, open orders) the session stays valid.
-  Future<void> deleteAccount({required String password}) async {
-    await authApiService.deleteAccount(password: password);
+  /// too. On failure (wrong code, open orders) the session stays valid.
+  Future<void> deleteAccount({required String otp}) async {
+    await authApiService.deleteAccount(otp: otp);
     await tokenStorage.clearToken();
   }
 
