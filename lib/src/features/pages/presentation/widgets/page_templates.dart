@@ -464,7 +464,8 @@ class _StoreBody extends StatelessWidget {
           _MetaRow(
             icon: Icons.phone_rounded,
             label: 'Điện thoại',
-            value: '+84 978 780 176',
+            // The shop hotline, same number as the web footer and policies.
+            value: '1900 779907',
           ),
           Gap(AppSpacing.sm),
           _MetaRow(
