@@ -6,7 +6,7 @@ import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 /// Size presets for [DiscountBadgeWidget].
 enum DiscountBadgeVariant {
-  /// List tiles and thumbnails (search, wishlist, chatbot suggestions).
+  /// List tiles and thumbnails (search, wishlist).
   small,
 
   /// Product cards on image corners, with a soft shadow.

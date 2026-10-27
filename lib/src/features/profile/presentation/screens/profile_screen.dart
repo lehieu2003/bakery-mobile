@@ -9,7 +9,6 @@ import 'package:bakery_mobile/src/features/addresses/presentation/screens/addres
 import 'package:bakery_mobile/src/features/auth/domain/models/user.dart';
 import 'package:bakery_mobile/src/features/blog/presentation/screens/blog_screen.dart';
 import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
-import 'package:bakery_mobile/src/features/chatbot/presentation/screens/chatbot_screen.dart';
 import 'package:bakery_mobile/src/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
 import 'package:bakery_mobile/src/features/orders/presentation/screens/order_detail_screen.dart';
@@ -104,11 +103,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               Navigator.of(
                 context,
               ).push(MaterialPageRoute(builder: (_) => const BlogScreen()));
-            },
-            onOpenChatbot: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const ChatbotScreen()));
             },
             onOpenPages: () {
               Navigator.of(
@@ -591,14 +585,12 @@ class _QuickActionsCard extends StatelessWidget {
     required this.unreadNotifications,
     required this.onOpenNotifications,
     required this.onOpenBlog,
-    required this.onOpenChatbot,
     required this.onOpenPages,
   });
 
   final int unreadNotifications;
   final VoidCallback onOpenNotifications;
   final VoidCallback onOpenBlog;
-  final VoidCallback onOpenChatbot;
   final VoidCallback onOpenPages;
 
   @override
@@ -617,12 +609,6 @@ class _QuickActionsCard extends StatelessWidget {
             title: 'Blog',
             subtitle: 'Đọc tin tức và cập nhật',
             onTap: onOpenBlog,
-          ),
-          _ActionTile(
-            icon: Icons.chat_bubble_outline,
-            title: 'Trợ lý',
-            subtitle: 'Nhận gợi ý sản phẩm',
-            onTap: onOpenChatbot,
           ),
           _ActionTile(
             icon: Icons.menu_book_outlined,
