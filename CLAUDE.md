@@ -16,7 +16,7 @@ shader `ink_sparkle` và `pub get` sửa lung tung file ios/android.
   - Android: `fvm flutter run --flavor dev --dart-define-from-file=config/dev.json` (bắt buộc `--flavor` vì có productFlavors)
   - iOS: `fvm flutter run --dart-define-from-file=config/dev.json` (chưa có scheme theo flavor)
   - `.env` (`API_BASE_URL`) chỉ là override cục bộ cho **dev** (vd máy thật dùng IP LAN); bản prod bỏ qua `.env`.
-- `fvm flutter test integration_test/app_e2e_test.dart -d <device> --flavor dev --dart-define-from-file=config/dev.json` (thêm `--dart-define=E2E_WRITE=true` để chạy cả bước tạo dữ liệu thật: lưu địa chỉ, đặt đơn, gửi chatbot) — e2e, cần emulator
+- `fvm flutter test integration_test/app_e2e_test.dart -d <device> --flavor dev --dart-define-from-file=config/dev.json` (thêm `--dart-define=E2E_WRITE=true` để chạy cả bước tạo dữ liệu thật: lưu địa chỉ, đặt đơn) — e2e, cần emulator
 
 ## Kiến trúc
 

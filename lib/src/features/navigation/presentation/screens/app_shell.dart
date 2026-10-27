@@ -7,8 +7,8 @@ import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/screens/cart_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/home_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/search_screen.dart';
-import 'package:bakery_mobile/src/features/chatbot/presentation/screens/chatbot_screen.dart';
 import 'package:bakery_mobile/src/features/profile/presentation/screens/profile_screen.dart';
+import 'package:bakery_mobile/src/features/wishlist/presentation/screens/wishlist_screen.dart';
 import 'package:bakery_mobile/src/shared/widgets/initial_avatar_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
@@ -38,7 +38,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
       const HomeScreen(),
       const SearchScreen(),
       const CartScreen(),
-      const ChatbotScreen(),
+      const WishlistScreen(),
       const ProfileScreen(),
     ];
 
@@ -130,15 +130,15 @@ class _BottomNavigator extends StatelessWidget {
                   ),
                 ],
               ),
-              // Right side: Favorite, Chatbot
+              // Right side: Favorite, Profile
               Row(
                 spacing: AppSpacing.xxl,
                 children: [
                   _NavButton(
                     index: 3,
                     currentIndex: currentIndex,
-                    icon: Icons.chat_bubble_outline,
-                    selectedIcon: Icons.chat_bubble,
+                    icon: Icons.favorite_border,
+                    selectedIcon: Icons.favorite,
                     onTap: onTap,
                   ),
                   _NavButton(
@@ -259,8 +259,8 @@ class _AppDrawer extends StatelessWidget {
             onTap: () => onNavigate(2),
           ),
           _DrawerNavItem(
-            icon: Icons.chat_bubble_outline,
-            label: 'Trợ lý',
+            icon: Icons.favorite_border,
+            label: 'Yêu thích',
             selected: currentIndex == 3,
             onTap: () => onNavigate(3),
           ),

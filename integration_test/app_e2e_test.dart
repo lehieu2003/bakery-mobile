@@ -7,8 +7,7 @@
 //
 // Default run is read-only towards the server: anything it changes is undone
 // in the same test (wishlist toggled back, cart item removed). Steps that
-// create real data or cost money — saving an address, placing an order,
-// sending a chatbot message (OpenAI) — only run with:
+// create real data — saving an address, placing an order — only run with:
 //
 //   --dart-define=E2E_WRITE=true
 //
@@ -32,7 +31,6 @@ import 'package:bakery_mobile/src/features/catalog/presentation/screens/home_scr
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/product_detail_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/search_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/search_product_tile.dart';
-import 'package:bakery_mobile/src/features/chatbot/presentation/screens/chatbot_screen.dart';
 import 'package:bakery_mobile/src/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:bakery_mobile/src/features/orders/presentation/screens/order_detail_screen.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/screens/page_detail_screen.dart';
@@ -443,38 +441,7 @@ void main() {
     await _waitFor(tester, find.byType(PageDetailScreen));
   }, timeout: _timeout);
 
-  testWidgets('13 chatbot${_write ? ' sends a message' : ' screen'}', (
-    tester,
-  ) async {
-    await _launch(tester);
-    await _tap(tester, find.byIcon(Icons.chat_bubble_outline));
-    await _waitFor(tester, find.byType(ChatbotScreen));
-    final input = find.widgetWithText(TextField, 'Nhap tin nhan...');
-    await _waitFor(tester, input);
-    if (!_write) return;
-
-    final before = find
-        .descendant(of: find.byType(ChatbotScreen), matching: find.byType(Text))
-        .evaluate()
-        .length;
-    await tester.enterText(input, 'Gợi ý bánh sinh nhật');
-    await _tap(tester, find.byIcon(Icons.send));
-    final end = DateTime.now().add(const Duration(seconds: 60));
-    while (DateTime.now().isBefore(end)) {
-      await _settle(tester, 500);
-      final now = find
-          .descendant(
-            of: find.byType(ChatbotScreen),
-            matching: find.byType(Text),
-          )
-          .evaluate()
-          .length;
-      if (now >= before + 2) return; // user message + bot reply
-    }
-    throw TestFailure('Chatbot did not reply within 60s');
-  }, timeout: _timeout);
-
-  testWidgets('14 logout returns to login', (tester) async {
+  testWidgets('13 logout returns to login', (tester) async {
     await _launch(tester);
     await _tap(tester, find.byIcon(Icons.person_outline));
     await _tap(tester, find.byIcon(Icons.logout));
