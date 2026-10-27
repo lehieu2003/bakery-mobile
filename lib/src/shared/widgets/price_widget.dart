@@ -14,7 +14,7 @@ enum PriceVariant {
   /// Product cards: single line, brown bold price, ellipsized.
   card,
 
-  /// Price inside a tinted pill (chatbot suggestions), single line.
+  /// Price inside a tinted pill, single line.
   chip,
 
   /// Product detail: large price, wraps when narrow.
