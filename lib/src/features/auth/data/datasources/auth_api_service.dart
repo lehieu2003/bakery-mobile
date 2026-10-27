@@ -75,12 +75,16 @@ class AuthApiService {
   }
 
   /// Anonymizes the signed-in customer server-side (Play account-deletion
-  /// requirement). 400 wrong password, 403 admin, 409 open orders.
-  Future<void> deleteAccount({required String password}) async {
-    await _client.post(
-      '/api/auth/delete-account',
-      body: {'password': password},
-    );
+  /// requirement), confirmed with the emailed code. 400 wrong/expired code,
+  /// 403 admin, 409 open orders.
+  Future<void> deleteAccount({required String otp}) async {
+    await _client.post('/api/auth/delete-account', body: {'otp': otp});
+  }
+
+  /// Emails the code that confirms deletion to the signed-in account. Works
+  /// for Google sign-in accounts too, which have no password. 429 = cooldown.
+  Future<void> requestDeleteAccountOtp() async {
+    await _client.post('/api/auth/delete-account/otp', body: const {});
   }
 
   Future<void> register({required String email}) async {

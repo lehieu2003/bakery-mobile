@@ -10,7 +10,7 @@ import '../../helpers/fixture.dart';
 
 const _path = '/api/auth/delete-account';
 const _success = 'auth/delete_account_success.json';
-const _wrongPassword = 'auth/delete_account_wrong_password.json';
+const _wrongOtp = 'auth/delete_account_wrong_otp.json';
 const _openOrders = 'auth/delete_account_open_orders.json';
 
 /// The real AuthViewModel + AuthRepository + TokenStorage on a FakeApiClient,
@@ -48,7 +48,7 @@ void main() {
 
     final deleting = container
         .read(authViewModelProvider.notifier)
-        .deleteAccount(password: 'secret-1');
+        .deleteAccount(otp: '482913');
     expect(container.read(authViewModelProvider).isSubmitting, isTrue);
     gate.complete();
     final deleted = await deleting;
@@ -59,21 +59,21 @@ void main() {
     expect(state.isSubmitting, isFalse);
     expect(state.errorMessage, isNull);
     expect(await container.read(tokenStorageProvider).readToken(), isNull);
-    expect(api.callsTo('POST', _path).single.body, {'password': 'secret-1'});
+    expect(api.callsTo('POST', _path).single.body, {'otp': '482913'});
   });
 
-  test('wrong password keeps the session and reports the reason', () async {
-    api.stubError('POST', _path, fixtureName: _wrongPassword, statusCode: 400);
+  test('wrong code keeps the session and reports the reason', () async {
+    api.stubError('POST', _path, fixtureName: _wrongOtp, statusCode: 400);
     final container = await _signedIn(api);
 
     final deleted = await container
         .read(authViewModelProvider.notifier)
-        .deleteAccount(password: 'nope');
+        .deleteAccount(otp: '000000');
 
     final state = container.read(authViewModelProvider);
     expect(deleted, isFalse);
     expect(state.isAuthenticated, isTrue);
-    expect(state.errorMessage, fixtureError(_wrongPassword).message);
+    expect(state.errorMessage, fixtureError(_wrongOtp).message);
     expect(await container.read(tokenStorageProvider).readToken(), 'tok-1');
   });
 
@@ -83,7 +83,7 @@ void main() {
 
     final deleted = await container
         .read(authViewModelProvider.notifier)
-        .deleteAccount(password: 'secret-1');
+        .deleteAccount(otp: '482913');
 
     final state = container.read(authViewModelProvider);
     expect(deleted, isFalse);
@@ -91,11 +91,31 @@ void main() {
     expect(state.errorMessage, fixtureError(_openOrders).message);
   });
 
+  test(
+    'sending the code posts to the OTP route and keeps the session',
+    () async {
+      api.stubFixture(
+        'POST',
+        '/api/auth/delete-account/otp',
+        'auth/delete_account_otp_success.json',
+      );
+      final container = await _signedIn(api);
+
+      final sent = await container
+          .read(authViewModelProvider.notifier)
+          .sendDeleteAccountOtp();
+
+      expect(sent, isTrue);
+      expect(api.callsTo('POST', '/api/auth/delete-account/otp'), hasLength(1));
+      expect(container.read(authViewModelProvider).isAuthenticated, isTrue);
+    },
+  );
+
   test('clearError drops a previous failure', () async {
-    api.stubError('POST', _path, fixtureName: _wrongPassword, statusCode: 400);
+    api.stubError('POST', _path, fixtureName: _wrongOtp, statusCode: 400);
     final container = await _signedIn(api);
     final vm = container.read(authViewModelProvider.notifier);
-    await vm.deleteAccount(password: 'nope');
+    await vm.deleteAccount(otp: '000000');
 
     vm.clearError();
 

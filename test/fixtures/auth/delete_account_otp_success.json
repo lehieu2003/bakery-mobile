@@ -1,0 +1,7 @@
+{
+  "success": true,
+  "data": {
+    "message": "Mã xác nhận đã được gửi đến email của bạn",
+    "expiresIn": 300
+  }
+}

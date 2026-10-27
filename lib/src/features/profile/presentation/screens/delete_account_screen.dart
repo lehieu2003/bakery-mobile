@@ -16,8 +16,11 @@ const _erased = [
   'Mọi phiên đăng nhập trên web và ứng dụng',
 ];
 
+const _otpLength = 6;
+
 /// Account deletion (Google Play requirement). Same rules as the web page
-/// /xoa-tai-khoan: password-confirmed, blocked while orders are open.
+/// /xoa-tai-khoan: confirmed with a code emailed to the account (Google
+/// sign-in accounts have no password), blocked while orders are open.
 class DeleteAccountScreen extends ConsumerStatefulWidget {
   const DeleteAccountScreen({super.key});
 
@@ -27,19 +30,27 @@ class DeleteAccountScreen extends ConsumerStatefulWidget {
 }
 
 class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
-  final _password = TextEditingController();
+  final _otp = TextEditingController();
+  bool _otpSent = false;
   bool _confirmed = false;
 
   @override
   void initState() {
     super.initState();
-    _password.addListener(() => setState(() {}));
+    _otp.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
-    _password.dispose();
+    _otp.dispose();
     super.dispose();
+  }
+
+  Future<void> _sendOtp() async {
+    final sent = await ref
+        .read(authViewModelProvider.notifier)
+        .sendDeleteAccountOtp();
+    if (sent && mounted) setState(() => _otpSent = true);
   }
 
   Future<void> _submit() async {
@@ -47,7 +58,7 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
     final navigator = Navigator.of(context);
     final deleted = await ref
         .read(authViewModelProvider.notifier)
-        .deleteAccount(password: _password.text);
+        .deleteAccount(otp: _otp.text.trim());
     if (!deleted) return;
     messenger.showSnackBar(
       const SnackBar(content: Text('Tài khoản của bạn đã được xóa.')),
@@ -61,7 +72,9 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
     final auth = ref.watch(authViewModelProvider);
     final scheme = Theme.of(context).colorScheme;
     final canSubmit =
-        _password.text.isNotEmpty && _confirmed && !auth.isSubmitting;
+        _otp.text.trim().length == _otpLength &&
+        _confirmed &&
+        !auth.isSubmitting;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Xóa tài khoản')),
@@ -89,12 +102,28 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
             ),
           ),
           const Gap(AppSpacing.md),
-          AppTextInputWidget(
-            key: DeleteAccountKeys.password,
-            controller: _password,
-            obscureText: true,
-            labelText: 'Nhập mật khẩu để xác nhận',
+          Text(
+            _otpSent
+                ? 'Nhập mã 6 chữ số vừa gửi đến email của bạn (hiệu lực 5 phút).'
+                : 'Xác nhận bằng mã gửi đến email của tài khoản.',
           ),
+          const Gap(AppSpacing.sm),
+          OutlinedButton(
+            key: DeleteAccountKeys.sendOtp,
+            onPressed: auth.isSubmitting ? null : _sendOtp,
+            child: Text(_otpSent ? 'Gửi lại mã' : 'Gửi mã xác nhận'),
+          ),
+          if (_otpSent) ...[
+            const Gap(AppSpacing.md),
+            AppTextInputWidget(
+              key: DeleteAccountKeys.otp,
+              controller: _otp,
+              keyboardType: TextInputType.number,
+              autofillHints: const [AutofillHints.oneTimeCode],
+              labelText: 'Mã xác nhận',
+              prefixIcon: const Icon(Icons.pin_outlined),
+            ),
+          ],
           CheckboxListTile(
             key: DeleteAccountKeys.confirm,
             contentPadding: EdgeInsets.zero,
