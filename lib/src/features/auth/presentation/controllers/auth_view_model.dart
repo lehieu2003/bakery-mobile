@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/features/auth/domain/models/user.dart';
@@ -59,6 +60,31 @@ class AuthViewModel extends Notifier<AuthState> {
       final user = await ref
           .read(authRepositoryProvider)
           .login(email: email, password: password);
+      state = state.copyWith(user: user);
+      return true;
+    });
+  }
+
+  Future<bool> loginWithGoogle({GoogleSignIn? googleSignIn}) {
+    return _submit(() async {
+      final signIn =
+          googleSignIn ??
+          GoogleSignIn(
+            scopes: const ['email', 'profile'],
+            serverClientId:
+                '89969543194-f45dnqc51lbf20nd60veolpvapgdbgnd.apps.googleusercontent.com',
+          );
+      final account = await signIn.signIn();
+      if (account == null) {
+        return false;
+      }
+      final auth = await account.authentication;
+      final user = await ref
+          .read(authRepositoryProvider)
+          .loginWithGoogle(
+            idToken: auth.idToken,
+            accessToken: auth.accessToken,
+          );
       state = state.copyWith(user: user);
       return true;
     });

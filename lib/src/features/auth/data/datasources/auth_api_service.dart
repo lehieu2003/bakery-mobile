@@ -27,6 +27,20 @@ class AuthApiService {
     return AuthSessionDto.fromJson(response as Map<String, dynamic>);
   }
 
+  Future<AuthSessionDto> loginWithGoogle({
+    String? idToken,
+    String? accessToken,
+  }) async {
+    final response = await _client.post(
+      '/api/auth/google/mobile',
+      body: {
+        if (idToken != null) 'idToken': idToken,
+        if (accessToken != null) 'accessToken': accessToken,
+      },
+    );
+    return AuthSessionDto.fromJson(response as Map<String, dynamic>);
+  }
+
   Future<void> logout() async {
     await _client.post('/api/auth/logout');
   }
