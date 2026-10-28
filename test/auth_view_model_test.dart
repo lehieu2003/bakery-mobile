@@ -1,3 +1,6 @@
+import 'package:bakery_mobile/src/core/push/push_messaging.dart';
+import 'package:bakery_mobile/src/features/notifications/application/services/push_registration_service.dart';
+import 'package:bakery_mobile/src/features/notifications/data/datasources/device_token_api_service.dart';
 import 'package:bakery_mobile/src/core/di/app_providers.dart';
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/core/network/api_client.dart';
@@ -163,4 +166,53 @@ void main() {
       expect(state.isSubmitting, isFalse);
     },
   );
+
+  test('logout revokes the push token while the session still works', () async {
+    final events = <String>[];
+    final container = ProviderContainer(
+      overrides: [
+        authRepositoryProvider.overrideWithValue(
+          _RecordingLogoutAuthRepository(_user('CUSTOMER'), events),
+        ),
+        pushRegistrationServiceProvider.overrideWithValue(
+          _RecordingPushRegistrationService(events),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    final viewModel = container.read(authViewModelProvider.notifier);
+    await viewModel.login(email: 'a@bakery.vn', password: 'secret');
+    await viewModel.logout();
+
+    expect(events, ['push.unregister', 'auth.logout']);
+    expect(container.read(authViewModelProvider).user, isNull);
+  });
+}
+
+class _RecordingLogoutAuthRepository extends _FakeAuthRepository {
+  _RecordingLogoutAuthRepository(super.user, this._events);
+
+  final List<String> _events;
+
+  @override
+  Future<void> logout() async => _events.add('auth.logout');
+}
+
+class _RecordingPushRegistrationService extends PushRegistrationService {
+  _RecordingPushRegistrationService(this._events)
+    : super(
+        messaging: const DisabledPushMessaging(),
+        api: DeviceTokenApiService(
+          ApiClient(
+            baseUrl: 'http://localhost:1',
+            tokenProvider: () async => null,
+          ),
+        ),
+      );
+
+  final List<String> _events;
+
+  @override
+  Future<void> unregister() async => _events.add('push.unregister');
 }

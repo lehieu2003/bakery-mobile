@@ -49,6 +49,8 @@ dependencies:
   connectivity_plus: ^6.1.5
   image_picker: ^1.2.1
   google_sign_in: ^6.2.2
+  firebase_core: ^5.1.0
+  firebase_messaging: ^17.0.1
 
 dev_dependencies:
   flutter_test:

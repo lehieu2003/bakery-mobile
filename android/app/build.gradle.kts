@@ -89,3 +89,10 @@ android {
 flutter {
     source = "../.."
 }
+
+// Push notifications need android/app/google-services.json from Firebase
+// (docs/push-notifications.md). Without it the app still builds and runs,
+// with push turned off.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
