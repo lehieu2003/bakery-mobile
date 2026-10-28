@@ -4,6 +4,31 @@ import 'package:bakery_mobile/src/core/network/api_exception.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bakery_mobile/src/features/auth/data/dtos/user_dto.dart';
 
+/// An admin signed in from a phone that is not their trusted one: no
+/// session yet; bakery-web emailed a code to [maskedEmail]. Finish with
+/// [AuthApiService.verifyLogin].
+class LoginVerificationRequired implements Exception {
+  const LoginVerificationRequired({
+    required this.challengeId,
+    required this.maskedEmail,
+  });
+
+  final String challengeId;
+  final String maskedEmail;
+
+  /// The pending-code reply of a sign-in endpoint, or null for a session.
+  static LoginVerificationRequired? fromResponse(Object? response) {
+    if (response is! Map<String, dynamic>) return null;
+    if (response['requiresVerification'] != true) return null;
+    final challengeId = '${response['challengeId'] ?? ''}';
+    if (challengeId.isEmpty) return null;
+    return LoginVerificationRequired(
+      challengeId: challengeId,
+      maskedEmail: '${response['email'] ?? ''}',
+    );
+  }
+}
+
 class AuthApiService {
   AuthApiService(this._client);
 
@@ -24,6 +49,21 @@ class AuthApiService {
       );
     }
 
+    final pending = LoginVerificationRequired.fromResponse(response);
+    if (pending != null) throw pending;
+    return AuthSessionDto.fromJson(response as Map<String, dynamic>);
+  }
+
+  /// POST /api/auth/login/verify — the emailed code for an admin sign-in on
+  /// a new phone; this phone becomes the trusted one.
+  Future<AuthSessionDto> verifyLogin({
+    required String challengeId,
+    required String otp,
+  }) async {
+    final response = await _client.post(
+      '/api/auth/login/verify',
+      body: {'challengeId': challengeId, 'otp': otp},
+    );
     return AuthSessionDto.fromJson(response as Map<String, dynamic>);
   }
 
@@ -38,6 +78,8 @@ class AuthApiService {
         if (accessToken != null) 'accessToken': accessToken,
       },
     );
+    final pending = LoginVerificationRequired.fromResponse(response);
+    if (pending != null) throw pending;
     return AuthSessionDto.fromJson(response as Map<String, dynamic>);
   }
 

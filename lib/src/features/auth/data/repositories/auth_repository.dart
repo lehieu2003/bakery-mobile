@@ -32,6 +32,19 @@ class AuthRepository {
     return user;
   }
 
+  /// Finishes an admin sign-in on a new phone with the emailed code.
+  Future<User> verifyLogin({
+    required String challengeId,
+    required String otp,
+  }) async {
+    final result = await authApiService.verifyLogin(
+      challengeId: challengeId,
+      otp: otp,
+    );
+    if (result.token.isNotEmpty) await _startSession(result.token);
+    return result.user.toDomain();
+  }
+
   Future<void> register({required String email}) {
     return authApiService.register(email: email);
   }

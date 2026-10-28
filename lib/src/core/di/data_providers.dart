@@ -4,6 +4,7 @@ import 'package:bakery_mobile/src/core/auth/session_manager.dart';
 import 'package:bakery_mobile/src/core/config/app_config.dart';
 import 'package:bakery_mobile/src/core/network/api_client.dart';
 import 'package:bakery_mobile/src/core/storage/onboarding_storage.dart';
+import 'package:bakery_mobile/src/core/storage/device_id_storage.dart';
 import 'package:bakery_mobile/src/core/storage/token_storage.dart';
 import 'package:bakery_mobile/src/features/admin/categories/data/datasources/category_admin_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/categories/data/repositories/category_admin_repository.dart';
@@ -80,11 +81,21 @@ final sessionManagerProvider = Provider<SessionManager>((ref) {
   );
 });
 
+final deviceIdStorageProvider = Provider<DeviceIdStorage>(
+  (ref) => DeviceIdStorage(),
+);
+
 final apiClientProvider = Provider<ApiClient>((ref) {
   final config = ref.watch(appConfigProvider);
+  final deviceIds = ref.watch(deviceIdStorageProvider);
   return ApiClient(
     baseUrl: config.baseUrl,
     tokenProvider: ref.watch(sessionManagerProvider).validToken,
+    // bakery-web keeps admin accounts to one trusted phone by this id.
+    defaultHeaders: () async => {
+      'x-client-platform': 'mobile',
+      'x-device-id': await deviceIds.read(),
+    },
   );
 });
 
