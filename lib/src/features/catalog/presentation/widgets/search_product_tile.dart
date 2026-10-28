@@ -10,6 +10,7 @@ import 'package:bakery_mobile/src/shared/widgets/discount_badge_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/price_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
+import 'package:bakery_mobile/src/features/cart/presentation/widgets/added_to_cart_snack_bar.dart';
 
 class SearchProductTile extends ConsumerWidget {
   const SearchProductTile({super.key, required this.product});
@@ -61,9 +62,7 @@ class SearchProductTile extends ConsumerWidget {
               ? null
               : () {
                   cart.addProduct(product);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Đã thêm vào giỏ')),
-                  );
+                  showAddedToCartSnackBar(context, product.name);
                 },
         ),
         onTap: () => Navigator.of(context).push(

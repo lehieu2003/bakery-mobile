@@ -24,6 +24,7 @@ import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 import 'package:bakery_mobile/src/shared/utils/motion.dart';
+import 'package:bakery_mobile/src/features/cart/presentation/widgets/added_to_cart_snack_bar.dart';
 
 /// Bottom space so content clears the pinned price/"Add to Cart" bar.
 const double _bottomBarClearance = 120;
@@ -492,9 +493,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 onPressed: product.stock > 0
                     ? () {
                         cart.addProduct(product, variant: _selectedVariant);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Đã thêm vào giỏ')),
-                        );
+                        showAddedToCartSnackBar(context, product.name);
                       }
                     : null,
                 icon: const Icon(Icons.shopping_bag_outlined),
