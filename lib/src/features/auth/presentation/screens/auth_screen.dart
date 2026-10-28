@@ -11,6 +11,7 @@ import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_vi
 import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
+import 'package:bakery_mobile/src/features/auth/presentation/widgets/login_verification_view.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -100,7 +101,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                       ),
                                 ),
                                 const Gap(AppSpacing.xxl),
-                                _buildForm(context, viewModel),
+                                if (viewModel.pendingVerification != null)
+                                  const LoginVerificationView()
+                                else
+                                  _buildForm(context, viewModel),
                               ],
                             ),
                           ),

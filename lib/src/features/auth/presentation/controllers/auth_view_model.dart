@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:bakery_mobile/src/core/di/data_providers.dart';
+import 'package:bakery_mobile/src/features/auth/data/datasources/auth_api_service.dart';
 import 'package:bakery_mobile/src/features/auth/domain/models/user.dart';
 import 'package:bakery_mobile/src/shared/utils/error_message.dart';
 
@@ -11,12 +12,16 @@ class AuthState {
     this.isBootstrapping = false,
     this.isSubmitting = false,
     this.errorMessage,
+    this.pendingVerification,
   });
 
   final User? user;
   final bool isBootstrapping;
   final bool isSubmitting;
   final String? errorMessage;
+
+  /// An admin sign-in on a new phone waiting for the emailed code.
+  final LoginVerificationRequired? pendingVerification;
 
   bool get isAuthenticated => user != null;
 
@@ -27,12 +32,17 @@ class AuthState {
     bool? isSubmitting,
     String? errorMessage,
     bool clearError = false,
+    LoginVerificationRequired? pendingVerification,
+    bool clearPendingVerification = false,
   }) {
     return AuthState(
       user: clearUser ? null : (user ?? this.user),
       isBootstrapping: isBootstrapping ?? this.isBootstrapping,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      pendingVerification: clearPendingVerification
+          ? null
+          : (pendingVerification ?? this.pendingVerification),
     );
   }
 }
@@ -92,6 +102,24 @@ class AuthViewModel extends Notifier<AuthState> {
       return true;
     });
   }
+
+  /// The emailed code for [AuthState.pendingVerification]: signs in and
+  /// makes this phone the trusted one (the previous phone is signed out).
+  Future<bool> verifyLogin(String otp) {
+    final pending = state.pendingVerification;
+    if (pending == null) return Future.value(false);
+    return _submit(() async {
+      final user = await ref
+          .read(authRepositoryProvider)
+          .verifyLogin(challengeId: pending.challengeId, otp: otp);
+      state = state.copyWith(user: user, clearPendingVerification: true);
+      return true;
+    });
+  }
+
+  /// Leaves the code step, back to the sign-in form.
+  void cancelVerification() =>
+      state = state.copyWith(clearPendingVerification: true, clearError: true);
 
   Future<bool> sendRegisterOtp({required String email}) {
     return _submit(() async {
@@ -201,6 +229,10 @@ class AuthViewModel extends Notifier<AuthState> {
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
       return await action();
+    } on LoginVerificationRequired catch (pending) {
+      // Not an error: the sign-in continues with the emailed code.
+      state = state.copyWith(pendingVerification: pending);
+      return false;
     } catch (error) {
       state = state.copyWith(errorMessage: userErrorMessage(error));
       return false;
