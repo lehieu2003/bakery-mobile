@@ -12,7 +12,6 @@ import 'package:bakery_mobile/src/shared/widgets/skeleton_product_grid_widget.da
 import 'package:bakery_mobile/src/shared/widgets/empty_state_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/catalog_keys.dart';
-import 'package:bakery_mobile/src/features/cart/presentation/screens/cart_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/category_screen.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/home_view_model.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/screens/search_screen.dart';
@@ -22,7 +21,6 @@ import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_cat
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_header.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/widgets/home_product_card.dart';
 import 'package:bakery_mobile/src/features/notifications/presentation/screens/notifications_screen.dart';
-import 'package:bakery_mobile/src/features/wishlist/presentation/screens/wishlist_screen.dart';
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
@@ -86,7 +84,6 @@ class _HomeViewState extends ConsumerState<_HomeView> {
   Widget build(BuildContext context) {
     final vm = ref.watch(homeViewModelProvider);
     final notifications = ref.watch(notificationsViewModelProvider);
-    final wishlist = ref.watch(wishlistViewModelProvider);
     _bannerCount = vm.banners.length;
     if (_bannerIndex >= _bannerCount && _bannerCount > 0) {
       _bannerIndex = 0;
@@ -103,17 +100,10 @@ class _HomeViewState extends ConsumerState<_HomeView> {
           children: [
             HomeHeader(
               unreadCount: notifications.unreadCount,
-              favoriteCount: wishlist.items.length,
               onMenuTap: () => _openDrawer(context),
-              onCartTap: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const CartScreen())),
               onNotificationTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const NotificationsScreen()),
               ),
-              onFavoriteTap: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const WishlistScreen())),
               onSearchTap: () => Navigator.of(
                 context,
               ).push(MaterialPageRoute(builder: (_) => const SearchScreen())),
