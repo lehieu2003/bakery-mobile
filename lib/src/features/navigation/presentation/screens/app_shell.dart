@@ -41,7 +41,6 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     final pages = [
       const HomeScreen(),
       const SearchScreen(),
-      const CartScreen(),
       const WishlistScreen(),
       const ProfileScreen(),
     ];
@@ -53,6 +52,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
         userName: auth.user?.name,
         userEmail: auth.user?.email,
         onNavigate: _onDrawerNavigate,
+        onCartTap: _onDrawerCart,
         onLogout: auth.isSubmitting
             ? null
             : () => ref.read(authViewModelProvider.notifier).logout(),
@@ -79,7 +79,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
                 backgroundColor: AppTheme.primaryPink,
                 foregroundColor: Colors.white,
                 elevation: 0,
-                onPressed: () => setState(() => _index = 2),
+                onPressed: _openCart,
                 child: const Icon(Icons.shopping_cart_outlined),
               ),
             ),
@@ -90,6 +90,17 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
               onTap: (value) => setState(() => _index = value),
             ),
     );
+  }
+
+  /// The cart is its own screen on top of the shell, without the bottom
+  /// bar, like product and checkout pages.
+  void _openCart() => Navigator.of(
+    context,
+  ).push(MaterialPageRoute(builder: (_) => const CartScreen()));
+
+  void _onDrawerCart() {
+    Navigator.of(context).pop();
+    _openCart();
   }
 
   void _onDrawerNavigate(int index) {
@@ -147,7 +158,7 @@ class _BottomNavigator extends StatelessWidget {
                 spacing: AppSpacing.xxl,
                 children: [
                   _NavButton(
-                    index: 3,
+                    index: 2,
                     label: 'Yêu thích',
                     currentIndex: currentIndex,
                     icon: Icons.favorite_border,
@@ -155,7 +166,7 @@ class _BottomNavigator extends StatelessWidget {
                     onTap: onTap,
                   ),
                   _NavButton(
-                    index: 4,
+                    index: 3,
                     label: 'Tài khoản',
                     currentIndex: currentIndex,
                     icon: Icons.person_outline,
@@ -239,6 +250,7 @@ class _AppDrawer extends StatelessWidget {
   const _AppDrawer({
     required this.currentIndex,
     required this.onNavigate,
+    required this.onCartTap,
     required this.onLogout,
     this.userName,
     this.userEmail,
@@ -248,6 +260,7 @@ class _AppDrawer extends StatelessWidget {
   final String? userName;
   final String? userEmail;
   final ValueChanged<int> onNavigate;
+  final VoidCallback onCartTap;
   final VoidCallback? onLogout;
 
   @override
@@ -288,20 +301,20 @@ class _AppDrawer extends StatelessWidget {
           _DrawerNavItem(
             icon: Icons.shopping_cart_outlined,
             label: 'Giỏ hàng',
-            selected: currentIndex == 2,
-            onTap: () => onNavigate(2),
+            selected: false,
+            onTap: onCartTap,
           ),
           _DrawerNavItem(
             icon: Icons.favorite_border,
             label: 'Yêu thích',
-            selected: currentIndex == 3,
-            onTap: () => onNavigate(3),
+            selected: currentIndex == 2,
+            onTap: () => onNavigate(2),
           ),
           _DrawerNavItem(
             icon: Icons.person_outline,
             label: 'Tài khoản',
-            selected: currentIndex == 4,
-            onTap: () => onNavigate(4),
+            selected: currentIndex == 3,
+            onTap: () => onNavigate(3),
           ),
           const Spacer(),
           const Divider(height: 1),

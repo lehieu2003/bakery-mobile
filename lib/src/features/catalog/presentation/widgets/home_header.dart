@@ -12,20 +12,14 @@ class HomeHeader extends StatelessWidget {
   const HomeHeader({
     super.key,
     required this.unreadCount,
-    required this.favoriteCount,
     required this.onMenuTap,
-    required this.onCartTap,
     required this.onNotificationTap,
-    required this.onFavoriteTap,
     required this.onSearchTap,
   });
 
   final int unreadCount;
-  final int favoriteCount;
   final VoidCallback onMenuTap;
-  final VoidCallback onCartTap;
   final VoidCallback onNotificationTap;
-  final VoidCallback onFavoriteTap;
   final VoidCallback onSearchTap;
 
   @override
@@ -68,24 +62,6 @@ class HomeHeader extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              _HeaderSquareButton(
-                icon: Icons.shopping_cart_outlined,
-                label: 'Giỏ hàng',
-                onTap: onCartTap,
-              ),
-              const Gap(AppSpacing.md),
-              Badge(
-                isLabelVisible: favoriteCount > 0,
-                label: Text('$favoriteCount'),
-                child: _HeaderSquareButton(
-                  icon: Icons.favorite_border_rounded,
-                  label: favoriteCount > 0
-                      ? 'Yêu thích, $favoriteCount sản phẩm'
-                      : 'Yêu thích',
-                  onTap: onFavoriteTap,
-                ),
-              ),
-              const Gap(AppSpacing.md),
               Badge(
                 isLabelVisible: unreadCount > 0,
                 label: Text('$unreadCount'),

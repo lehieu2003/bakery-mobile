@@ -46,10 +46,12 @@ void main() {
     await pumpApp(tester, const HomeScreen(), api: api);
     await tester.pumpAndSettle();
 
-    for (final label in ['Giỏ hàng', 'Yêu thích', 'Thông báo']) {
-      expect(find.bySemanticsLabel(label), findsOneWidget, reason: label);
-      _expectTappable(tester, find.bySemanticsLabel(label));
-    }
+    expect(find.bySemanticsLabel('Thông báo'), findsOneWidget);
+    _expectTappable(tester, find.bySemanticsLabel('Thông báo'));
+    // Cart and favorites live in the cart button and the bottom bar, not
+    // in the header.
+    expect(find.bySemanticsLabel(RegExp('^Giỏ hàng')), findsNothing);
+    expect(find.bySemanticsLabel(RegExp('^Yêu thích')), findsNothing);
     // IconButton announces its tooltip (semantics `tooltip`, not `label`).
     expect(find.byTooltip('Mở menu'), findsOneWidget);
     _expectTappable(tester, find.byTooltip('Mở menu'));
