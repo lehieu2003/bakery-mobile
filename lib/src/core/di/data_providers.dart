@@ -57,6 +57,9 @@ import 'package:bakery_mobile/src/features/reviews/data/repositories/reviews_rep
 import 'package:bakery_mobile/src/features/pages/data/repositories/page_repository.dart';
 import 'package:bakery_mobile/src/features/wishlist/data/datasources/wishlist_api_service.dart';
 import 'package:bakery_mobile/src/features/wishlist/data/repositories/wishlist_repository.dart';
+import 'package:bakery_mobile/src/core/push/push_messaging.dart';
+import 'package:bakery_mobile/src/features/notifications/application/services/push_registration_service.dart';
+import 'package:bakery_mobile/src/features/notifications/data/datasources/device_token_api_service.dart';
 
 final appConfigProvider = Provider<AppConfig>((ref) => const AppConfig());
 final tokenStorageProvider = Provider<TokenStorage>((ref) => TokenStorage());
@@ -102,6 +105,21 @@ final membershipApiServiceProvider = Provider<MembershipApiService>(
 );
 final notificationApiServiceProvider = Provider<NotificationApiService>(
   (ref) => NotificationApiService(ref.watch(apiClientProvider)),
+);
+final deviceTokenApiServiceProvider = Provider<DeviceTokenApiService>(
+  (ref) => DeviceTokenApiService(ref.watch(apiClientProvider)),
+);
+
+/// Overridden in main.dart with the result of [initPushMessaging]; tests and
+/// builds without Firebase keep push off.
+final pushMessagingProvider = Provider<PushMessaging>(
+  (ref) => const DisabledPushMessaging(),
+);
+final pushRegistrationServiceProvider = Provider<PushRegistrationService>(
+  (ref) => PushRegistrationService(
+    messaging: ref.watch(pushMessagingProvider),
+    api: ref.watch(deviceTokenApiServiceProvider),
+  ),
 );
 final orderApiServiceProvider = Provider<OrderApiService>(
   (ref) => OrderApiService(ref.watch(apiClientProvider)),

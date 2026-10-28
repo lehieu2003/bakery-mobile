@@ -37,6 +37,9 @@ class AuthState {
   }
 }
 
+/// Longest a sign-out waits for the push token to be revoked.
+const Duration _pushUnregisterTimeout = Duration(seconds: 3);
+
 class AuthViewModel extends Notifier<AuthState> {
   @override
   AuthState build() => const AuthState();
@@ -143,6 +146,12 @@ class AuthViewModel extends Notifier<AuthState> {
 
   Future<void> logout() async {
     state = state.copyWith(isSubmitting: true, clearError: true);
+    // While the session still works: this phone stops getting the account's
+    // pushes. Never holds up the sign-out for long.
+    await ref
+        .read(pushRegistrationServiceProvider)
+        .unregister()
+        .timeout(_pushUnregisterTimeout, onTimeout: () {});
     try {
       await ref.read(authRepositoryProvider).logout();
     } catch (_) {

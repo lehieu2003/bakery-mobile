@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Push notification channel. The id must match bakery-web's
+         ANDROID_PUSH_CHANNEL_ID; the name and description show in the
+         system's notification settings for the app. -->
+    <string name="push_channel_id" translatable="false">bakery_default</string>
+    <string name="push_channel_name">Đơn hàng và thông báo</string>
+    <string name="push_channel_description">Cập nhật đơn hàng và thông báo từ tiệm</string>
+</resources>
