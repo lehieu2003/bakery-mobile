@@ -110,24 +110,53 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('the bottom navigation bar is icon-only, without labels', (
-    tester,
-  ) async {
-    final semantics = tester.ensureSemantics();
-    stubHome(api);
+  testWidgets(
+    'bottom tabs stay icon-only on screen but are named for screen readers',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      stubHome(api);
 
-    await pumpApp(tester, const MainLayout(), api: api);
-    await tester.pumpAndSettle();
+      await pumpApp(tester, const MainLayout(), api: api);
+      await tester.pumpAndSettle();
 
-    final bar = find.byType(BottomAppBar);
-    expect(bar, findsOneWidget);
-    // Icon-only by design: neither visible text nor a spoken name/tooltip.
-    expect(find.descendant(of: bar, matching: find.byType(Text)), findsNothing);
-    expect(find.bySemanticsLabel('Trang chủ'), findsNothing);
-    expect(find.byTooltip('Trang chủ'), findsNothing);
-    semantics.dispose();
-    await tester.pumpWidget(const SizedBox.shrink());
-  });
+      final bar = find.byType(BottomAppBar);
+      expect(bar, findsOneWidget);
+      // Icon-only by design: no visible text or tooltips on the tabs.
+      expect(
+        find.descendant(of: bar, matching: find.byType(Text)),
+        findsNothing,
+      );
+      expect(find.byTooltip('Trang chủ'), findsNothing);
+
+      // ...but each tab has a spoken name, the current one is selected,
+      // and every target is at least 48dp.
+      const names = ['Trang chủ', 'Tìm kiếm', 'Yêu thích', 'Tài khoản'];
+      for (final name in names) {
+        final tab = find.descendant(
+          of: bar,
+          matching: find.bySemanticsLabel(name),
+        );
+        expect(tab, findsOneWidget, reason: name);
+        final size = tester.getSize(tab);
+        expect(size.width, greaterThanOrEqualTo(48), reason: name);
+        expect(size.height, greaterThanOrEqualTo(48), reason: name);
+      }
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Trang chủ')),
+        matchesSemantics(
+          label: 'Trang chủ',
+          isButton: true,
+          isSelected: true,
+          hasSelectedState: true,
+          hasTapAction: true,
+          isFocusable: true,
+          hasFocusAction: true,
+        ),
+      );
+      semantics.dispose();
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 
   testWidgets('sign-in fields offer autofill to password managers', (
     tester,

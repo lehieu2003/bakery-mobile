@@ -17,6 +17,9 @@ import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 /// Top corners of the bottom navigation bar.
 const double _navBarRadius = 30;
 
+/// Minimum touch target of a bottom tab (Material 48dp).
+const double _navTargetSize = 48;
+
 class MainLayout extends ConsumerStatefulWidget {
   const MainLayout({super.key});
 
@@ -107,6 +110,8 @@ class _BottomNavigator extends StatelessWidget {
           color: AppTheme.primaryPink,
           shape: CircularNotchedRectangle(),
           height: 60,
+          // No vertical padding: the 48dp tab targets need the full height.
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -116,6 +121,7 @@ class _BottomNavigator extends StatelessWidget {
                 children: [
                   _NavButton(
                     index: 0,
+                    label: 'Trang chủ',
                     currentIndex: currentIndex,
                     icon: Icons.home_outlined,
                     selectedIcon: Icons.home,
@@ -123,6 +129,7 @@ class _BottomNavigator extends StatelessWidget {
                   ),
                   _NavButton(
                     index: 1,
+                    label: 'Tìm kiếm',
                     currentIndex: currentIndex,
                     icon: Icons.search_outlined,
                     selectedIcon: Icons.search,
@@ -136,6 +143,7 @@ class _BottomNavigator extends StatelessWidget {
                 children: [
                   _NavButton(
                     index: 3,
+                    label: 'Yêu thích',
                     currentIndex: currentIndex,
                     icon: Icons.favorite_border,
                     selectedIcon: Icons.favorite,
@@ -143,6 +151,7 @@ class _BottomNavigator extends StatelessWidget {
                   ),
                   _NavButton(
                     index: 4,
+                    label: 'Tài khoản',
                     currentIndex: currentIndex,
                     icon: Icons.person_outline,
                     selectedIcon: Icons.person,
@@ -161,6 +170,7 @@ class _BottomNavigator extends StatelessWidget {
 class _NavButton extends StatelessWidget {
   const _NavButton({
     required this.index,
+    required this.label,
     required this.currentIndex,
     required this.icon,
     required this.selectedIcon,
@@ -168,6 +178,9 @@ class _NavButton extends StatelessWidget {
   });
 
   final int index;
+
+  /// Spoken by screen readers only; the tab stays icon-only on screen.
+  final String label;
   final int currentIndex;
   final IconData icon;
   final IconData selectedIcon;
@@ -177,25 +190,40 @@ class _NavButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final selected = currentIndex == index;
 
-    // Icon-only by design: no labels or tooltips on the tabs.
-    return InkWell(
-      borderRadius: BorderRadius.circular(AppRadius.pill),
-      onTap: () => onTap(index),
-      child: AnimatedContainer(
-        duration: AppDurations.fast,
-        curve: Curves.easeOut,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          color: selected ? AppTheme.navSelectedHighlight : null,
-        ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
-          vertical: AppSpacing.sm,
-        ),
-        child: Icon(
-          selected ? selectedIcon : icon,
-          size: 24,
-          color: Colors.white,
+    // Icon-only on screen by design (no visible labels or tooltips), but
+    // screen readers announce each tab's name and selected state, and the
+    // touch target is 48dp around the visible pill.
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+        onTap: () => onTap(index),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: _navTargetSize,
+            minHeight: _navTargetSize,
+          ),
+          child: Center(
+            child: AnimatedContainer(
+              duration: AppDurations.fast,
+              curve: Curves.easeOut,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+                color: selected ? AppTheme.navSelectedHighlight : null,
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.sm,
+              ),
+              child: Icon(
+                selected ? selectedIcon : icon,
+                size: 24,
+                color: Colors.white,
+              ),
+            ),
+          ),
         ),
       ),
     );

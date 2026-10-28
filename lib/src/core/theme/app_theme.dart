@@ -4,8 +4,9 @@ import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
 
 class AppTheme {
-  // Synced with web primary/pink-deep tone.
-  static const Color primaryPink = Color.fromARGB(255, 243, 146, 184);
+  /// The brand pink, same as the web's --primary (lab(47% 45.8 0.6)). White
+  /// text/icons on it are 5.05:1 and it reads at 4.69:1 on [canvasCream].
+  static const Color primaryPink = Color(0xFFB34B71);
   static const Color blushPink = Color(0xFFF6C8D6);
   static const Color pastryPeach = Color(0xFFF4B887);
   static const Color warmBrown = Color(0xFF8D5D43);
@@ -14,7 +15,8 @@ class AppTheme {
   static const Color surfaceCream = Color(0xFFFFFCF7);
 
   /// Secondary text in warm brown (captions, meta lines, descriptions).
-  static const Color textMuted = Color(0xFF8A7464);
+  /// 5.1:1 on [canvasCream] (WCAG AA for body text).
+  static const Color textMuted = Color(0xFF7A6556);
 
   /// Placeholder/hint text, lighter than [textMuted].
   static const Color textHint = Color(0xFF9B8474);
@@ -36,8 +38,9 @@ class AppTheme {
   /// Page background behind the auth card.
   static const Color surfaceAuth = Color(0xFFF8F1E8);
 
-  /// Caramel fill of the primary auth button.
-  static const Color buttonPrimaryAuth = Color(0xFFB87B58);
+  /// Fill of the primary auth button: the brand pink, like every other
+  /// primary action (and the web sign-in button).
+  static const Color buttonPrimaryAuth = primaryPink;
 
   /// Soft caramel shadow under the auth card.
   static const Color shadowAuthCard = Color(0x1A9F7A5A);
