@@ -8,6 +8,7 @@ import 'package:bakery_mobile/src/features/auth/presentation/controllers/auth_vi
 import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/controllers/cart_view_model.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/screens/checkout_screen.dart';
+import 'package:bakery_mobile/src/features/navigation/presentation/controllers/main_tab_controller.dart';
 import 'package:bakery_mobile/src/features/orders/data/datasources/order_api_service.dart';
 import 'package:bakery_mobile/src/features/orders/data/repositories/order_repository.dart';
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
@@ -21,6 +22,20 @@ class _FakeAuthViewModel extends AuthViewModel {
   @override
   AuthState build() => const AuthState(
     user: User(id: 'user-1', email: 'test@bakery.vn', role: 'CUSTOMER'),
+  );
+}
+
+/// A customer whose profile already has a name and phone number.
+class _ProfileAuthViewModel extends AuthViewModel {
+  @override
+  AuthState build() => const AuthState(
+    user: User(
+      id: 'user-1',
+      email: 'test@bakery.vn',
+      name: 'Tran Thi B',
+      phone: '0912345678',
+      role: 'CUSTOMER',
+    ),
   );
 }
 
@@ -306,5 +321,128 @@ void main() {
       find.text('Đang mất kết nối mạng — kết nối lại để đặt hàng.'),
       findsOneWidget,
     );
+  });
+
+  Future<void> pumpWithProfile(
+    WidgetTester tester, {
+    Map<String, Object> draft = const {},
+  }) async {
+    SharedPreferences.setMockInitialValues(draft);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authViewModelProvider.overrideWith(_ProfileAuthViewModel.new),
+          cartViewModelProvider.overrideWith(_FakeCartViewModel.new),
+          orderRepositoryProvider.overrideWithValue(
+            _CapturingOrderRepository(),
+          ),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          home: const CheckoutScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  String fieldText(WidgetTester tester, String label) => tester
+      .widget<EditableText>(
+        find.descendant(
+          of: find.widgetWithText(TextFormField, label),
+          matching: find.byType(EditableText),
+        ),
+      )
+      .controller
+      .text;
+
+  testWidgets('contact details start from the profile and stay editable', (
+    tester,
+  ) async {
+    await pumpWithProfile(tester);
+
+    expect(fieldText(tester, 'Họ tên'), 'Tran Thi B');
+    expect(fieldText(tester, 'Số điện thoại'), '0912345678');
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Số điện thoại'),
+      '0987654321',
+    );
+    await tester.pump();
+    expect(fieldText(tester, 'Số điện thoại'), '0987654321');
+  });
+
+  testWidgets('what the user typed before wins over the profile', (
+    tester,
+  ) async {
+    await pumpWithProfile(
+      tester,
+      draft: {'checkout_draft_phone': '0933333333'},
+    );
+
+    expect(fieldText(tester, 'Họ tên'), 'Tran Thi B');
+    expect(fieldText(tester, 'Số điện thoại'), '0933333333');
+  });
+
+  testWidgets('a placed order returns to the home tab, not the cart', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final container = ProviderContainer(
+      overrides: [
+        authViewModelProvider.overrideWith(_ProfileAuthViewModel.new),
+        cartViewModelProvider.overrideWith(_FakeCartViewModel.new),
+        orderRepositoryProvider.overrideWithValue(_CapturingOrderRepository()),
+      ],
+    );
+    addTearDown(container.dispose);
+    // The shell watches the tab while checkout sits above it.
+    final shell = container.listen(mainTabProvider, (_, _) {});
+    container.read(mainTabProvider.notifier).select(MainTab.wishlist);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => Scaffold(
+                      appBar: AppBar(title: const Text('Giỏ hàng')),
+                      body: TextButton(
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const CheckoutScreen(),
+                          ),
+                        ),
+                        child: const Text('Thanh toán'),
+                      ),
+                    ),
+                  ),
+                ),
+                child: const Text('Trang chủ'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Trang chủ'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Thanh toán'));
+    await tester.pumpAndSettle();
+
+    await placeOrder(tester);
+    expect(find.text('Đặt hàng thành công'), findsOneWidget);
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CheckoutScreen), findsNothing);
+    expect(find.text('Giỏ hàng'), findsNothing);
+    expect(find.text('Trang chủ'), findsOneWidget);
+    expect(shell.read(), MainTab.home);
   });
 }

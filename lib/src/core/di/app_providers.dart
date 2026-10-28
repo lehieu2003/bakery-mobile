@@ -11,6 +11,7 @@ import 'package:bakery_mobile/src/features/catalog/presentation/controllers/cate
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/home_view_model.dart';
 import 'package:bakery_mobile/src/features/catalog/presentation/controllers/search_view_model.dart';
 import 'package:bakery_mobile/src/features/membership/presentation/controllers/membership_view_model.dart';
+import 'package:bakery_mobile/src/features/navigation/presentation/controllers/main_tab_controller.dart';
 import 'package:bakery_mobile/src/features/notifications/presentation/controllers/notifications_view_model.dart';
 import 'package:bakery_mobile/src/features/onboarding/presentation/controllers/onboarding_view_model.dart';
 import 'package:bakery_mobile/src/features/orders/presentation/controllers/orders_view_model.dart';
@@ -22,6 +23,9 @@ final addressesViewModelProvider =
     NotifierProvider<AddressesViewModel, AddressesState>(
       AddressesViewModel.new,
     );
+final mainTabProvider = NotifierProvider.autoDispose<MainTabController, int>(
+  MainTabController.new,
+);
 final authViewModelProvider = NotifierProvider<AuthViewModel, AuthState>(
   AuthViewModel.new,
 );
