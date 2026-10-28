@@ -13,6 +13,7 @@ import 'package:bakery_mobile/src/shared/widgets/initial_avatar_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_durations.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
+import 'package:bakery_mobile/src/shared/widgets/pop_on_change_widget.dart';
 
 /// Top corners of the bottom navigation bar.
 const double _navBarRadius = 30;
@@ -64,7 +65,11 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
           ? null
           : Badge(
               isLabelVisible: cart.totalItems > 0,
-              label: Text('${cart.totalItems}'),
+              label: PopOnChangeWidget<int>(
+                value: cart.totalItems,
+                popWhen: (previous, current) => current > previous,
+                child: Text('${cart.totalItems}'),
+              ),
               child: FloatingActionButton(
                 tooltip: cart.totalItems > 0
                     ? 'Giỏ hàng, ${cart.totalItems} sản phẩm'

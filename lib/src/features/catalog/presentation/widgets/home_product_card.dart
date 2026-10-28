@@ -13,6 +13,7 @@ import 'package:bakery_mobile/src/shared/widgets/price_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/favorite_icon_widget.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
 import 'package:bakery_mobile/src/core/theme/app_spacing.dart';
+import 'package:bakery_mobile/src/features/cart/presentation/widgets/added_to_cart_snack_bar.dart';
 
 /// Material's minimum touch target.
 const double _minTapSize = 48;
@@ -60,9 +61,7 @@ class _HomeProductCardState extends ConsumerState<HomeProductCard> {
 
   void _addToCart() {
     ref.read(cartViewModelProvider.notifier).addProduct(widget.product);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Đã thêm vào giỏ hàng')));
+    showAddedToCartSnackBar(context, widget.product.name);
   }
 
   @override
