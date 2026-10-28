@@ -27,17 +27,22 @@ const String serverErrorMessage =
     'Máy chủ đang gặp sự cố. Vui lòng thử lại sau ít phút.';
 
 typedef TokenProvider = Future<String?> Function();
+typedef HeadersProvider = Future<Map<String, String>> Function();
 
 class ApiClient {
   ApiClient({
     required this.baseUrl,
     required this.tokenProvider,
     this.requestTimeout = defaultRequestTimeout,
+    this.defaultHeaders,
   });
 
   final String baseUrl;
   final TokenProvider tokenProvider;
   final Duration requestTimeout;
+
+  /// Sent with every request (the device id bakery-web checks for admins).
+  final HeadersProvider? defaultHeaders;
 
   Future<dynamic> get(String path, {Map<String, dynamic>? query}) async {
     return _request('GET', path, query: query);
@@ -72,6 +77,10 @@ class ApiClient {
   }) async {
     final uri = _buildUri(path, query: query);
     final payload = body == null ? null : jsonEncode(body);
+    final provided = defaultHeaders;
+    if (provided != null) {
+      headers = {...await provided(), ...?headers};
+    }
 
     final token = await tokenProvider();
     var response = await _send(method, uri, token, payload, headers);
