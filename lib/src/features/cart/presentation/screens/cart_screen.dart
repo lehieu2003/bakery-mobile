@@ -7,6 +7,7 @@ import 'package:bakery_mobile/src/core/theme/app_theme.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
 import 'package:bakery_mobile/src/features/cart/presentation/screens/checkout_screen.dart';
+import 'package:bakery_mobile/src/features/catalog/presentation/screens/product_detail_screen.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 import 'package:bakery_mobile/src/core/theme/app_radius.dart';
@@ -176,78 +177,87 @@ class _CartTile extends ConsumerWidget {
     final imageUrl = resolveImageUrl(item.imageUrl);
 
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AppNetworkImageWidget(
-              url: imageUrl,
-              width: 84,
-              height: 84,
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              emptyIcon: Icons.cake_outlined,
-            ),
-            const Gap(AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  if (item.variantName != null &&
-                      item.variantName!.trim().isNotEmpty) ...[
-                    const Gap(AppSpacing.xs),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) =>
+                ProductDetailScreen(productIdOrSlug: item.productId),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppNetworkImageWidget(
+                url: imageUrl,
+                width: 84,
+                height: 84,
+                borderRadius: BorderRadius.circular(AppRadius.md),
+                emptyIcon: Icons.cake_outlined,
+              ),
+              const Gap(AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      item.variantName!,
-                      style: Theme.of(context).textTheme.bodySmall,
+                      item.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ],
-                  const Gap(AppSpacing.sm),
-                  Text(
-                    formatVnd(item.price),
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const Gap(AppSpacing.sm),
-                  Row(
-                    children: [
-                      _QtyButton(
-                        icon: Icons.remove,
-                        onTap: () => cart.decrease(item),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.md,
-                        ),
-                        child: Text(
-                          '${item.quantity}',
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                      _QtyButton(
-                        icon: Icons.add,
-                        onTap: () => cart.increase(item),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        onPressed: () => cart.remove(item),
-                        icon: const Icon(Icons.delete_outline),
-                        tooltip: 'Xóa khỏi giỏ',
+                    if (item.variantName != null &&
+                        item.variantName!.trim().isNotEmpty) ...[
+                      const Gap(AppSpacing.xs),
+                      Text(
+                        item.variantName!,
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
-                  ),
-                ],
+                    const Gap(AppSpacing.sm),
+                    Text(
+                      formatVnd(item.price),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const Gap(AppSpacing.sm),
+                    Row(
+                      children: [
+                        _QtyButton(
+                          icon: Icons.remove,
+                          onTap: () => cart.decrease(item),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.md,
+                          ),
+                          child: Text(
+                            '${item.quantity}',
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        _QtyButton(
+                          icon: Icons.add,
+                          onTap: () => cart.increase(item),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          onPressed: () => cart.remove(item),
+                          icon: const Icon(Icons.delete_outline),
+                          tooltip: 'Xóa khỏi giỏ',
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
