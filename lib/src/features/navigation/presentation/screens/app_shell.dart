@@ -29,12 +29,11 @@ class MainLayout extends ConsumerStatefulWidget {
 }
 
 class _MainLayoutState extends ConsumerState<MainLayout> {
-  int _index = 0;
-
   @override
   Widget build(BuildContext context) {
     final cart = ref.watch(cartViewModelProvider);
     final auth = ref.watch(authViewModelProvider);
+    final index = ref.watch(mainTabProvider);
     final keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
     final hideShellChrome = keyboardVisible;
 
@@ -48,7 +47,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     return Scaffold(
       extendBody: true,
       drawer: _AppDrawer(
-        currentIndex: _index,
+        currentIndex: index,
         userName: auth.user?.name,
         userEmail: auth.user?.email,
         onNavigate: _onDrawerNavigate,
@@ -57,7 +56,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
             ? null
             : () => ref.read(authViewModelProvider.notifier).logout(),
       ),
-      body: IndexedStack(index: _index, children: pages),
+      body: IndexedStack(index: index, children: pages),
       floatingActionButtonLocation: hideShellChrome
           ? null
           : FloatingActionButtonLocation.centerDocked,
@@ -86,8 +85,8 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
       bottomNavigationBar: hideShellChrome
           ? null
           : _BottomNavigator(
-              currentIndex: _index,
-              onTap: (value) => setState(() => _index = value),
+              currentIndex: index,
+              onTap: ref.read(mainTabProvider.notifier).select,
             ),
     );
   }
@@ -105,8 +104,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
 
   void _onDrawerNavigate(int index) {
     Navigator.of(context).pop();
-    if (_index == index) return;
-    setState(() => _index = index);
+    ref.read(mainTabProvider.notifier).select(index);
   }
 }
 

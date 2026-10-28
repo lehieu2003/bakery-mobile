@@ -13,6 +13,7 @@ import 'package:bakery_mobile/src/shared/widgets/app_text_input_widget.dart';
 import 'package:bakery_mobile/src/features/addresses/domain/models/address.dart';
 import 'package:bakery_mobile/src/features/addresses/presentation/controllers/addresses_view_model.dart';
 import 'package:bakery_mobile/src/features/cart/domain/models/cart_item.dart';
+import 'package:bakery_mobile/src/features/navigation/presentation/controllers/main_tab_controller.dart';
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
 import 'package:bakery_mobile/src/shared/utils/format_utils.dart';
 import 'package:bakery_mobile/src/shared/widgets/summary_row_widget.dart';
@@ -118,14 +119,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     if (!mounted) return;
 
     _prefs = prefs;
-    // Only non-empty drafts overwrite the fields: an empty draft must not
-    // clobber a saved-address selection that was auto-filled in the meantime.
-    if (savedName.isNotEmpty) {
-      _nameCtrl.text = savedName;
-    } else if ((auth.user?.name ?? '').isNotEmpty) {
-      _nameCtrl.text = auth.user!.name!;
-    }
-    if (savedPhone.isNotEmpty) _phoneCtrl.text = savedPhone;
+    // Contact details start from the profile, still editable; what the user
+    // already typed here (the draft) wins. Only non-empty values overwrite
+    // the fields: an empty draft must not clobber a saved-address selection
+    // that was auto-filled in the meantime.
+    final profileName = auth.user?.name?.trim() ?? '';
+    final profilePhone = auth.user?.phone?.trim() ?? '';
+    final name = savedName.isNotEmpty ? savedName : profileName;
+    final phone = savedPhone.isNotEmpty ? savedPhone : profilePhone;
+    if (name.isNotEmpty) _nameCtrl.text = name;
+    if (phone.isNotEmpty) _phoneCtrl.text = phone;
     if (savedAddress.isNotEmpty) _addressCtrl.text = savedAddress;
   }
 
@@ -554,7 +557,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     await _clearDraft();
 
     await _showOrderResultDialog(result);
-    if (mounted) Navigator.of(context).pop();
+    if (!mounted) return;
+    // Done shopping: back to the home tab, not to the (now empty) cart.
+    ref.read(mainTabProvider.notifier).select(MainTab.home);
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   Future<void> _showOrderResultDialog(CreateOrderResult result) async {
