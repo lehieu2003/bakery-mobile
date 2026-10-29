@@ -47,3 +47,20 @@ Color orderStatusColor(String status) =>
 Color orderStatusTextColor(String status) =>
     _orderStatusTextColorMap[status.trim().toUpperCase()] ??
     AppTheme.statusFallbackText;
+
+/// The steps an order moves through, in order, for the progress bar:
+/// status code → short label.
+const List<({String status, String label})> orderProgressSteps = [
+  (status: 'PENDING', label: 'Đã đặt'),
+  (status: 'CONFIRMED', label: 'Xác nhận'),
+  (status: 'PROCESSING', label: 'Chuẩn bị'),
+  (status: 'READY', label: 'Sẵn sàng'),
+  (status: 'COMPLETED', label: 'Hoàn thành'),
+];
+
+/// Index of [status] in [orderProgressSteps]: every step up to it is done.
+/// -1 for a cancelled or unknown status, which has no place on the bar.
+int orderProgressIndex(String status) {
+  final code = status.trim().toUpperCase();
+  return orderProgressSteps.indexWhere((step) => step.status == code);
+}
