@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Sidebar module grouping — group order mirrors the web admin sidebar:
 /// Tổng quan · Đơn hàng, Khách hàng, Coupon · Sản phẩm, Danh mục,
-/// Bộ lọc sản phẩm, Thành viên, Banner · Blog, Trang tĩnh, Thông báo, Menu ·
+/// Bộ lọc sản phẩm, Thành viên, Banner · Blog, Thông báo ·
 /// Nhật ký hệ thống, Cài đặt.
 enum AdminSectionGroup { overview, sales, store, content, system }
 
@@ -33,9 +33,7 @@ extension AdminSectionGroupX on AdminSectionGroup {
     ],
     AdminSectionGroup.content => const [
       AdminSection.blog,
-      AdminSection.pages,
       AdminSection.notifications,
-      AdminSection.menu,
     ],
     AdminSectionGroup.system => const [
       AdminSection.audit,
@@ -44,7 +42,7 @@ extension AdminSectionGroupX on AdminSectionGroup {
   };
 }
 
-/// The 15 admin modules. Enum declaration order is pinned by the plan; the
+/// The 13 admin modules. Enum declaration order is pinned by the plan; the
 /// sidebar display order comes from [AdminSectionGroupX.sections].
 enum AdminSection {
   dashboard,
@@ -58,8 +56,6 @@ enum AdminSection {
   banners,
   notifications,
   blog,
-  pages,
-  menu,
   audit,
   settings,
 }
@@ -78,8 +74,6 @@ extension AdminSectionX on AdminSection {
     AdminSection.banners => 'Banner',
     AdminSection.notifications => 'Thông báo',
     AdminSection.blog => 'Blog',
-    AdminSection.pages => 'Trang tĩnh',
-    AdminSection.menu => 'Menu',
     AdminSection.audit => 'Nhật ký hệ thống',
     AdminSection.settings => 'Cài đặt',
   };
@@ -95,9 +89,7 @@ extension AdminSectionX on AdminSection {
     AdminSection.membership => AdminSectionGroup.store,
     AdminSection.banners => AdminSectionGroup.store,
     AdminSection.blog => AdminSectionGroup.content,
-    AdminSection.pages => AdminSectionGroup.content,
     AdminSection.notifications => AdminSectionGroup.content,
-    AdminSection.menu => AdminSectionGroup.content,
     AdminSection.audit => AdminSectionGroup.system,
     AdminSection.settings => AdminSectionGroup.system,
   };
@@ -114,8 +106,6 @@ extension AdminSectionX on AdminSection {
     AdminSection.banners => Icons.image_outlined,
     AdminSection.notifications => Icons.notifications_outlined,
     AdminSection.blog => Icons.article_outlined,
-    AdminSection.pages => Icons.description_outlined,
-    AdminSection.menu => Icons.menu_book_outlined,
     AdminSection.audit => Icons.history_outlined,
     AdminSection.settings => Icons.settings_outlined,
   };

@@ -26,14 +26,10 @@ import 'package:bakery_mobile/src/features/admin/product-attributes/data/datasou
 import 'package:bakery_mobile/src/features/admin/product-attributes/data/repositories/product_attribute_admin_repository.dart';
 import 'package:bakery_mobile/src/features/admin/content/blog/data/datasources/blog_admin_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/content/blog/data/repositories/blog_admin_repository.dart';
-import 'package:bakery_mobile/src/features/admin/content/menu/data/datasources/menu_admin_api_service.dart';
-import 'package:bakery_mobile/src/features/admin/content/menu/data/repositories/menu_admin_repository.dart';
 import 'package:bakery_mobile/src/features/admin/content/banners/data/datasources/banner_admin_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/content/banners/data/repositories/banner_admin_repository.dart';
 import 'package:bakery_mobile/src/features/admin/content/notifications/data/datasources/notification_admin_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/content/notifications/data/repositories/notification_admin_repository.dart';
-import 'package:bakery_mobile/src/features/admin/content/pages/data/datasources/page_admin_api_service.dart';
-import 'package:bakery_mobile/src/features/admin/content/pages/data/repositories/page_admin_repository.dart';
 import 'package:bakery_mobile/src/features/admin/products/data/datasources/product_admin_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/products/data/datasources/upload_api_service.dart';
 import 'package:bakery_mobile/src/features/admin/products/data/repositories/product_admin_repository.dart';
@@ -52,10 +48,8 @@ import 'package:bakery_mobile/src/features/notifications/data/repositories/notif
 import 'package:bakery_mobile/src/features/orders/application/services/order_checkout_service.dart';
 import 'package:bakery_mobile/src/features/orders/data/datasources/order_api_service.dart';
 import 'package:bakery_mobile/src/features/orders/data/repositories/order_repository.dart';
-import 'package:bakery_mobile/src/features/pages/data/datasources/page_api_service.dart';
 import 'package:bakery_mobile/src/features/reviews/data/datasources/reviews_api_service.dart';
 import 'package:bakery_mobile/src/features/reviews/data/repositories/reviews_repository.dart';
-import 'package:bakery_mobile/src/features/pages/data/repositories/page_repository.dart';
 import 'package:bakery_mobile/src/features/wishlist/data/datasources/wishlist_api_service.dart';
 import 'package:bakery_mobile/src/features/wishlist/data/repositories/wishlist_repository.dart';
 import 'package:bakery_mobile/src/core/push/push_messaging.dart';
@@ -135,9 +129,6 @@ final pushRegistrationServiceProvider = Provider<PushRegistrationService>(
 final orderApiServiceProvider = Provider<OrderApiService>(
   (ref) => OrderApiService(ref.watch(apiClientProvider)),
 );
-final pageApiServiceProvider = Provider<PageApiService>(
-  (ref) => PageApiService(ref.watch(apiClientProvider)),
-);
 final reviewsApiServiceProvider = Provider<ReviewsApiService>(
   (ref) => ReviewsApiService(ref.watch(apiClientProvider)),
 );
@@ -184,9 +175,6 @@ final notificationRepositoryProvider = Provider<NotificationRepository>(
 final orderRepositoryProvider = Provider<OrderRepository>(
   (ref) => OrderRepository(ref.watch(orderApiServiceProvider)),
 );
-final pageRepositoryProvider = Provider<PageRepository>(
-  (ref) => PageRepository(ref.watch(pageApiServiceProvider)),
-);
 final reviewsRepositoryProvider = Provider<ReviewsRepository>(
   (ref) => ReviewsRepository(ref.watch(reviewsApiServiceProvider)),
 );
@@ -215,18 +203,12 @@ final orderCheckoutServiceProvider = Provider<OrderCheckoutService>(
 );
 
 /// Product-form image uploads (`/api/upload`, chunked ≤5/request).
-// Phase 5b: blog + menu.
+// Phase 5b: blog.
 final blogAdminApiServiceProvider = Provider<BlogAdminApiService>(
   (ref) => BlogAdminApiService(ref.watch(apiClientProvider)),
 );
 final blogAdminRepositoryProvider = Provider<BlogAdminRepository>(
   (ref) => BlogAdminRepository(ref.watch(blogAdminApiServiceProvider)),
-);
-final menuAdminApiServiceProvider = Provider<MenuAdminApiService>(
-  (ref) => MenuAdminApiService(ref.watch(apiClientProvider)),
-);
-final menuAdminRepositoryProvider = Provider<MenuAdminRepository>(
-  (ref) => MenuAdminRepository(ref.watch(menuAdminApiServiceProvider)),
 );
 
 // Phase 6: last-five admin modules.
@@ -287,9 +269,3 @@ final notificationAdminRepositoryProvider =
         ref.watch(notificationAdminApiServiceProvider),
       ),
     );
-final pageAdminApiServiceProvider = Provider<PageAdminApiService>(
-  (ref) => PageAdminApiService(ref.watch(apiClientProvider)),
-);
-final pageAdminRepositoryProvider = Provider<PageAdminRepository>(
-  (ref) => PageAdminRepository(ref.watch(pageAdminApiServiceProvider)),
-);
