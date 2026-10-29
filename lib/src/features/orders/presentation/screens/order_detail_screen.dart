@@ -6,6 +6,7 @@ import 'package:bakery_mobile/src/core/di/data_providers.dart';
 import 'package:bakery_mobile/src/core/network/api_exception.dart';
 import 'package:bakery_mobile/src/core/utils/image_url.dart';
 import 'package:bakery_mobile/src/features/orders/domain/models/order.dart';
+import 'package:bakery_mobile/src/features/orders/presentation/widgets/order_status_stepper.dart';
 import 'package:bakery_mobile/src/shared/widgets/loading_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
 import 'package:bakery_mobile/src/shared/widgets/app_network_image_widget.dart';
@@ -177,6 +178,8 @@ class _OrderHeaderCard extends StatelessWidget {
               'Ngày đặt: ${_formatDate(order.createdAt)}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
+            const Gap(AppSpacing.xl),
+            OrderStatusStepper(status: order.status),
           ],
         ),
       ),
