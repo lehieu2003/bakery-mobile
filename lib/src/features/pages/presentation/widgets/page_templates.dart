@@ -21,6 +21,19 @@ class PageTemplateData {
   final Widget body;
 }
 
+/// Slugs of the built-in pages, in the order the pages list shows them.
+/// Their content lives in this file: the app no longer reads pages from
+/// bakery-web.
+const builtInPageSlugs = <String>[
+  've-chung-toi',
+  'thanh-vien',
+  'store',
+  'chinh-sach-bao-mat',
+  'chinh-sach-giao-hang',
+  'chinh-sach-doi-tra',
+  'dieu-khoan-su-dung',
+];
+
 PageTemplateData? builtInPageTemplate(String slug) {
   switch (slug) {
     case 've-chung-toi':

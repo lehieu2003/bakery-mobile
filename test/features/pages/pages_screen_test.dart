@@ -1,19 +1,12 @@
 import 'package:bakery_mobile/src/features/pages/presentation/pages_keys.dart';
+import 'package:bakery_mobile/src/features/pages/presentation/screens/page_detail_screen.dart';
 import 'package:bakery_mobile/src/features/pages/presentation/screens/pages_screen.dart';
-import 'package:bakery_mobile/src/features/pages/presentation/states/static_page_fallbacks.dart';
-import 'package:bakery_mobile/src/shared/widgets/error_retry_widget.dart';
+import 'package:bakery_mobile/src/features/pages/presentation/widgets/page_templates.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fake_api_client.dart';
 import '../../helpers/pump_app.dart';
-
-const _path = '/api/public/pages';
-const _success = 'pages/pages_success.json';
-const _empty = 'pages/pages_empty.json';
-
-/// The fixture page that has no static fallback.
-const _dynamicSlug = 'huong-dan-dat-banh';
 
 Finder _listScrollable() => find.descendant(
   of: find.byKey(PagesKeys.list),
@@ -24,79 +17,42 @@ Future<void> _scrollTo(WidgetTester tester, Finder finder) =>
     tester.scrollUntilVisible(finder, 200, scrollable: _listScrollable());
 
 void main() {
-  late FakeApiClient api;
-
-  setUp(() => api = FakeApiClient());
-
-  testWidgets('loading shows the spinner above the static pages', (
+  testWidgets('lists every built-in page without calling the API', (
     tester,
   ) async {
-    api.stubFixture('GET', _path, _success);
-    final gate = api.hold('GET', _path);
-
-    await pumpApp(tester, const PagesScreen(), api: api);
-    await tester.pump(); // post-frame loadPages() starts
-
-    expect(find.byKey(PagesKeys.loading), findsOneWidget);
-    expect(find.byKey(PagesKeys.item(staticPageOrder.first)), findsOneWidget);
-
-    gate.complete();
-    await tester.pumpAndSettle();
-    expect(find.byKey(PagesKeys.loading), findsNothing);
-  });
-
-  testWidgets('data appends API pages after static ones, without duplicates', (
-    tester,
-  ) async {
-    api.stubFixture('GET', _path, _success);
+    final api = FakeApiClient();
 
     await pumpApp(tester, const PagesScreen(), api: api);
     await tester.pumpAndSettle();
 
-    // 've-chung-toi' is both static (first) and in the fixture: rendered once.
-    expect(find.byKey(PagesKeys.item('ve-chung-toi')), findsOneWidget);
-    expect(find.byKey(PagesKeys.error), findsNothing);
-    await _scrollTo(tester, find.byKey(PagesKeys.item(_dynamicSlug)));
-    expect(find.byKey(PagesKeys.item(_dynamicSlug)), findsOneWidget);
-  });
-
-  testWidgets('empty API still lists every static page', (tester) async {
-    api.stubFixture('GET', _path, _empty);
-
-    await pumpApp(tester, const PagesScreen(), api: api);
-    await tester.pumpAndSettle();
-
-    for (final slug in staticPageOrder) {
+    for (final slug in builtInPageSlugs) {
       await _scrollTo(tester, find.byKey(PagesKeys.item(slug)));
       expect(find.byKey(PagesKeys.item(slug)), findsOneWidget);
     }
-    expect(find.byKey(PagesKeys.item(_dynamicSlug)), findsNothing);
-    expect(find.byKey(PagesKeys.error), findsNothing);
+    expect(api.calls, isEmpty);
   });
 
-  testWidgets('error shows a compact retry over static pages; retry reloads', (
-    tester,
-  ) async {
-    api.stubError('GET', _path);
-
-    await pumpApp(tester, const PagesScreen(), api: api);
+  testWidgets('tapping a page opens its built-in content', (tester) async {
+    await pumpApp(tester, const PagesScreen(), api: FakeApiClient());
     await tester.pumpAndSettle();
 
-    expect(find.byKey(PagesKeys.error), findsOneWidget);
-    expect(find.byKey(PagesKeys.item(staticPageOrder.first)), findsOneWidget);
+    final item = find.byKey(PagesKeys.item('chinh-sach-doi-tra'));
+    await _scrollTo(tester, item);
+    await tester.tap(item);
+    await tester.pumpAndSettle();
 
-    api.stubFixture('GET', _path, _success);
-    await tester.tap(
-      find.descendant(
-        of: find.byKey(PagesKeys.error),
-        matching: find.byKey(ErrorRetryWidget.retryButtonKey),
-      ),
+    expect(find.byType(PageDetailScreen), findsOneWidget);
+    expect(find.byType(BuiltInPageBody), findsOneWidget);
+  });
+
+  testWidgets('an unknown slug shows not found', (tester) async {
+    await pumpApp(
+      tester,
+      const PageDetailScreen(slug: 'khong-ton-tai'),
+      api: FakeApiClient(),
     );
     await tester.pumpAndSettle();
 
-    expect(api.callsTo('GET', _path), hasLength(2));
-    expect(find.byKey(PagesKeys.error), findsNothing);
-    await _scrollTo(tester, find.byKey(PagesKeys.item(_dynamicSlug)));
-    expect(find.byKey(PagesKeys.item(_dynamicSlug)), findsOneWidget);
+    expect(find.text('Không tìm thấy trang'), findsOneWidget);
   });
 }

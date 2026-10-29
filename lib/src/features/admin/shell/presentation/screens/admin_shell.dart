@@ -26,8 +26,6 @@ import 'package:bakery_mobile/src/features/admin/settings/presentation/screens/s
 import 'package:bakery_mobile/src/features/admin/content/banners/presentation/screens/banners_screen.dart';
 import 'package:bakery_mobile/src/features/admin/content/notifications/presentation/screens/notifications_screen.dart';
 import 'package:bakery_mobile/src/features/admin/content/blog/presentation/screens/blog_posts_screen.dart';
-import 'package:bakery_mobile/src/features/admin/content/menu/presentation/screens/menu_screen.dart';
-import 'package:bakery_mobile/src/features/admin/content/pages/presentation/screens/pages_screen.dart';
 import 'package:bakery_mobile/src/features/admin/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:bakery_mobile/src/features/admin/orders/presentation/screens/orders_screen.dart';
 import 'package:bakery_mobile/src/features/admin/products/presentation/screens/products_screen.dart';
@@ -110,9 +108,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
               AdminSection.customers => const CustomersScreen(),
               AdminSection.banners => const BannersScreen(),
               AdminSection.notifications => const NotificationsScreen(),
-              AdminSection.pages => const PagesScreen(),
               AdminSection.blog => const BlogPostsScreen(),
-              AdminSection.menu => const MenuScreen(),
               AdminSection.categories => const CategoriesScreen(),
               AdminSection.products => const ProductsScreen(),
               AdminSection.coupons => const CouponsScreen(),

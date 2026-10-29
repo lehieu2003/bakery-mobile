@@ -144,7 +144,7 @@ void main() {
   });
 
   testWidgets(
-    'T3: AdminShell drawer lists 15 sections in 5 groups and navigates',
+    'T3: AdminShell drawer lists 13 sections in 5 groups and navigates',
     (tester) async {
       await tester.pumpWidget(
         ProviderScope(
@@ -155,7 +155,7 @@ void main() {
       await tester.tap(find.byIcon(Icons.menu));
       await tester.pumpAndSettle();
 
-      // 15 section titles. 'Tổng quan' matches 3 widgets while the drawer is
+      // 13 section titles. 'Tổng quan' matches 3 widgets while the drawer is
       // open — the AppBar title (current section), the overview group header and
       // the dashboard item all carry the same pinned label; every other section
       // title is unique in this state.
