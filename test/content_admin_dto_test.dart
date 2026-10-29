@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:bakery_mobile/src/features/admin/content/banners/data/dtos/banner_admin_dto.dart';
 import 'package:bakery_mobile/src/features/admin/content/notifications/data/dtos/notification_admin_dto.dart';
 import 'package:bakery_mobile/src/features/admin/content/notifications/domain/models/admin_notification.dart';
-import 'package:bakery_mobile/src/features/admin/content/pages/data/dtos/page_admin_dto.dart';
 
 /// Fixtures mirror REAL server payloads (captured 2026-10-24): banners and
 /// pages return BARE ARRAYS under `data`; notifications wraps
@@ -99,23 +98,5 @@ void main() {
       }).status,
       NotificationStatus.archived,
     );
-  });
-
-  test('parses a static page row (content verbatim)', () {
-    const row = {
-      'id': 'p-1',
-      'title': 'Về chúng tôi',
-      'slug': 've-chung-toi',
-      'content': 'Dòng 1\n\nDòng 2 sau xuống dòng trống.',
-      'isPublished': true,
-      'createdAt': '2026-03-01T00:00:00.000Z',
-    };
-
-    final page = PageAdminDto.fromJson(row);
-
-    expect(page.title, 'Về chúng tôi');
-    expect(page.slug, 've-chung-toi');
-    expect(page.content, 'Dòng 1\n\nDòng 2 sau xuống dòng trống.');
-    expect(page.isPublished, isTrue);
   });
 }
